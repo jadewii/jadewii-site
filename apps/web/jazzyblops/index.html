@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>JAZZY BLOPS — JAde Wii</title>
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            :root {
+                --border: rgba(0, 0, 0, 0.12);
+                --shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+                --display-bg: #111;
+                --display-text: #ff5a5a;
+
+                --blue: #4a90e2;
+                --green: #2ecc71;
+                --yellow: #f1c40f;
+                --red: #e74c3c;
+
+                --radius-xl: 30px;
+                --radius-lg: 22px;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+            }
+
+            body {
+                background: #fff;
+                overflow: hidden;
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    sans-serif;
+            }
+
+            .app-shell {
+                height: 100vh;
+                display: grid;
+                grid-template-rows: auto 1fr;
+                background: #fff;
+            }
+
+            .app-topbar {
+                padding: 10px 14px 8px;
+                border-bottom: 1px solid #ebebeb;
+                background: #fff;
+            }
+
+            .app-title {
+                margin: 0;
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 25px;
+                line-height: 1;
+                letter-spacing: 3px;
+                color: #111;
+            }
+
+            .app-link {
+                display: inline-block;
+                margin-top: 8px;
+                text-decoration: none;
+                color: #777;
+                font-size: 12px;
+                letter-spacing: 0.04em;
+            }
+
+            .app-link:hover {
+                color: #111;
+            }
+
+            .app-main {
+                min-height: 0;
+                padding: 14px;
+                display: flex;
+                align-items: stretch;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .app-page-wrap {
+                width: min(1450px, 100%);
+                height: 100%;
+                min-height: 0;
+            }
+
+            .app {
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+                background: linear-gradient(180deg, #efefef, #d9d9d9);
+                border-radius: var(--radius-xl);
+                box-shadow: var(--shadow);
+                padding: 1.1rem;
+                display: grid;
+                grid-template-rows: auto 1fr auto;
+                gap: 0.9rem;
+                overflow: hidden;
+            }
+
+            .display {
+                width: min(360px, 100%);
+                margin: 0 auto;
+                height: 80px;
+                border-radius: 20px;
+                background: linear-gradient(180deg, #121212, #000);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--display-text);
+                font-weight: 800;
+                font-size: 1.35rem;
+                text-align: center;
+                padding: 0 16px;
+            }
+
+            .pads {
+                min-height: 0;
+                background: rgba(255, 255, 255, 0.45);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                padding: 1rem;
+                display: flex;
+            }
+
+            .pad-grid {
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+                display: grid;
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                grid-template-rows: repeat(4, minmax(0, 1fr));
+                gap: 0.7rem;
+            }
+
+            .pad {
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+                border: none;
+                border-radius: 18px;
+                font-weight: 800;
+                font-size: clamp(0.95rem, 1vw, 1.1rem);
+                cursor: pointer;
+                box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+                transition: 0.15s;
+            }
+
+            .pad:hover {
+                transform: translateY(-2px);
+            }
+
+            .pad:active {
+                transform: translateY(1px);
+            }
+
+            .blue {
+                background: var(--blue);
+                color: #fff;
+            }
+
+            .green {
+                background: var(--green);
+                color: #fff;
+            }
+
+            .yellow {
+                background: var(--yellow);
+                color: #111;
+            }
+
+            .red {
+                background: var(--red);
+                color: #fff;
+            }
+
+            .bottom {
+                display: grid;
+                grid-template-columns: repeat(10, minmax(0, 1fr));
+                gap: 0.7rem;
+            }
+
+            .btn,
+            .slider-box,
+            .select-box {
+                min-height: 84px;
+                border-radius: 18px;
+                border: 1px solid var(--border);
+                background: rgba(255, 255, 255, 0.6);
+                box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+                font-weight: 800;
+                color: #5a5a5a;
+            }
+
+            .btn {
+                cursor: pointer;
+                transition: 0.15s;
+            }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                background: rgba(255, 255, 255, 0.8);
+                color: #111;
+            }
+
+            .slider-box,
+            .select-box {
+                padding: 0.6rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 0.4rem;
+                text-align: center;
+            }
+
+            .slider,
+            .root-select {
+                width: 100%;
+            }
+
+            .root-select {
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 10px;
+                padding: 8px 10px;
+                background: #fff;
+                font: inherit;
+            }
+
+            @media (max-width: 1100px) {
+                body {
+                    overflow: auto;
+                }
+
+                .app-shell {
+                    height: auto;
+                    min-height: 100vh;
+                }
+
+                .app-main {
+                    overflow: visible;
+                }
+
+                .app-page-wrap {
+                    height: auto;
+                }
+
+                .app {
+                    height: auto;
+                    min-height: 760px;
+                }
+
+                .pads {
+                    min-height: 420px;
+                }
+
+                .bottom {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="app-shell">
+            <header class="app-topbar">
+                <h1 class="app-title">JAZZY BLOPS</h1>
+                <a class="app-link" href="../../../apps.html">← back to apps</a>
+            </header>
+
+            <main class="app-main">
+                <div class="app-page-wrap">
+                    <div class="app">
+                        <div class="display" id="display">90 BPM • ROOT C</div>
+
+                        <div class="pads">
+                            <div class="pad-grid">
+                                <button class="pad blue" onclick="play(0)">
+                                    I
+                                </button>
+                                <button class="pad green" onclick="play(1)">
+                                    V
+                                </button>
+                                <button class="pad yellow" onclick="play(2)">
+                                    vi
+                                </button>
+                                <button class="pad red" onclick="play(3)">
+                                    IV
+                                </button>
+                                <button class="pad blue" onclick="play(4)">
+                                    ii
+                                </button>
+                                <button class="pad green" onclick="play(5)">
+                                    iii
+                                </button>
+
+                                <button class="pad yellow" onclick="play(6)">
+                                    ii–V
+                                </button>
+                                <button class="pad red" onclick="play(7)">
+                                    I–vi
+                                </button>
+                                <button class="pad blue" onclick="play(8)">
+                                    vi–ii
+                                </button>
+                                <button class="pad green" onclick="play(9)">
+                                    V–I
+                                </button>
+                                <button class="pad yellow" onclick="play(10)">
+                                    Imaj7
+                                </button>
+                                <button class="pad red" onclick="play(11)">
+                                    vi7
+                                </button>
+
+                                <button class="pad blue" onclick="play(12)">
+                                    ii7
+                                </button>
+                                <button class="pad green" onclick="play(13)">
+                                    V7
+                                </button>
+                                <button class="pad yellow" onclick="play(14)">
+                                    iii7
+                                </button>
+                                <button class="pad red" onclick="play(15)">
+                                    IVmaj7
+                                </button>
+                                <button class="pad blue" onclick="play(16)">
+                                    I6
+                                </button>
+                                <button class="pad green" onclick="play(17)">
+                                    ii9
+                                </button>
+
+                                <button class="pad yellow" onclick="play(18)">
+                                    V9
+                                </button>
+                                <button class="pad red" onclick="play(19)">
+                                    vi9
+                                </button>
+                                <button class="pad blue" onclick="play(20)">
+                                    I△7
+                                </button>
+                                <button class="pad green" onclick="play(21)">
+                                    ii–V–I
+                                </button>
+                                <button class="pad yellow" onclick="play(22)">
+                                    I–VI–ii
+                                </button>
+                                <button class="pad red" onclick="play(23)">
+                                    iii–vi–ii
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bottom">
+                            <button class="btn" onclick="oct(-1)">Oct -</button>
+                            <button class="btn" onclick="inst()">Inst</button>
+                            <button class="btn" onclick="gen()">
+                                Generate
+                            </button>
+                            <button class="btn" onclick="stopSound()">
+                                Stop
+                            </button>
+                            <button class="btn" onclick="newScale()">
+                                New
+                            </button>
+                            <button class="btn" onclick="oct(1)">Oct +</button>
+
+                            <div class="select-box">
+                                Root
+                                <select id="root-select" class="root-select">
+                                    <option value="0">C</option>
+                                    <option value="1">C#</option>
+                                    <option value="2">D</option>
+                                    <option value="3">D#</option>
+                                    <option value="4">E</option>
+                                    <option value="5">F</option>
+                                    <option value="6">F#</option>
+                                    <option value="7">G</option>
+                                    <option value="8">G#</option>
+                                    <option value="9">A</option>
+                                    <option value="10">A#</option>
+                                    <option value="11">B</option>
+                                </select>
+                            </div>
+
+                            <div class="slider-box">
+                                Delay
+                                <input
+                                    type="range"
+                                    class="slider"
+                                    id="delay"
+                                    min="0"
+                                    max="100"
+                                    value="20"
+                                />
+                            </div>
+
+                            <div class="slider-box">
+                                Tempo
+                                <input
+                                    type="range"
+                                    class="slider"
+                                    id="time"
+                                    min="60"
+                                    max="180"
+                                    value="90"
+                                />
+                            </div>
+
+                            <div class="slider-box">
+                                Wet
+                                <input
+                                    type="range"
+                                    class="slider"
+                                    id="wet"
+                                    min="0"
+                                    max="100"
+                                    value="20"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            const ctx = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+
+            const display = document.getElementById("display");
+            const delaySlider = document.getElementById("delay");
+            const timeSlider = document.getElementById("time");
+            const wetSlider = document.getElementById("wet");
+            const rootSelect = document.getElementById("root-select");
+
+            const scale = [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88];
+            const rootNames = [
+                "C",
+                "C#",
+                "D",
+                "D#",
+                "E",
+                "F",
+                "F#",
+                "G",
+                "G#",
+                "A",
+                "A#",
+                "B",
+            ];
+
+            let octave = 4;
+            let waveformIndex = 0;
+            let activeOscillators = [];
+            let currentKeyOffset = 0;
+
+            const waveforms = ["sine", "triangle", "square", "sawtooth"];
+
+            function getBpm() {
+                return Number(timeSlider.value);
+            }
+
+            function currentRootName() {
+                return rootNames[currentKeyOffset];
+            }
+
+            function updateDisplay(text = null) {
+                if (text) {
+                    display.textContent = text;
+                    return;
+                }
+                display.textContent = `${getBpm()} BPM • ROOT ${currentRootName()}`;
+            }
+
+            function currentScale() {
+                return scale.map(
+                    (freq) => freq * Math.pow(2, currentKeyOffset / 12),
+                );
+            }
+
+            function chordFromPad(i) {
+                const s = currentScale();
+
+                const map = {
+                    0: [s[0], s[2], s[4]],
+                    1: [s[4], s[6], s[1] * 2],
+                    2: [s[5], s[0] * 2, s[2] * 2],
+                    3: [s[3], s[5], s[0] * 2],
+                    4: [s[1], s[3], s[5]],
+                    5: [s[2], s[4], s[6]],
+
+                    6: [
+                        [s[1], s[3], s[5]],
+                        [s[4], s[6], s[1] * 2],
+                    ],
+                    7: [
+                        [s[0], s[2], s[4]],
+                        [s[5], s[0] * 2, s[2] * 2],
+                    ],
+                    8: [
+                        [s[5], s[0] * 2, s[2] * 2],
+                        [s[1], s[3], s[5]],
+                    ],
+                    9: [
+                        [s[4], s[6], s[1] * 2],
+                        [s[0], s[2], s[4]],
+                    ],
+
+                    10: [s[0], s[2], s[4], s[6]],
+                    11: [s[5], s[0] * 2, s[2] * 2, s[4] * 2],
+                    12: [s[1], s[3], s[5], s[0] * 2],
+                    13: [s[4], s[6], s[1] * 2, s[3] * 2],
+                    14: [s[2], s[4], s[6], s[1] * 2],
+                    15: [s[3], s[5], s[0] * 2, s[2] * 2],
+                    16: [s[0], s[2], s[4], s[5]],
+                    17: [s[1], s[3], s[5], s[0] * 2, s[2] * 2],
+                    18: [s[4], s[6], s[1] * 2, s[3] * 2, s[5] * 2],
+                    19: [s[5], s[0] * 2, s[2] * 2, s[4] * 2, s[6] * 2],
+                    20: [s[0], s[2], s[4], s[6]],
+
+                    21: [
+                        [s[1], s[3], s[5]],
+                        [s[4], s[6], s[1] * 2],
+                        [s[0], s[2], s[4]],
+                    ],
+
+                    22: [
+                        [s[0], s[2], s[4]],
+                        [s[5], s[0] * 2, s[2] * 2],
+                        [s[1], s[3], s[5]],
+                    ],
+
+                    23: [
+                        [s[2], s[4], s[6]],
+                        [s[5], s[0] * 2, s[2] * 2],
+                        [s[1], s[3], s[5]],
+                    ],
+                };
+
+                return map[i];
+            }
+
+            function createVoice(
+                freq,
+                startTime,
+                duration,
+                volume,
+                outputNode,
+            ) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = waveforms[waveformIndex];
+                osc.frequency.setValueAtTime(
+                    freq * Math.pow(2, octave - 4),
+                    startTime,
+                );
+
+                gain.gain.setValueAtTime(0.0001, startTime);
+                gain.gain.linearRampToValueAtTime(volume, startTime + 0.02);
+                gain.gain.setTargetAtTime(
+                    0.0001,
+                    startTime + 0.12,
+                    Math.max(0.08, duration * 0.35),
+                );
+
+                osc.connect(gain);
+                gain.connect(outputNode);
+
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.12);
+
+                activeOscillators.push(osc);
+
+                osc.onended = () => {
+                    activeOscillators = activeOscillators.filter(
+                        (o) => o !== osc,
+                    );
+                    try {
+                        osc.disconnect();
+                        gain.disconnect();
+                    } catch (e) {}
+                };
+            }
+
+            function playSingleChord(notes, startOffset = 0) {
+                const now = ctx.currentTime + startOffset;
+                const duration = 0.75;
+
+                const dryGain = ctx.createGain();
+                dryGain.gain.value = 1;
+
+                const wetGain = ctx.createGain();
+                wetGain.gain.value = Number(wetSlider.value) / 100;
+
+                const delayNode = ctx.createDelay(1);
+                delayNode.delayTime.value =
+                    (Number(delaySlider.value) / 100) * 0.5;
+
+                dryGain.connect(ctx.destination);
+                wetGain.connect(delayNode);
+                delayNode.connect(ctx.destination);
+
+                notes.forEach((freq) => {
+                    createVoice(freq, now, duration, 0.06, dryGain);
+                    if (Number(wetSlider.value) > 0) {
+                        createVoice(
+                            freq,
+                            now + delayNode.delayTime.value,
+                            duration * 0.75,
+                            0.03,
+                            wetGain,
+                        );
+                    }
+                });
+            }
+
+            function play(i) {
+                if (ctx.state === "suspended") {
+                    ctx.resume();
+                }
+
+                const chordData = chordFromPad(i);
+                const bpm = getBpm();
+                const stepTime = 60 / bpm;
+
+                if (Array.isArray(chordData[0])) {
+                    chordData.forEach((chord, index) => {
+                        playSingleChord(chord, index * stepTime * 0.9);
+                    });
+                } else {
+                    playSingleChord(chordData, 0);
+                }
+
+                display.textContent = `${document.querySelectorAll(".pad")[i].textContent.trim()} • ROOT ${currentRootName()}`;
+            }
+
+            function oct(d) {
+                octave += d;
+                octave = Math.max(1, Math.min(7, octave));
+                updateDisplay(`OCT ${octave} • ROOT ${currentRootName()}`);
+            }
+
+            function inst() {
+                waveformIndex = (waveformIndex + 1) % waveforms.length;
+                updateDisplay(
+                    `${waveforms[waveformIndex].toUpperCase()} • ROOT ${currentRootName()}`,
+                );
+            }
+
+            function gen() {
+                currentKeyOffset = Math.floor(Math.random() * 12);
+                waveformIndex = Math.floor(Math.random() * waveforms.length);
+                octave = Math.floor(Math.random() * 4) + 3;
+                rootSelect.value = String(currentKeyOffset);
+                updateDisplay(
+                    `GEN • ${currentRootName()} • ${waveforms[waveformIndex].toUpperCase()} • OCT ${octave}`,
+                );
+            }
+
+            function stopSound() {
+                activeOscillators.forEach((osc) => {
+                    try {
+                        osc.stop();
+                    } catch (e) {}
+                });
+                activeOscillators = [];
+                updateDisplay("STOP");
+                setTimeout(() => updateDisplay(), 250);
+            }
+
+            function newScale() {
+                currentKeyOffset = (currentKeyOffset + 1) % 12;
+                rootSelect.value = String(currentKeyOffset);
+                updateDisplay(`ROOT ${currentRootName()}`);
+            }
+
+            rootSelect.addEventListener("change", (e) => {
+                currentKeyOffset = Number(e.target.value);
+                updateDisplay(`ROOT ${currentRootName()}`);
+            });
+
+            timeSlider.addEventListener("input", () => {
+                updateDisplay();
+            });
+
+            updateDisplay();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,1139 @@
+<html>
+    <head>
+        <base href="https://websim.ai" />
+        <title>Kawaii GameBoy Music Maker - Neon Bubble Edition</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap");
+
+            body {
+                font-family: "Fredoka One", cursive;
+                background-color: #fff0f5;
+                color: #ff69b4;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+            }
+            #gba {
+                background-color: #ffb6c1;
+                border: 14px solid #ffc0cb;
+                border-radius: 29px;
+                box-shadow: 0 0 22px rgba(255, 105, 180, 0.5);
+                padding: 14px;
+                width: 437px;
+                height: 292px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                overflow: hidden;
+                transform: scale(0.9);
+            }
+            #screen {
+                background-color: #fff0f5;
+                border: 7px solid #ffc0cb;
+                border-radius: 14px;
+                padding: 7px;
+                height: 175px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                font-size: 5px;
+                position: relative;
+                overflow: hidden;
+            }
+            #tracker {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
+                height: 131px;
+                overflow-y: auto;
+            }
+            .track {
+                display: flex;
+                flex-direction: column;
+                background-color: #ffecf1;
+                border-radius: 7px;
+                overflow: hidden;
+            }
+            .track-header {
+                background-color: #ffc0cb;
+                color: #fff0f5;
+                padding: 2px;
+                text-align: center;
+                font-size: 4px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .octave-buttons {
+                display: flex;
+            }
+            .octave-button {
+                background-color: #ff69b4;
+                color: #fff0f5;
+                border: none;
+                border-radius: 3px;
+                padding: 1px 2px;
+                margin: 0 1px;
+                font-size: 4px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+            .octave-button:hover {
+                background-color: #ff1493;
+            }
+            .track-rows {
+                flex-grow: 1;
+                overflow-y: auto;
+            }
+            .track-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 1px 2px;
+                border-bottom: 1px solid #ffc0cb;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+            .track-row:nth-child(4n + 1) {
+                background-color: #fff0f5;
+            }
+            .track-row:hover {
+                background-color: #ffc0cb;
+                color: #fff0f5;
+            }
+            #controls {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 7px;
+            }
+            .control-group {
+                display: flex;
+                flex-direction: column;
+            }
+            button {
+                background-color: #ffc0cb;
+                color: #fff0f5;
+                border: 2px solid #ff69b4;
+                border-radius: 7px;
+                padding: 2px 3px;
+                font-size: 4px;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-family: "Fredoka One", cursive;
+                margin-bottom: 2px;
+            }
+            button:hover {
+                background-color: #ff69b4;
+                transform: scale(1.05);
+            }
+            #tempo-slider,
+            #reverb-slider,
+            .volume-slider,
+            #delay-slider {
+                width: 90%;
+                -webkit-appearance: none;
+                background: #ffc0cb;
+                outline: none;
+                border-radius: 7px;
+                height: 3px;
+            }
+            #tempo-slider::-webkit-slider-thumb,
+            #reverb-slider::-webkit-slider-thumb,
+            .volume-slider::-webkit-slider-thumb,
+            #delay-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+                background: #ff69b4;
+                cursor: pointer;
+            }
+            #visualizer {
+                background-color: #000000;
+                height: 73px;
+                width: 100%;
+                margin-top: 14px;
+                position: relative;
+                overflow: hidden;
+                border-radius: 14px;
+            }
+            #visualizer-canvas {
+                width: 100%;
+                height: 100%;
+            }
+            #color-change {
+                margin-left: 3px;
+            }
+            #global-octave {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 4px;
+            }
+            #global-octave button {
+                font-size: 4px;
+                padding: 1px 3px;
+                margin: 0 2px;
+            }
+            #global-octave span {
+                font-size: 4px;
+                margin: 0 2px;
+            }
+            #reverb-control,
+            #delay-control {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 4px;
+            }
+            #reverb-control button,
+            #delay-control button {
+                margin-bottom: 2px;
+            }
+            #reverb-slider,
+            #delay-slider {
+                width: 50px;
+            }
+            .volume-control {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 2px;
+            }
+            .volume-slider {
+                width: 40px;
+            }
+            .volume-label {
+                font-size: 4px;
+                margin-bottom: 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="gba">
+            <div id="screen">
+                <div id="tracker">
+                    <div class="track">
+                        <div class="track-header">
+                            <span>MELODY</span>
+                            <div class="octave-buttons">
+                                <button
+                                    class="octave-button"
+                                    data-track="0"
+                                    data-direction="-1"
+                                >
+                                    -
+                                </button>
+                                <button
+                                    class="octave-button"
+                                    data-track="0"
+                                    data-direction="1"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <div class="track-rows">
+                            <!-- Rows will be generated here -->
+                        </div>
+                        <div class="volume-control">
+                            <span class="volume-label">VOL</span>
+                            <input
+                                type="range"
+                                class="volume-slider"
+                                data-track="0"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value="1"
+                            />
+                        </div>
+                    </div>
+                    <div class="track">
+                        <div class="track-header">
+                            <span>HARMONY</span>
+                            <div class="octave-buttons">
+                                <button
+                                    class="octave-button"
+                                    data-track="1"
+                                    data-direction="-1"
+                                >
+                                    -
+                                </button>
+                                <button
+                                    class="octave-button"
+                                    data-track="1"
+                                    data-direction="1"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <div class="track-rows">
+                            <!-- Rows will be generated here -->
+                        </div>
+                        <div class="volume-control">
+                            <span class="volume-label">VOL</span>
+                            <input
+                                type="range"
+                                class="volume-slider"
+                                data-track="1"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value="1"
+                            />
+                        </div>
+                    </div>
+                    <div class="track">
+                        <div class="track-header">
+                            <span>SPARKLE</span>
+                            <div class="octave-buttons">
+                                <button
+                                    class="octave-button"
+                                    data-track="2"
+                                    data-direction="-1"
+                                >
+                                    -
+                                </button>
+                                <button
+                                    class="octave-button"
+                                    data-track="2"
+                                    data-direction="1"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <div class="track-rows">
+                            <!-- Rows will be generated here -->
+                        </div>
+                        <div class="volume-control">
+                            <span class="volume-label">VOL</span>
+                            <input
+                                type="range"
+                                class="volume-slider"
+                                data-track="2"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value="1"
+                            />
+                        </div>
+                    </div>
+                    <div class="track">
+                        <div class="track-header">
+                            <span>RHYTHM</span>
+                            <div class="octave-buttons">
+                                <button
+                                    class="octave-button"
+                                    data-track="3"
+                                    data-direction="-1"
+                                >
+                                    -
+                                </button>
+                                <button
+                                    class="octave-button"
+                                    data-track="3"
+                                    data-direction="1"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <div class="track-rows">
+                            <!-- Rows will be generated here -->
+                        </div>
+                        <div class="volume-control">
+                            <span class="volume-label">VOL</span>
+                            <input
+                                type="range"
+                                class="volume-slider"
+                                data-track="3"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value="1"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div id="controls">
+                    <div class="control-group">
+                        <button id="play">▶️ PLAY</button>
+                        <button id="stop">⏹️ STOP</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="random-scale">🎲 RANDOM SCALE</button>
+                        <div id="reverb-control">
+                            <button id="reverb-toggle">🔊 REVERB</button>
+                            <input
+                                type="range"
+                                id="reverb-slider"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value="0"
+                            />
+                        </div>
+                        <div id="delay-control">
+                            <button id="delay-toggle">🔁 DELAY</button>
+                            <input
+                                type="range"
+                                id="delay-slider"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value="0"
+                            />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div style="display: flex">
+                            <button id="generate">✨ MAGIC</button>
+                            <button id="color-change">🌈 COLOR</button>
+                        </div>
+                        <input
+                            type="range"
+                            id="tempo-slider"
+                            min="60"
+                            max="200"
+                            value="120"
+                        />
+                    </div>
+                </div>
+                <div id="global-octave">
+                    <button id="global-octave-down">-</button>
+                    <span>TRANSPOSE</span>
+                    <button id="global-octave-up">+</button>
+                </div>
+            </div>
+            <div id="visualizer">
+                <canvas id="visualizer-canvas"></canvas>
+            </div>
+        </div>
+
+        <script>
+            const audioContext = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            const tracks = 4;
+            const rows = 16;
+            let isPlaying = false;
+            let currentStep = 0;
+            let stepInterval;
+
+            const scales = [
+                [0, 2, 4, 7, 9], // Pentatonic
+                [0, 2, 4, 5, 7, 9, 11], // Major
+                [0, 2, 3, 5, 7, 8, 10], // Minor
+                [0, 3, 5, 6, 7, 10], // Blues
+                [0, 1, 4, 5, 7, 8, 10], // Phrygian Dominant
+                [0, 2, 4, 6, 9, 10], // Whole Tone
+                [0, 2, 3, 5, 7, 9, 10], // Melodic Minor
+                [0, 1, 3, 4, 6, 8, 10], // Diminished
+            ];
+
+            let currentScale = scales[0];
+
+            const trackData = Array(tracks)
+                .fill()
+                .map(() =>
+                    Array(rows)
+                        .fill()
+                        .map(() => ({ note: null, volume: 0 })),
+                );
+
+            const allInstruments = ["sine", "triangle", "square", "sawtooth"];
+            let trackInstruments = ["sine", "triangle", "square", "sawtooth"];
+
+            let trackOctaves = [4, 3, 5, 2];
+            let globalOctave = 0;
+
+            let visualElements = [];
+
+            // Reverb setup
+            const convolver = audioContext.createConvolver();
+            const reverbGain = audioContext.createGain();
+            reverbGain.gain.value = 0; // Start with no reverb
+            let isReverbOn = false;
+
+            // Delay setup
+            const delay = audioContext.createDelay(5.0);
+            delay.delayTime.value = 0.5; // 500ms delay
+            const delayFeedback = audioContext.createGain();
+            delayFeedback.gain.value = 0.3; // 30% feedback
+            const delayGain = audioContext.createGain();
+            delayGain.gain.value = 0; // Start with no delay
+            let isDelayOn = false;
+
+            // Connect delay nodes
+            delay.connect(delayFeedback);
+            delayFeedback.connect(delay);
+            delay.connect(delayGain);
+
+            // Track volume controls
+            const trackVolumes = Array(tracks)
+                .fill()
+                .map(() => {
+                    const gainNode = audioContext.createGain();
+                    gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+                    return gainNode;
+                });
+
+            // Function to create impulse response for reverb
+            function createImpulseResponse(duration, decay) {
+                const sampleRate = audioContext.sampleRate;
+                const length = sampleRate * duration;
+                const impulse = audioContext.createBuffer(
+                    2,
+                    length,
+                    sampleRate,
+                );
+                const left = impulse.getChannelData(0);
+                const right = impulse.getChannelData(1);
+
+                for (let i = 0; i < length; i++) {
+                    const t = i / sampleRate;
+                    const amplitude = Math.exp(-t / decay);
+                    left[i] = (Math.random() * 2 - 1) * amplitude;
+                    right[i] = (Math.random() * 2 - 1) * amplitude;
+                }
+
+                return impulse;
+            }
+
+            // Create and set the impulse response
+            const impulseResponse = createImpulseResponse(2, 2);
+            convolver.buffer = impulseResponse;
+
+            function createOscillator(freq, instrumentType, trackIndex) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = instrumentType;
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                osc.connect(gain);
+                gain.connect(trackVolumes[trackIndex]);
+                trackVolumes[trackIndex].connect(analyser);
+                trackVolumes[trackIndex].connect(convolver);
+                trackVolumes[trackIndex].connect(delay);
+                convolver.connect(reverbGain);
+                reverbGain.connect(audioContext.destination);
+                delayGain.connect(audioContext.destination);
+                analyser.connect(audioContext.destination);
+                return { osc, gain };
+            }
+
+            function playNote(
+                freq,
+                duration,
+                volume,
+                instrumentType,
+                trackIndex,
+            ) {
+                const { osc, gain } = createOscillator(
+                    freq,
+                    instrumentType,
+                    trackIndex,
+                );
+                gain.gain.setValueAtTime(volume, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(
+                    0.01,
+                    audioContext.currentTime + duration - 0.1,
+                );
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + duration);
+            }
+
+            function generateNote(baseNote, trackIndex) {
+                return (
+                    baseNote +
+                    currentScale[
+                        Math.floor(Math.random() * currentScale.length)
+                    ] +
+                    (trackOctaves[trackIndex] - 4) * 12
+                );
+            }
+
+            function midiToFreq(midi) {
+                return Math.pow(2, (midi - 69) / 12) * 440;
+            }
+
+            function renderTracker() {
+                const trackerElement = document.getElementById("tracker");
+                trackerElement
+                    .querySelectorAll(".track-rows")
+                    .forEach((trackElement, trackIndex) => {
+                        trackElement.innerHTML = "";
+                        trackData[trackIndex].forEach((row, rowIndex) => {
+                            const rowElement = document.createElement("div");
+                            rowElement.className = "track-row";
+                            rowElement.innerHTML = `
+        <span>${row.note ? row.note : "---"}</span>
+        <span>${row.volume.toString(16).toUpperCase()}</span>
+      `;
+                            rowElement.addEventListener("click", () =>
+                                toggleNote(trackIndex, rowIndex),
+                            );
+                            trackElement.appendChild(rowElement);
+                        });
+                    });
+            }
+
+            function toggleNote(trackIndex, rowIndex) {
+                const currentRow = trackData[trackIndex][rowIndex];
+                if (!currentRow.note) {
+                    // If empty, add a random note
+                    currentRow.note = noteFromMidi(
+                        generateNote(60, trackIndex),
+                    );
+                    currentRow.volume = 15; // Set to max volume
+                } else {
+                    // If already has a note, replace with a different random note
+                    let newNote;
+                    do {
+                        newNote = noteFromMidi(generateNote(60, trackIndex));
+                    } while (newNote === currentRow.note);
+                    currentRow.note = newNote;
+                }
+                renderTracker();
+                playNote(
+                    midiToFreq(noteToMidi(currentRow.note) + globalOctave * 12),
+                    0.2,
+                    currentRow.volume / 15,
+                    trackInstruments[trackIndex],
+                    trackIndex,
+                );
+            }
+
+            function noteToMidi(note) {
+                const notes = [
+                    "C",
+                    "C#",
+                    "D",
+                    "D#",
+                    "E",
+                    "F",
+                    "F#",
+                    "G",
+                    "G#",
+                    "A",
+                    "A#",
+                    "B",
+                ];
+                const [, noteName, octave] = note.match(/^([A-G]#?)(\d)$/);
+                return notes.indexOf(noteName) + 12 * (parseInt(octave) + 1);
+            }
+
+            function startPlayback() {
+                if (!isPlaying) {
+                    isPlaying = true;
+                    const tempo = document.getElementById("tempo-slider").value;
+                    const stepTime = 60 / tempo / 4;
+                    stepInterval = setInterval(playStep, stepTime * 1000);
+                    requestAnimationFrame(drawVisualizer);
+                }
+            }
+
+            function stopPlayback() {
+                if (isPlaying) {
+                    isPlaying = false;
+                    clearInterval(stepInterval);
+                    currentStep = 0;
+                    highlightCurrentStep();
+                }
+            }
+
+            function playStep() {
+                trackData.forEach((track, trackIndex) => {
+                    const { note, volume } = track[currentStep];
+                    if (note) {
+                        const freq = midiToFreq(
+                            noteToMidi(note) + globalOctave * 12,
+                        );
+                        playNote(
+                            freq,
+                            0.2,
+                            volume / 15,
+                            trackInstruments[trackIndex],
+                            trackIndex,
+                        );
+                        createVisualElement(trackIndex);
+                    }
+                });
+
+                currentStep = (currentStep + 1) % rows;
+                highlightCurrentStep();
+            }
+
+            function highlightCurrentStep() {
+                document
+                    .querySelectorAll(".track-row")
+                    .forEach((row, index) => {
+                        row.style.backgroundColor =
+                            index % rows === currentStep ? "#FF69B4" : "";
+                        row.style.color =
+                            index % rows === currentStep ? "#FFF0F5" : "";
+                    });
+            }
+
+            function generateRandom() {
+                trackData.forEach((track, trackIndex) => {
+                    track.forEach((row, rowIndex) => {
+                        trackData[trackIndex][rowIndex] = {
+                            note:
+                                Math.random() < 0.4
+                                    ? noteFromMidi(generateNote(60, trackIndex))
+                                    : null,
+                            volume: Math.floor(Math.random() * 16),
+                        };
+                    });
+                });
+                renderTracker();
+            }
+
+            function noteFromMidi(midi) {
+                const notes = [
+                    "C",
+                    "C#",
+                    "D",
+                    "D#",
+                    "E",
+                    "F",
+                    "F#",
+                    "G",
+                    "G#",
+                    "A",
+                    "A#",
+                    "B",
+                ];
+                const octave = Math.floor(midi / 12) - 1;
+                const noteName = notes[midi % 12];
+                return `${noteName}${octave}`;
+            }
+
+            function changeRandomScale() {
+                currentScale =
+                    scales[Math.floor(Math.random() * scales.length)];
+            }
+
+            function changeOctave(trackIndex, direction) {
+                trackOctaves[trackIndex] = Math.max(
+                    0,
+                    Math.min(8, trackOctaves[trackIndex] + direction),
+                );
+                trackData[trackIndex].forEach((row, rowIndex) => {
+                    if (row.note) {
+                        const midi = noteToMidi(row.note);
+                        trackData[trackIndex][rowIndex].note = noteFromMidi(
+                            midi + direction * 12,
+                        );
+                    }
+                });
+                renderTracker();
+            }
+
+            function createVisualElement(trackIndex) {
+                const canvas = document.getElementById("visualizer-canvas");
+                const element = {
+                    x: Math.random() * canvas.width,
+                    y: canvas.height,
+                    size: Math.random() * 20 + 10,
+                    speed: Math.random() * 2 + 1,
+                    color: getKawaiiColor(),
+                    shape: getRandomKawaiiShape(),
+                    rotation: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.2,
+                };
+                visualElements.push(element);
+            }
+
+            function getKawaiiColor() {
+                const kawaiiColors = [
+                    "#FFB6C1", // Light Pink
+                    "#FFC0CB", // Pink
+                    "#FFD700", // Gold
+                    "#FF69B4", // Hot Pink
+                    "#FFA07A", // Light Salmon
+                    "#98FB98", // Pale Green
+                    "#DDA0DD", // Plum
+                    "#87CEFA", // Light Sky Blue
+                ];
+                return kawaiiColors[
+                    Math.floor(Math.random() * kawaiiColors.length)
+                ];
+            }
+
+            function getRandomKawaiiShape() {
+                const shapes = ["heart", "star", "circle", "flower", "cloud"];
+                return shapes[Math.floor(Math.random() * shapes.length)];
+            }
+
+            function drawVisualizer() {
+                const canvas = document.getElementById("visualizer-canvas");
+                const ctx = canvas.getContext("2d");
+                const width = canvas.width;
+                const height = canvas.height;
+
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = "rgba(0, 0, 0, 1)";
+                ctx.fillRect(0, 0, width, height);
+
+                analyser.getByteFrequencyData(dataArray);
+
+                // Draw kawaii visual elements
+                visualElements.forEach((element, index) => {
+                    ctx.save();
+                    ctx.translate(element.x, element.y);
+                    ctx.rotate(element.rotation);
+
+                    ctx.fillStyle = element.color;
+                    ctx.strokeStyle = "#FFFFFF";
+                    ctx.lineWidth = 2;
+
+                    switch (element.shape) {
+                        case "star":
+                            drawStar(
+                                ctx,
+                                0,
+                                0,
+                                5,
+                                element.size / 2,
+                                element.size / 4,
+                            );
+                            break;
+                        case "heart":
+                            drawHeart(ctx, 0, 0, element.size);
+                            break;
+                        case "circle":
+                            ctx.beginPath();
+                            ctx.arc(0, 0, element.size / 2, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                            break;
+                        case "flower":
+                            drawFlower(ctx, 0, 0, element.size);
+                            break;
+                        case "cloud":
+                            drawCloud(ctx, 0, 0, element.size);
+                            break;
+                    }
+
+                    ctx.restore();
+
+                    // Move and rotate element
+                    element.y -= element.speed;
+                    element.rotation += element.rotationSpeed;
+
+                    // Remove element if it's out of view
+                    if (element.y + element.size < 0) {
+                        visualElements.splice(index, 1);
+                    }
+                });
+
+                // Draw frequency bars
+                const barWidth = (width / bufferLength) * 2;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = dataArray[i] / 2;
+                    ctx.fillStyle = getKawaiiColor();
+                    ctx.fillRect(x, height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+
+                if (isPlaying) {
+                    requestAnimationFrame(drawVisualizer);
+                }
+            }
+
+            function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+                let rot = (Math.PI / 2) * 3;
+                let x = cx;
+                let y = cy;
+                let step = Math.PI / spikes;
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy - outerRadius);
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+                }
+                ctx.lineTo(cx, cy - outerRadius);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            function drawHeart(ctx, x, y, size) {
+                ctx.beginPath();
+                ctx.moveTo(x, y + size / 4);
+                ctx.quadraticCurveTo(x, y, x + size / 4, y);
+                ctx.quadraticCurveTo(
+                    x + size / 2,
+                    y,
+                    x + size / 2,
+                    y + size / 4,
+                );
+                ctx.quadraticCurveTo(x + size / 2, y, x + (size * 3) / 4, y);
+                ctx.quadraticCurveTo(x + size, y, x + size, y + size / 4);
+                ctx.quadraticCurveTo(
+                    x + size,
+                    y + size / 2,
+                    x + size / 2,
+                    y + (size * 3) / 4,
+                );
+                ctx.quadraticCurveTo(x, y + size / 2, x, y + size / 4);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            function drawFlower(ctx, x, y, size) {
+                const numPetals = 5;
+                const petalSize = size / 2;
+
+                for (let i = 0; i < numPetals; i++) {
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        x +
+                            (Math.cos((i * 2 * Math.PI) / numPetals) *
+                                petalSize) /
+                                2,
+                        y +
+                            (Math.sin((i * 2 * Math.PI) / numPetals) *
+                                petalSize) /
+                                2,
+                        petalSize / 2,
+                        petalSize / 4,
+                        (i * 2 * Math.PI) / numPetals,
+                        0,
+                        2 * Math.PI,
+                    );
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                ctx.beginPath();
+                ctx.arc(x, y, size / 6, 0, 2 * Math.PI);
+                ctx.fillStyle = "#FFFF00";
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            function drawCloud(ctx, x, y, size) {
+                ctx.beginPath();
+                ctx.arc(x, y, size / 2, Math.PI * 0.5, Math.PI * 1.5);
+                ctx.arc(
+                    x + size / 4,
+                    y - size / 4,
+                    size / 3,
+                    Math.PI * 1,
+                    Math.PI * 2,
+                );
+                ctx.arc(
+                    x + size / 2,
+                    y,
+                    size / 3,
+                    Math.PI * 1.5,
+                    Math.PI * 0.5,
+                );
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            function changeGlobalOctave(direction) {
+                globalOctave = Math.max(
+                    -2,
+                    Math.min(2, globalOctave + direction),
+                );
+                renderTracker();
+            }
+
+            function changeInstruments() {
+                trackInstruments = trackInstruments.map(
+                    () =>
+                        allInstruments[
+                            Math.floor(Math.random() * allInstruments.length)
+                        ],
+                );
+            }
+
+            function toggleReverb() {
+                isReverbOn = !isReverbOn;
+                reverbGain.gain.setValueAtTime(
+                    isReverbOn
+                        ? parseFloat(
+                              document.getElementById("reverb-slider").value,
+                          )
+                        : 0,
+                    audioContext.currentTime,
+                );
+                document.getElementById("reverb-toggle").textContent =
+                    isReverbOn ? "🔊 REVERB ON" : "🔇 REVERB OFF";
+            }
+
+            function updateReverbAmount() {
+                if (isReverbOn) {
+                    reverbGain.gain.setValueAtTime(
+                        parseFloat(
+                            document.getElementById("reverb-slider").value,
+                        ),
+                        audioContext.currentTime,
+                    );
+                }
+            }
+
+            function toggleDelay() {
+                isDelayOn = !isDelayOn;
+                delayGain.gain.setValueAtTime(
+                    isDelayOn
+                        ? parseFloat(
+                              document.getElementById("delay-slider").value,
+                          )
+                        : 0,
+                    audioContext.currentTime,
+                );
+                document.getElementById("delay-toggle").textContent = isDelayOn
+                    ? "🔁 DELAY ON"
+                    : "🔁 DELAY OFF";
+            }
+
+            function updateDelayAmount() {
+                if (isDelayOn) {
+                    delayGain.gain.setValueAtTime(
+                        parseFloat(
+                            document.getElementById("delay-slider").value,
+                        ),
+                        audioContext.currentTime,
+                    );
+                }
+            }
+
+            function updateTrackVolume(trackIndex, volume) {
+                trackVolumes[trackIndex].gain.setValueAtTime(
+                    volume,
+                    audioContext.currentTime,
+                );
+            }
+
+            document
+                .getElementById("play")
+                .addEventListener("click", startPlayback);
+            document
+                .getElementById("stop")
+                .addEventListener("click", stopPlayback);
+            document
+                .getElementById("generate")
+                .addEventListener("click", generateRandom);
+            document
+                .getElementById("random-scale")
+                .addEventListener("click", () => {
+                    changeRandomScale();
+                    generateRandom();
+                });
+            document
+                .getElementById("color-change")
+                .addEventListener("click", () => {
+                    visualElements.forEach((element) => {
+                        element.color = getKawaiiColor();
+                    });
+                    changeInstruments();
+                });
+            document
+                .getElementById("tempo-slider")
+                .addEventListener("input", () => {
+                    if (isPlaying) {
+                        stopPlayback();
+                        startPlayback();
+                    }
+                });
+            document
+                .getElementById("reverb-toggle")
+                .addEventListener("click", toggleReverb);
+            document
+                .getElementById("reverb-slider")
+                .addEventListener("input", updateReverbAmount);
+            document
+                .getElementById("delay-toggle")
+                .addEventListener("click", toggleDelay);
+            document
+                .getElementById("delay-slider")
+                .addEventListener("input", updateDelayAmount);
+
+            ("");
+            document.querySelectorAll(".octave-button").forEach((button) => {
+                button.addEventListener("click", (e) => {
+                    const trackIndex = parseInt(
+                        e.target.getAttribute("data-track"),
+                    );
+                    const direction = parseInt(
+                        e.target.getAttribute("data-direction"),
+                    );
+                    changeOctave(trackIndex, direction);
+                });
+            });
+
+            document.querySelectorAll(".volume-slider").forEach((slider) => {
+                slider.addEventListener("input", (e) => {
+                    const trackIndex = parseInt(
+                        e.target.getAttribute("data-track"),
+                    );
+                    updateTrackVolume(trackIndex, parseFloat(e.target.value));
+                });
+            });
+
+            document
+                .getElementById("global-octave-down")
+                .addEventListener("click", () => changeGlobalOctave(-1));
+            document
+                .getElementById("global-octave-up")
+                .addEventListener("click", () => changeGlobalOctave(1));
+
+            // Initialize
+            renderTracker();
+            generateRandom();
+
+            // Set up visualizer canvas
+            const visualizerCanvas =
+                document.getElementById("visualizer-canvas");
+            visualizerCanvas.width = visualizerCanvas.offsetWidth;
+            visualizerCanvas.height = visualizerCanvas.offsetHeight;
+
+            // Add some responsiveness
+            window.addEventListener("resize", () => {
+                const gba = document.querySelector("#gba");
+                const scale =
+                    Math.min(
+                        window.innerWidth / 467,
+                        window.innerHeight / 322,
+                    ) * 0.9;
+                gba.style.transform = `scale(${scale})`;
+
+                visualizerCanvas.width = visualizerCanvas.offsetWidth;
+                visualizerCanvas.height = visualizerCanvas.offsetHeight;
+            });
+
+            // Trigger resize event on load to set initial scale
+            window.dispatchEvent(new Event("resize"));
+
+            // Initial draw of the visualizer
+            drawVisualizer();
+        </script>
+    </body>
+</html>

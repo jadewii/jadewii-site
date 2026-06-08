@@ -1,0 +1,784 @@
+<html>
+    <head>
+        <base
+            href="Https://music-player.com/abc-notation-player&mode=ai-generator"
+        />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+            body {
+                font-family: "Press Start 2P", cursive;
+                background-color: #0000ff;
+                color: #ffffff;
+                margin: 0;
+                padding: 20px;
+                line-height: 1.6;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+            }
+            .container {
+                width: 800px;
+                aspect-ratio: 4 / 3;
+                background-color: #ff0000;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+                border: 4px solid #ffff00;
+                display: flex;
+                flex-direction: column;
+            }
+            .tracker {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+                flex-grow: 1;
+            }
+            .channel {
+                background-color: #0000ff;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: inset 0 0 10px rgba(255, 255, 0, 0.3);
+                display: flex;
+                flex-direction: column;
+            }
+            .channel-title {
+                text-align: center;
+                margin-bottom: 5px;
+                color: #ffffff;
+                font-size: 0.7em;
+                text-shadow: 1px 1px #ff0000;
+            }
+            .step-container {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                gap: 2px;
+                flex-grow: 1;
+            }
+            .step {
+                border: 1px solid #ffff00;
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.6em;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                user-select: none;
+                aspect-ratio: 1 / 1;
+                background-color: #000000;
+                position: relative;
+            }
+            .step:hover {
+                filter: brightness(1.2);
+            }
+            .step.active {
+                box-shadow: 0 0 5px #ffff00;
+            }
+            .step.flash {
+                animation: flash 0.2s ease-out;
+            }
+            @keyframes flash {
+                0% {
+                    filter: brightness(1);
+                }
+                50% {
+                    filter: brightness(1.5);
+                }
+                100% {
+                    filter: brightness(1);
+                }
+            }
+            .step::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(255, 255, 255, 0.5);
+                opacity: 0;
+                transition: opacity 0.1s ease;
+            }
+            .step.current::after {
+                opacity: 1;
+            }
+            .controls {
+                display: flex;
+                justify-content: center;
+                margin-top: 15px;
+                flex-wrap: wrap;
+            }
+            button {
+                background-color: #0000ff;
+                color: #ffffff;
+                border: none;
+                padding: 8px 16px;
+                margin: 5px;
+                cursor: pointer;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.7em;
+                transition: all 0.3s ease;
+                box-shadow: 2px 2px #ffff00;
+            }
+            button:hover {
+                background-color: #ff0000;
+                transform: translateY(-2px);
+                box-shadow: 3px 3px #ffff00;
+            }
+            button:active {
+                transform: translateY(0);
+                box-shadow: 1px 1px #ffff00;
+            }
+            .led-container {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+            .led {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #ff0000;
+                margin: 0 2px;
+                transition: background-color 0.2s;
+            }
+            .led.active {
+                background-color: #ffff00;
+                box-shadow: 0 0 5px #ffff00;
+            }
+            .scale-selector,
+            .tempo-display {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            select {
+                background-color: #0000ff;
+                color: #ffffff;
+                border: 2px solid #ffff00;
+                padding: 5px;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.7em;
+            }
+            .channel-controls {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 5px;
+            }
+            .octave-controls,
+            .envelope-controls,
+            .instrument-controls,
+            .synth-controls,
+            .volume-controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 5px;
+            }
+            .octave-button,
+            .envelope-button {
+                background-color: #ff0000;
+                color: #ffffff;
+                border: none;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.7em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+            }
+            .octave-display,
+            .envelope-display,
+            .instrument-display,
+            .synth-display,
+            .volume-display {
+                background-color: #0000ff;
+                color: #ffffff;
+                padding: 2px 5px;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.6em;
+            }
+            .mute-button {
+                background-color: #ff0000;
+                color: #ffffff;
+                border: none;
+                padding: 2px 5px;
+                cursor: pointer;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.6em;
+                transition: all 0.3s ease;
+                align-self: center;
+            }
+            .mute-button.muted {
+                background-color: #ffff00;
+                color: #000000;
+            }
+            .sustain-controls {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 5px;
+            }
+            .sustain-button {
+                background-color: #ff0000;
+                color: #ffffff;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.6em;
+                transition: all 0.3s ease;
+            }
+            .sustain-button:hover {
+                background-color: #0000ff;
+            }
+            .instrument-slider,
+            .synth-slider,
+            .volume-slider {
+                width: 100%;
+                margin-top: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="scale-selector">
+                <select id="scale-select" onchange="updateScale()">
+                    <option value="major">Major</option>
+                    <option value="pentatonicMajor">Pentatonic Major</option>
+                    <option value="lydian">Lydian</option>
+                    <option value="mixolydian">Mixolydian</option>
+                    <option value="wholeTone">Whole Tone</option>
+                </select>
+            </div>
+
+            <div class="tempo-display">
+                <span id="global-tempo-display">Global Tempo: 120 BPM</span>
+            </div>
+
+            <div class="led-container" id="led-container">
+                <!-- LEDs will be generated here -->
+            </div>
+
+            <div class="tracker" id="tracker">
+                <!-- Single channel will be generated here -->
+            </div>
+
+            <div class="controls">
+                <button id="play-button" onclick="togglePlayback()">
+                    Play
+                </button>
+                <button onclick="randomizeAll()">Random</button>
+                <button onclick="clearSequencer()">Clear</button>
+                <button onclick="randomizeScale()">Scale</button>
+                <button onclick="randomizeTempo()">Random Tempo</button>
+                <button onclick="randomizeOctaves()">Random Octave</button>
+            </div>
+        </div>
+
+        <script>
+            let audioContext;
+            let isPlaying = false;
+            let currentStep = 0;
+            let interval;
+            let globalTempo = 120;
+            const sequenceLength = 32;
+
+            const instruments = [
+                { name: "Square", type: "square" },
+                { name: "Sawtooth", type: "sawtooth" },
+                { name: "Triangle", type: "triangle" },
+                { name: "Sine", type: "sine" },
+            ];
+
+            const channels = [
+                {
+                    name: "Colombianita",
+                    instrument: 0,
+                    baseFrequency: 146.83,
+                    octave: 0,
+                    muted: false,
+                    decay: 0.1,
+                    sustain: 0.5,
+                    subOscLevel: 0.5,
+                    filterCutoff: 1000,
+                    filterResonance: 0,
+                    volume: 0.39,
+                    attack: 0.005,
+                    release: 0.1,
+                },
+            ];
+
+            const scales = {
+                major: [0, 2, 4, 5, 7, 9, 11, 12],
+                pentatonicMajor: [0, 2, 4, 7, 9, 12],
+                lydian: [0, 2, 4, 6, 7, 9, 11, 12],
+                mixolydian: [0, 2, 4, 5, 7, 9, 10, 12],
+                wholeTone: [0, 2, 4, 6, 8, 10, 12],
+            };
+
+            let currentScale = scales.major;
+
+            const noteColors = {
+                A: "#FF0000", // Red
+                B: "#FF7F00", // Orange
+                C: "#FFFF00", // Yellow
+                D: "#00FF00", // Green
+                E: "#0000FF", // Blue
+                F: "#D3D3D3", // Light Gray (replacing Indigo)
+                G: "#808080", // Gray
+            };
+
+            function createTracker() {
+                const tracker = document.getElementById("tracker");
+                const channel = channels[0];
+                const channelDiv = document.createElement("div");
+                channelDiv.className = "channel";
+                channelDiv.innerHTML = `
+        <h3 class="channel-title">${channel.name} (${instruments[channel.instrument].name})</h3>
+        <div class="channel-controls">
+          <div class="octave-controls">
+            <span class="octave-display" id="octave-0">Octave: ${channel.octave}</span>
+            <input type="range" min="-2" max="2" step="1" value="${channel.octave}" class="synth-slider" id="octave-slider-0" oninput="changeOctave(this.value)">
+          </div>
+          <div class="envelope-controls">
+            <span class="envelope-display" id="attack-0">Attack: ${channel.attack.toFixed(3)}</span>
+            <input type="range" min="0.001" max="0.1" step="0.001" value="${channel.attack}" class="synth-slider" id="attack-slider-0" oninput="changeAttack(this.value)">
+          </div>
+          <div class="envelope-controls">
+            <span class="envelope-display" id="decay-0">Decay: ${channel.decay.toFixed(1)}</span>
+            <input type="range" min="0.1" max="2" step="0.1" value="${channel.decay}" class="synth-slider" id="decay-slider-0" oninput="changeDecay(this.value)">
+          </div>
+          <div class="envelope-controls">
+            <span class="envelope-display" id="sustain-0">Sustain: ${channel.sustain.toFixed(1)}</span>
+            <input type="range" min="0" max="1" step="0.1" value="${channel.sustain}" class="synth-slider" id="sustain-slider-0" oninput="changeSustain(this.value)">
+          </div>
+          <div class="envelope-controls">
+            <span class="envelope-display" id="release-0">Release: ${channel.release.toFixed(2)}</span>
+            <input type="range" min="0.01" max="1" step="0.01" value="${channel.release}" class="synth-slider" id="release-slider-0" oninput="changeRelease(this.value)">
+          </div>
+          <div class="instrument-controls">
+            <span class="instrument-display" id="instrument-0">Instrument: ${instruments[channel.instrument].name}</span>
+            <input type="range" min="0" max="${instruments.length - 1}" step="1" value="${channel.instrument}" class="instrument-slider" id="instrument-slider-0" oninput="changeInstrument(this.value)">
+          </div>
+          <div class="synth-controls">
+            <span class="synth-display" id="sub-osc-0">Sub Osc: ${channel.subOscLevel.toFixed(1)}</span>
+            <input type="range" min="0" max="1" step="0.1" value="${channel.subOscLevel}" class="synth-slider" id="sub-osc-slider-0" oninput="changeSubOsc(this.value)">
+          </div>
+          <div class="synth-controls">
+            <span class="synth-display" id="filter-cutoff-0">Cutoff: ${channel.filterCutoff}Hz</span>
+            <input type="range" min="20" max="20000" step="1" value="${channel.filterCutoff}" class="synth-slider" id="filter-cutoff-slider-0" oninput="changeFilterCutoff(this.value)">
+          </div>
+          <div class="synth-controls">
+            <span class="synth-display" id="filter-resonance-0">Resonance: ${channel.filterResonance.toFixed(1)}</span>
+            <input type="range" min="0" max="20" step="0.1" value="${channel.filterResonance}" class="synth-slider" id="filter-resonance-slider-0" oninput="changeFilterResonance(this.value)">
+          </div>
+          <div class="volume-controls">
+            <span class="volume-display" id="volume-0">Volume: ${(channel.volume * 100).toFixed(0)}%</span>
+            <input type="range" min="0" max="1" step="0.01" value="${channel.volume}" class="volume-slider" id="volume-slider-0" oninput="changeVolume(this.value)">
+          </div>
+          <button class="mute-button" id="mute-0" onclick="toggleMute()">Mute</button>
+        </div>
+        <div class="step-container">${Array(sequenceLength)
+            .fill()
+            .map(
+                (_, stepIndex) => `
+          <div class="step" id="channel-0-step-${stepIndex}"
+               onclick="addNote(${stepIndex}, true)"
+               ondblclick="clearNote(${stepIndex})"></div>
+        `,
+            )
+            .join("")}
+        </div>
+      `;
+                tracker.appendChild(channelDiv);
+
+                const ledContainer = document.getElementById("led-container");
+                for (let i = 0; i < sequenceLength; i++) {
+                    const led = document.createElement("div");
+                    led.className = "led";
+                    led.id = `led-${i}`;
+                    ledContainer.appendChild(led);
+                }
+            }
+
+            function changeOctave(value) {
+                channels[0].octave = parseInt(value);
+                document.getElementById(`octave-0`).textContent =
+                    `Octave: ${channels[0].octave}`;
+            }
+
+            function changeAttack(value) {
+                channels[0].attack = parseFloat(value);
+                document.getElementById(`attack-0`).textContent =
+                    `Attack: ${channels[0].attack.toFixed(3)}`;
+            }
+
+            function changeDecay(value) {
+                channels[0].decay = parseFloat(value);
+                document.getElementById(`decay-0`).textContent =
+                    `Decay: ${channels[0].decay.toFixed(1)}`;
+            }
+
+            function changeSustain(value) {
+                channels[0].sustain = parseFloat(value);
+                document.getElementById(`sustain-0`).textContent =
+                    `Sustain: ${channels[0].sustain.toFixed(1)}`;
+            }
+
+            function changeRelease(value) {
+                channels[0].release = parseFloat(value);
+                document.getElementById(`release-0`).textContent =
+                    `Release: ${channels[0].release.toFixed(2)}`;
+            }
+
+            function changeInstrument(value) {
+                channels[0].instrument = parseInt(value);
+                document.getElementById(`instrument-0`).textContent =
+                    `Instrument: ${instruments[channels[0].instrument].name}`;
+                document.querySelector(".channel-title").textContent =
+                    `${channels[0].name} (${instruments[channels[0].instrument].name})`;
+            }
+
+            function changeSubOsc(level) {
+                channels[0].subOscLevel = parseFloat(level);
+                document.getElementById(`sub-osc-0`).textContent =
+                    `Sub Osc: ${channels[0].subOscLevel.toFixed(1)}`;
+            }
+
+            function changeFilterCutoff(value) {
+                channels[0].filterCutoff = parseInt(value);
+                document.getElementById(`filter-cutoff-0`).textContent =
+                    `Cutoff: ${channels[0].filterCutoff}Hz`;
+            }
+
+            function changeFilterResonance(value) {
+                channels[0].filterResonance = parseFloat(value);
+                document.getElementById(`filter-resonance-0`).textContent =
+                    `Resonance: ${channels[0].filterResonance.toFixed(1)}`;
+            }
+
+            function changeVolume(value) {
+                channels[0].volume = parseFloat(value);
+                document.getElementById(`volume-0`).textContent =
+                    `Volume: ${(channels[0].volume * 100).toFixed(0)}%`;
+            }
+
+            function toggleMute() {
+                channels[0].muted = !channels[0].muted;
+                const muteButton = document.getElementById(`mute-0`);
+                muteButton.textContent = channels[0].muted ? "Unmute" : "Mute";
+                muteButton.classList.toggle("muted", channels[0].muted);
+            }
+
+            function addNote(stepIndex, playSound = true) {
+                const step = document.getElementById(
+                    `channel-0-step-${stepIndex}`,
+                );
+                const randomNote =
+                    currentScale[
+                        Math.floor(Math.random() * currentScale.length)
+                    ];
+                const noteName = String.fromCharCode(65 + (randomNote % 7));
+                step.classList.add("active");
+                step.textContent = noteName;
+                step.style.backgroundColor = noteColors[noteName];
+                step.style.color =
+                    noteColors[noteName] === "#FFFF00" ? "#000000" : "#FFFFFF";
+                if (playSound && !channels[0].muted) {
+                    playNote(calculateFrequency(randomNote), step);
+                }
+            }
+
+            function clearNote(stepIndex) {
+                const step = document.getElementById(
+                    `channel-0-step-${stepIndex}`,
+                );
+                step.classList.remove("active");
+                step.textContent = "";
+                step.style.backgroundColor = "#000000";
+                step.style.color = "#FFFFFF";
+            }
+
+            function calculateFrequency(semitones) {
+                const octaveShift = channels[0].octave;
+                return (
+                    channels[0].baseFrequency *
+                    Math.pow(2, (semitones + octaveShift * 12) / 12)
+                );
+            }
+
+            function playNote(frequency, stepElement) {
+                if (!audioContext) {
+                    audioContext = new (
+                        window.AudioContext || window.webkitAudioContext
+                    )();
+                }
+
+                const channel = channels[0];
+                const mainOscillator = audioContext.createOscillator();
+                mainOscillator.type = instruments[channel.instrument].type;
+                mainOscillator.frequency.setValueAtTime(
+                    frequency,
+                    audioContext.currentTime,
+                );
+
+                const subOscillator = audioContext.createOscillator();
+                subOscillator.type = "sine";
+                subOscillator.frequency.setValueAtTime(
+                    frequency / 2,
+                    audioContext.currentTime,
+                );
+
+                const mainGain = audioContext.createGain();
+                const subGain = audioContext.createGain();
+                const masterGain = audioContext.createGain();
+
+                const totalGain = channel.volume;
+                mainGain.gain.setValueAtTime(0, audioContext.currentTime);
+                mainGain.gain.linearRampToValueAtTime(
+                    (1 - channel.subOscLevel) * totalGain,
+                    audioContext.currentTime + channel.attack,
+                );
+                mainGain.gain.linearRampToValueAtTime(
+                    channel.sustain * (1 - channel.subOscLevel) * totalGain,
+                    audioContext.currentTime + channel.attack + channel.decay,
+                );
+
+                subGain.gain.setValueAtTime(0, audioContext.currentTime);
+                subGain.gain.linearRampToValueAtTime(
+                    channel.subOscLevel * totalGain,
+                    audioContext.currentTime + channel.attack,
+                );
+                subGain.gain.linearRampToValueAtTime(
+                    channel.sustain * channel.subOscLevel * totalGain,
+                    audioContext.currentTime + channel.attack + channel.decay,
+                );
+
+                masterGain.gain.setValueAtTime(
+                    totalGain,
+                    audioContext.currentTime,
+                );
+                masterGain.gain.linearRampToValueAtTime(
+                    0,
+                    audioContext.currentTime +
+                        channel.attack +
+                        channel.decay +
+                        channel.release,
+                );
+
+                const filter = audioContext.createBiquadFilter();
+                filter.type = "lowpass";
+                filter.frequency.setValueAtTime(
+                    channel.filterCutoff,
+                    audioContext.currentTime,
+                );
+                filter.Q.setValueAtTime(
+                    channel.filterResonance,
+                    audioContext.currentTime,
+                );
+
+                mainOscillator.connect(mainGain);
+                subOscillator.connect(subGain);
+                mainGain.connect(filter);
+                subGain.connect(filter);
+                filter.connect(masterGain);
+                masterGain.connect(audioContext.destination);
+
+                mainOscillator.start(audioContext.currentTime);
+                subOscillator.start(audioContext.currentTime);
+                mainOscillator.stop(
+                    audioContext.currentTime +
+                        channel.attack +
+                        channel.decay +
+                        channel.release,
+                );
+                subOscillator.stop(
+                    audioContext.currentTime +
+                        channel.attack +
+                        channel.decay +
+                        channel.release,
+                );
+
+                stepElement.classList.add("flash");
+                setTimeout(() => stepElement.classList.remove("flash"), 200);
+            }
+
+            function playStep() {
+                document.querySelectorAll(".led").forEach((led, index) => {
+                    led.classList.toggle("active", index === currentStep);
+                });
+
+                document.querySelectorAll(".step").forEach((step, index) => {
+                    step.classList.toggle("current", index === currentStep);
+                });
+
+                if (!channels[0].muted) {
+                    const step = document.getElementById(
+                        `channel-0-step-${currentStep}`,
+                    );
+                    if (step.classList.contains("active")) {
+                        const note = step.textContent;
+                        const semitones = note.charCodeAt(0) - 65;
+                        playNote(
+                            calculateFrequency(
+                                currentScale[semitones % currentScale.length],
+                            ),
+                            step,
+                        );
+                    }
+                }
+
+                currentStep = (currentStep + 1) % sequenceLength;
+            }
+
+            function togglePlayback() {
+                if (isPlaying) {
+                    stopTrack();
+                } else {
+                    playTrack();
+                }
+            }
+
+            function playTrack() {
+                if (isPlaying) return;
+                if (!audioContext) {
+                    audioContext = new (
+                        window.AudioContext || window.webkitAudioContext
+                    )();
+                }
+                audioContext.resume().then(() => {
+                    isPlaying = true;
+                    currentStep = 0;
+                    interval = setInterval(playStep, 60000 / globalTempo / 4);
+                    document.getElementById("play-button").textContent = "Stop";
+                });
+            }
+
+            function stopTrack() {
+                isPlaying = false;
+                clearInterval(interval);
+                document
+                    .querySelectorAll(".led")
+                    .forEach((led) => led.classList.remove("active"));
+                document
+                    .querySelectorAll(".step")
+                    .forEach((step) => step.classList.remove("current"));
+                document.getElementById("play-button").textContent = "Play";
+            }
+
+            function randomizeAll() {
+                clearSequencer();
+                for (let i = 0; i < sequenceLength; i++) {
+                    if (Math.random() < 0.5) {
+                        addNote(i, false);
+                    }
+                }
+
+                const newOctave = Math.floor(Math.random() * 5) - 2;
+                changeOctave(newOctave);
+                document.getElementById("octave-slider-0").value = newOctave;
+
+                const newAttack = Math.random() * 0.099 + 0.001;
+                changeAttack(newAttack);
+                document.getElementById("attack-slider-0").value = newAttack;
+
+                const newDecay = Math.random() * 1.9 + 0.1;
+                changeDecay(newDecay);
+                document.getElementById("decay-slider-0").value = newDecay;
+
+                const newSustain = Math.random();
+                changeSustain(newSustain);
+                document.getElementById("sustain-slider-0").value = newSustain;
+
+                const newRelease = Math.random() * 0.99 + 0.01;
+                changeRelease(newRelease);
+                document.getElementById("release-slider-0").value = newRelease;
+
+                const newInstrument = Math.floor(
+                    Math.random() * instruments.length,
+                );
+                changeInstrument(newInstrument);
+                document.getElementById("instrument-slider-0").value =
+                    newInstrument;
+
+                const newSubOsc = Math.random();
+                changeSubOsc(newSubOsc);
+                document.getElementById("sub-osc-slider-0").value = newSubOsc;
+
+                const newCutoff = Math.floor(Math.random() * 19980) + 20;
+                changeFilterCutoff(newCutoff);
+                document.getElementById("filter-cutoff-slider-0").value =
+                    newCutoff;
+
+                const newResonance = Math.random() * 20;
+                changeFilterResonance(newResonance);
+                document.getElementById("filter-resonance-slider-0").value =
+                    newResonance;
+            }
+
+            function clearSequencer() {
+                for (let i = 0; i < sequenceLength; i++) {
+                    clearNote(i);
+                }
+            }
+
+            function randomizeScale() {
+                const scaleNames = Object.keys(scales);
+                const randomScale =
+                    scaleNames[Math.floor(Math.random() * scaleNames.length)];
+                currentScale = scales[randomScale];
+                document.getElementById("scale-select").value = randomScale;
+                updateSequencerNotes();
+            }
+
+            function updateScale() {
+                const selectedScale =
+                    document.getElementById("scale-select").value;
+                currentScale = scales[selectedScale];
+                updateSequencerNotes();
+            }
+
+            function updateSequencerNotes() {
+                document
+                    .querySelectorAll(".step.active")
+                    .forEach((step, index) => {
+                        const randomNote =
+                            currentScale[
+                                Math.floor(Math.random() * currentScale.length)
+                            ];
+                        const noteName = String.fromCharCode(
+                            65 + (randomNote % 7),
+                        );
+                        step.textContent = noteName;
+                        step.style.backgroundColor = noteColors[noteName];
+                        step.style.color =
+                            noteColors[noteName] === "#FFFF00"
+                                ? "#000000"
+                                : "#FFFFFF";
+                    });
+            }
+
+            function randomizeTempo() {
+                globalTempo = Math.floor(Math.random() * (200 - 60 + 1)) + 60;
+                document.getElementById("global-tempo-display").textContent =
+                    `Global Tempo: ${globalTempo} BPM`;
+                if (isPlaying) {
+                    stopTrack();
+                    playTrack();
+                }
+            }
+
+            function randomizeOctaves() {
+                const newOctave = Math.floor(Math.random() * 5) - 2;
+                changeOctave(newOctave);
+                document.getElementById("octave-slider-0").value = newOctave;
+            }
+
+            createTracker();
+        </script>
+    </body>
+</html>

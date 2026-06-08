@@ -1,0 +1,512 @@
+<html>
+    <head>
+        <base href="https://websim.ai" />
+        <title>Japanese Arpeggio Tracker</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Futura:wght@400;700&display=swap");
+
+            body {
+                font-family: "Courier New", monospace;
+                background-color: #2c2c2c;
+                color: #ff69b4;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+            }
+            #computer-screen {
+                background-color: #000;
+                border: 20px solid #444;
+                border-radius: 10px;
+                box-shadow: 0 0 50px rgba(255, 105, 180, 0.2);
+                padding: 20px;
+                max-width: 900px;
+                width: 95vw;
+                height: 90vh;
+                position: relative;
+                overflow: hidden;
+            }
+            #computer-screen::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+                pointer-events: none;
+            }
+            #tracker {
+                height: 100%;
+                overflow-y: auto;
+                padding-right: 10px;
+            }
+            h1 {
+                text-align: center;
+                color: #ff69b4;
+                font-size: 24px;
+                margin-bottom: 20px;
+                text-shadow: 0 0 5px #ff69b4;
+            }
+            .track {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+                background-color: rgba(255, 105, 180, 0.1);
+                border-radius: 4px;
+                padding: 5px;
+            }
+            .track-number {
+                width: 30px;
+                text-align: right;
+                margin-right: 10px;
+                font-weight: bold;
+                color: #ffa500;
+            }
+            .note-display {
+                flex-grow: 1;
+                background-color: rgba(255, 105, 180, 0.05);
+                border: 1px solid #ff69b4;
+                border-radius: 4px;
+                padding: 5px;
+                font-family: "Courier New", monospace;
+                font-size: 14px;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+            .note {
+                display: inline-block;
+                width: 30px;
+                text-align: center;
+                transition: color 0.1s ease;
+            }
+            .speed-slider,
+            .tempo-slider {
+                width: 100px;
+                margin-left: 10px;
+            }
+            .controls {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            button {
+                color: white;
+                border: 1px solid #ff69b4;
+                padding: 10px 20px;
+                margin: 5px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                font-family: "Futura", sans-serif;
+                transition: background-color 0.3s;
+            }
+            button:hover {
+                opacity: 0.8;
+            }
+            button:nth-child(odd) {
+                background-color: #ff69b4;
+            }
+            button:nth-child(even) {
+                background-color: #4169e1;
+            }
+            #tempo,
+            #tempo-display {
+                width: 50px;
+                text-align: center;
+                background-color: #000;
+                color: #ff69b4;
+                border: 1px solid #ff69b4;
+            }
+            label[for="tempo"],
+            label[for="tempo-slider"] {
+                color: #ff69b4;
+            }
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+            ::-webkit-scrollbar-track {
+                background: #000;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #4169e1;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #1e90ff;
+            }
+            .tempo-control {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            .mute-button {
+                background-color: #4caf50;
+                border: none;
+                color: white;
+                padding: 5px 10px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 12px;
+                margin: 0 5px;
+                cursor: pointer;
+                border-radius: 3px;
+            }
+            .muted {
+                background-color: #f44336;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="computer-screen">
+            <div id="tracker">
+                <h1>Japanese Arpeggio Tracker</h1>
+                <div id="tracks"></div>
+                <div class="controls">
+                    <button id="playPause">▶ Play</button>
+                    <button id="instrument">🎹 Instrument</button>
+                    <button id="octaveUp">🔼 Octave Up</button>
+                    <button id="octaveDown">🔽 Octave Down</button>
+                    <button id="generate">⟳ Generate</button>
+                    <button id="shuffle">🔀 Shuffle</button>
+                </div>
+                <div class="tempo-control">
+                    <label for="tempo-slider">BPM:</label>
+                    <input
+                        type="range"
+                        id="tempo-slider"
+                        class="tempo-slider"
+                        min="60"
+                        max="200"
+                        value="120"
+                    />
+                    <span id="tempo-display">120</span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const audioContext = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+            const tracks = 12;
+            const stepsPerTrack = 16;
+            let isPlaying = false;
+            let currentStep = 0;
+            let stepInterval;
+            let octaveShift = 0;
+            let currentInstrument = "sine";
+            let isShuffle = false;
+
+            const scales = [
+                [0, 2, 3, 7, 8], // Japanese Pentatonic Scale
+                [0, 2, 4, 5, 7, 9, 11], // Japanese Diatonic Scale
+                [0, 1, 5, 7, 8], // In Scale
+                [0, 2, 5, 7, 9], // Miyako-bushi Scale
+            ];
+
+            const noteColors = {
+                C: "#FF0000",
+                "C#": "#FF7F00",
+                D: "#FFFF00",
+                "D#": "#7FFF00",
+                E: "#00FF00",
+                F: "#00FF7F",
+                "F#": "#00FFFF",
+                G: "#007FFF",
+                "G#": "#0000FF",
+                A: "#7F00FF",
+                "A#": "#FF00FF",
+                B: "#FF007F",
+            };
+
+            const instruments = ["sine", "square", "sawtooth", "triangle"];
+
+            let currentScale = scales[0];
+
+            function createOscillator(freq, instrumentType) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = instrumentType;
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                return { osc, gain };
+            }
+
+            function playNote(freq, duration, trackSpeed, instrumentType) {
+                const { osc, gain } = createOscillator(freq, instrumentType);
+                const adjustedDuration = duration * (1 / trackSpeed);
+                gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(
+                    0.01,
+                    audioContext.currentTime + adjustedDuration - 0.1,
+                );
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + adjustedDuration);
+            }
+
+            function generateArpeggio(octave) {
+                const baseNote = 60 + octave * 12 + octaveShift * 12; // C4 + octave shift + global octave shift
+                return Array(stepsPerTrack)
+                    .fill()
+                    .map(() => {
+                        if (Math.random() < 0.3) return null; // 30% chance of rest
+                        const scaleNote =
+                            currentScale[
+                                Math.floor(Math.random() * currentScale.length)
+                            ];
+                        return baseNote + scaleNote;
+                    });
+            }
+
+            function midiToFreq(midi) {
+                return Math.pow(2, (midi - 69) / 12) * 440;
+            }
+
+            function midiToNoteName(midi) {
+                const noteNames = [
+                    "C",
+                    "C#",
+                    "D",
+                    "D#",
+                    "E",
+                    "F",
+                    "F#",
+                    "G",
+                    "G#",
+                    "A",
+                    "A#",
+                    "B",
+                ];
+                const octave = Math.floor(midi / 12) - 1;
+                const noteName = noteNames[midi % 12];
+                return noteName + octave;
+            }
+
+            function generateTracks() {
+                return Array(tracks)
+                    .fill()
+                    .map((_, i) => ({
+                        notes: generateArpeggio(Math.floor(i / 3) - 1),
+                        speed: Math.random() * 1.5 + 0.5, // Random speed between 0.5 and 2
+                        instrument:
+                            instruments[
+                                Math.floor(Math.random() * instruments.length)
+                            ],
+                        muted: false,
+                    }));
+            }
+
+            let noteTracks = generateTracks();
+
+            function renderTracks() {
+                const tracksContainer = document.getElementById("tracks");
+                tracksContainer.innerHTML = "";
+                noteTracks.forEach((track, i) => {
+                    const trackElement = document.createElement("div");
+                    trackElement.className = "track";
+                    trackElement.innerHTML = `
+      <div class="track-number">${i + 1}</div>
+      <div class="note-display">
+        ${track.notes.map((note, index) => `<span class="note" data-track="${i}" data-step="${index}">${note ? midiToNoteName(note) : "---"}</span>`).join("")}
+      </div>
+      <input type="range" class="speed-slider" min="0.5" max="2" step="0.1" value="${track.speed.toFixed(1)}" data-track="${i}">
+      <button class="mute-button" data-track="${i}">Mute</button>
+    `;
+                    tracksContainer.appendChild(trackElement);
+                });
+
+                document.querySelectorAll(".speed-slider").forEach((slider) => {
+                    slider.addEventListener("input", (e) => {
+                        const trackIndex = parseInt(e.target.dataset.track);
+                        noteTracks[trackIndex].speed = parseFloat(
+                            e.target.value,
+                        );
+                    });
+                });
+
+                document.querySelectorAll(".mute-button").forEach((button) => {
+                    button.addEventListener("click", (e) => {
+                        const trackIndex = parseInt(e.target.dataset.track);
+                        noteTracks[trackIndex].muted =
+                            !noteTracks[trackIndex].muted;
+                        e.target.textContent = noteTracks[trackIndex].muted
+                            ? "Unmute"
+                            : "Mute";
+                        e.target.classList.toggle("muted");
+                    });
+                });
+
+                colorNotes();
+            }
+
+            function colorNotes() {
+                document.querySelectorAll(".note").forEach((noteElement) => {
+                    const noteName = noteElement.textContent.slice(0, -1); // Remove octave number
+                    if (noteName in noteColors) {
+                        noteElement.style.color = noteColors[noteName];
+                    }
+                });
+            }
+
+            function playStep() {
+                noteTracks.forEach((track, i) => {
+                    if (!track.muted) {
+                        const note = track.notes[currentStep];
+                        if (note) {
+                            playNote(
+                                midiToFreq(note),
+                                0.2,
+                                track.speed,
+                                track.instrument,
+                            );
+                            const noteElement = document.querySelector(
+                                `.note[data-track="${i}"][data-step="${currentStep}"]`,
+                            );
+                            if (noteElement) {
+                                noteElement.style.color = "#FFFFFF";
+                                setTimeout(() => {
+                                    const noteName = midiToNoteName(note).slice(
+                                        0,
+                                        -1,
+                                    );
+                                    noteElement.style.color =
+                                        noteColors[noteName];
+                                }, 100);
+                            }
+                        }
+                    }
+                });
+                currentStep = (currentStep + 1) % stepsPerTrack;
+                if (currentStep === 0 && isShuffle) {
+                    shuffleInstruments();
+                }
+            }
+
+            function startPlayback() {
+                const tempo = document.getElementById("tempo-slider").value;
+                const stepTime = 60 / tempo / 4;
+                stepInterval = setInterval(playStep, stepTime * 1000);
+            }
+
+            function stopPlayback() {
+                clearInterval(stepInterval);
+            }
+
+            function togglePlay() {
+                const playPauseBtn = document.getElementById("playPause");
+                if (isPlaying) {
+                    stopPlayback();
+                    playPauseBtn.textContent = "▶ Play";
+                } else {
+                    startPlayback();
+                    playPauseBtn.textContent = "⏸ Pause";
+                }
+                isPlaying = !isPlaying;
+            }
+
+            function changeInstrument() {
+                const currentIndex = instruments.indexOf(currentInstrument);
+                currentInstrument =
+                    instruments[(currentIndex + 1) % instruments.length];
+                document.getElementById("instrument").textContent =
+                    `🎹 ${currentInstrument}`;
+            }
+
+            function transposeOctave(direction) {
+                octaveShift += direction;
+                noteTracks = noteTracks.map((track, index) => {
+                    if (index % 2 === 0) {
+                        // Only affect every other track
+                        return {
+                            ...track,
+                            notes: track.notes.map((note) =>
+                                note ? note + direction * 12 : null,
+                            ),
+                        };
+                    }
+                    return track;
+                });
+                renderTracks();
+            }
+
+            function shuffleInstruments() {
+                noteTracks = noteTracks.map((track) => ({
+                    ...track,
+                    instrument:
+                        instruments[
+                            Math.floor(Math.random() * instruments.length)
+                        ],
+                }));
+            }
+
+            function shuffleSliders() {
+                noteTracks = noteTracks.map((track) => ({
+                    ...track,
+                    speed: Math.random() * 1.5 + 0.5,
+                }));
+                document
+                    .querySelectorAll(".speed-slider")
+                    .forEach((slider, index) => {
+                        slider.value = noteTracks[index].speed.toFixed(1);
+                    });
+            }
+
+            document
+                .getElementById("playPause")
+                .addEventListener("click", togglePlay);
+            document
+                .getElementById("generate")
+                .addEventListener("click", () => {
+                    currentScale =
+                        scales[Math.floor(Math.random() * scales.length)];
+                    noteTracks = generateTracks();
+                    renderTracks();
+                    document.getElementById("tempo-slider").value =
+                        Math.floor(Math.random() * (200 - 60 + 1)) + 60;
+                    document.getElementById("tempo-display").textContent =
+                        document.getElementById("tempo-slider").value;
+                });
+            document
+                .getElementById("tempo-slider")
+                .addEventListener("input", (e) => {
+                    document.getElementById("tempo-display").textContent =
+                        e.target.value;
+                    if (isPlaying) {
+                        stopPlayback();
+                        startPlayback();
+                    }
+                });
+            document
+                .getElementById("instrument")
+                .addEventListener("click", changeInstrument);
+            document
+                .getElementById("octaveUp")
+                .addEventListener("click", () => transposeOctave(1));
+            document
+                .getElementById("octaveDown")
+                .addEventListener("click", () => transposeOctave(-1));
+            document.getElementById("shuffle").addEventListener("click", () => {
+                isShuffle = !isShuffle;
+                document.getElementById("shuffle").style.backgroundColor =
+                    isShuffle ? "#1E90FF" : "#4169E1";
+                shuffleInstruments();
+                shuffleSliders();
+                renderTracks();
+            });
+
+            renderTracks();
+        </script>
+    </body>
+</html>

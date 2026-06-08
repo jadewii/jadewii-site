@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Playa</title>
+    <style>
+:root {
+    --pink-dark: #ff4d6d;
+    --pink-main: #ff758f;
+    --pink-light: #ff8fa3;
+    --pink-soft: #ffb3c1;
+    --pink-bg: #fff0f3;
+    --white: #ffffff;
+    --font-mono: 'Courier New', Courier, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: var(--font-mono);
+    color: var(--white);
+    user-select: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    /* app fills viewport; no surrounding frame */
+    background-color: var(--pink-dark);
+    height: 100vh;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+}
+
+#desktop {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+/* Window Styling */
+.window {
+    background: var(--pink-main);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    width: 100%;
+    height: 100%;
+    /* enforce the app occupies the viewport */
+    min-width: 100%;
+    min-height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    left: 0;
+    top: 0;
+    transform: none;
+    /* ensure user can't resize or drag edges */
+    resize: none !important;
+    touch-action: none;
+    pointer-events: auto;
+}
+
+.window-header {
+    height: 44px;
+    background: var(--pink-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+}
+
+.window-header .title {
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 6px;
+}
+
+.window-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
+    overflow: hidden;
+}
+
+/* Mangler Section */
+.player-section {
+    background: var(--pink-light);
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.waveform-display {
+    /* darker pink background for strong contrast (was orange) */
+    background: var(--pink-dark);
+    border: none;
+    border-radius: 4px;
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+}
+
+#waveform-canvas {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+}
+
+#play-head {
+    position: absolute;
+    height: 100%;
+    width: 2px;
+    background: var(--pink-dark);
+    left: 0%;
+    z-index: 10;
+}
+
+.time-overlay {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 24px;
+    font-weight: 900;
+    text-shadow: 2px 2px 0 var(--pink-dark);
+    pointer-events: none;
+}
+
+/* FX Rack */
+.fx-rack {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.fx-row {
+    display: flex;
+    gap: 12px;
+}
+
+.param-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.param-box .label {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.param-box .val-text {
+    font-size: 10px;
+    text-align: right;
+}
+
+/* Controls */
+.controls-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.flex-grow { flex: 1; }
+
+.transport-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.buttons-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.buttons-row button {
+    background: var(--pink-dark);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+/* small delete buttons for lists */
+.mini-del {
+    background: transparent;
+    border: none;
+    /* default: white so trash icons contrast on pink backgrounds */
+    color: var(--white);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.95;
+    border-radius: 4px;
+}
+/* Ensure any inserted SVG/icon inherits the button color and strokes properly */
+.mini-del i,
+.mini-del svg {
+    color: currentColor;
+    stroke: currentColor;
+    fill: currentColor;
+    vector-effect: non-scaling-stroke;
+    stroke-width: 1.6;
+}
+.mini-del:active { transform: translateY(1px); opacity: 1; }
+
+.buttons-row button:active {
+    background: var(--white);
+    transform: translateY(1px);
+}
+
+.buttons-row button:active i { color: var(--pink-dark); }
+
+.volume-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 140px;
+    min-width: 100px;
+    flex-shrink: 0;
+}
+
+.volume-container input[type=range] {
+    flex: 1;
+    width: 100%;
+}
+
+.info-footer {
+    font-size: 11px;
+    text-align: center;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Lists Section */
+.lists-section {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.8fr;
+    gap: 12px;
+    min-height: 0;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--pink-light);
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.panel-header {
+    background: var(--pink-dark);
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.inline-edit-input {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    font-family: inherit;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 3px;
+    width: 70%;
+}
+
+/* When the current playlist is selected, tint the header input text pink for contrast */
+.inline-edit-input.active {
+    color: var(--pink-main);
+    border-color: rgba(255,117,143,0.35);
+}
+
+.panel-header button {
+    background: var(--pink-main);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 3px;
+}
+
+.list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.track-item {
+    padding: 8px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid transparent;
+    gap: 20px;
+}
+
+.track-item span {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-waveform-mini {
+    width: 80px;
+    height: 16px;
+    /* default: clearly white waveform */
+    opacity: 0.9;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+    filter: none;
+}
+
+/* when a track is active, bump opacity and tint the mini waveform to the app pink */
+.track-item.active .track-waveform-mini {
+    opacity: 1;
+    /* drawing is now tinted in JS; disable CSS hue-rotate filters that caused color shifts */
+    filter: none;
+}
+
+/* ensure delete icon is visible on both normal and active list items */
+/* default: white stroke on dark/colored rows - stroke visible, no fill */
+.track-item .mini-del,
+.track-item .mini-del svg,
+.track-item .mini-del i,
+.track-item .mini-del i svg {
+    color: var(--white);
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+}
+/* make sure the svg inside the mini button always uses currentColor for stroke */
+.track-item .mini-del svg { stroke: currentColor; }
+
+/* when the track row is active (white bg), show app pink trash for contrast
+   use a filled pink icon on the light background to ensure visibility */
+.track-item.active .mini-del,
+.track-item.active .mini-del svg,
+.track-item.active .mini-del i,
+.track-item.active .mini-del i svg,
+.track-entry.active .mini-del,
+.track-entry.active .mini-del svg,
+.track-entry.active .mini-del i,
+.track-entry.active .mini-del i svg {
+    color: var(--pink-main);
+    stroke: currentColor;
+    /* fill the icon on active rows so it remains visible against white bg */
+    fill: currentColor;
+    stroke-width: 1.8;
+}
+
+/* Make sure playlist delete buttons follow the same visible rules and remain legible
+   when a playlist row is active - keep active playlist row contrasted so the white
+   delete icon is still visible */
+.playlist-entry {
+    /* keep the playlist rows visually consistent with track items */
+    background: rgba(255,255,255,0.06);
+    color: var(--white);
+}
+.playlist-entry.active {
+    /* when active, maintain the current dark background and tint text pink,
+       but show a white border instead of an overpowering fill highlight */
+    background: var(--pink-dark);
+    color: var(--pink-main);
+    border: 1px solid var(--white);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.04) inset;
+}
+
+.playlist-entry .mini-del,
+.playlist-entry .mini-del svg,
+.playlist-entry .mini-del i,
+.playlist-entry .mini-del i svg {
+    color: var(--white);
+    stroke: currentColor;
+    fill: currentColor;
+    stroke-width: 1.8;
+}
+.playlist-entry.active .mini-del,
+.playlist-entry.active .mini-del svg,
+.playlist-entry.active .mini-del i,
+.playlist-entry.active .mini-del i svg {
+    color: var(--pink-main);
+    stroke: currentColor;
+    fill: currentColor;
+    stroke-width: 1.8;
+}
+
+.track-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.track-item.active {
+    background: var(--white);
+    color: var(--pink-dark);
+}
+
+.track-item.active span { color: var(--pink-dark); }
+
+.empty-msg {
+    padding: 20px;
+    text-align: center;
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    background: var(--white);
+    height: 4px;
+    border-radius: 2px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--pink-dark);
+    border: 2px solid var(--white);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .lists-section { grid-template-columns: 1fr; }
+    #desktop { padding: 0; }
+    .window { border-radius: 0; border: none; }
+    .waveform-display { height: 100px; }
+}
+</style>
+</head>
+<body>
+    <div id="desktop">
+        <div class="window" id="main-window" style="width:720px;height:760px;min-width:720px;min-height:760px;max-width:720px;max-height:760px;resize:none;">
+            <div class="window-header">
+                <span class="title">PLAYA</span>
+            </div>
+            
+            <div class="window-content app-grid">
+                <!-- FX Mangle Section -->
+                <div class="player-section mangler-mode">
+                    <div class="display-container waveform-display">
+                        <canvas id="waveform-canvas"></canvas>
+                        <div class="time-overlay">
+                            <span id="time-current">00:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="fx-rack">
+                        <div class="fx-row">
+                            <div class="param-box flex-grow">
+                                <span class="label">PITCH / SPEED</span>
+                                <input type="range" id="pitch-slider" min="0.1" max="2" step="0.01" value="1">
+                                <span id="pitch-value" class="val-text">1.00x</span>
+                            </div>
+                            <div class="param-box flex-grow">
+                                <span class="label">CUTOFF</span>
+                                <input type="range" id="cutoff-slider" min="0" max="1" step="0.01" value="1">
+                                <span id="cutoff-value" class="val-text">MAX</span>
+                            </div>
+                        </div>
+                        <div class="fx-row">
+                            <div class="param-box flex-grow">
+                                <span class="label">RESONANCE</span>
+                                <input type="range" id="reso-slider" min="0" max="20" step="0.1" value="0">
+                            </div>
+                            <div class="param-box flex-grow">
+                                <span class="label">DRIVE</span>
+                                <input type="range" id="drive-slider" min="0" max="1" step="0.01" value="0">
+                            </div>
+                            <div class="param-box flex-grow">
+                                <span class="label">ECHO / DLY</span>
+                                <input type="range" id="delay-slider" min="0" max="0.8" step="0.01" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls-area">
+                        <div class="transport-controls">
+                            <div class="buttons-row">
+                                <button id="prev-btn" title="Previous"><i data-lucide="skip-back"></i></button>
+                                <button id="play-btn" title="Play"><i data-lucide="play"></i></button>
+                                <button id="pause-btn" title="Pause"><i data-lucide="pause"></i></button>
+                                <button id="stop-btn" title="Stop"><i data-lucide="square"></i></button>
+                                <button id="next-btn" title="Next"><i data-lucide="skip-forward"></i></button>
+                                <button id="random-btn" title="Shuffle Play"><i data-lucide="shuffle"></i></button>
+                                <button id="reset-fx-btn" title="Reset FX"><i data-lucide="rotate-ccw"></i></button>
+                            </div>
+                            <div class="volume-container">
+                                <i data-lucide="volume-2" size="14"></i>
+                                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Bottom Lists Section -->
+                <div class="lists-section">
+                    <div class="panel library-panel">
+                        <div class="panel-header">
+                            <span>PLAYLISTS</span>
+                            <button id="add-playlist-btn" title="New Playlist"><i data-lucide="plus"></i></button>
+                        </div>
+                        <div id="playlists-list" class="list-container">
+                            <!-- Playlists will be injected here -->
+                        </div>
+                    </div>
+                    
+                    <div class="panel playlist-panel">
+                        <div class="panel-header">
+                            <input type="text" id="current-playlist-name-input" class="inline-edit-input" placeholder="TRACKS">
+                            <button id="add-tracks-btn" title="Add Tracks"><i data-lucide="file-audio"></i></button>
+                            <input type="file" id="file-input" multiple accept="audio/*" style="display: none;">
+                        </div>
+                        <div id="tracks-list" class="list-container">
+                            <div class="empty-msg">Select a playlist</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+// mnt/data/build_playa/app.js
+import { createIcons as createIcons3, icons as icons3 } from "https://esm.sh/lucide";
+
+// mnt/data/build_playa/db.js
+import Dexie from "https://esm.sh/dexie";
+var db = new Dexie("PlayaDB");
+db.version(2).stores({
+  playlists: "++id, name",
+  tracks: "++id, title, artist, album, duration, fileBlob, fileName, playlistId"
+});
+var db_default = db;
+
+// mnt/data/build_playa/audioEngine.js
+var AudioEngine = class {
+  constructor() {
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.audioElement = new Audio();
+    this.source = this.audioContext.createMediaElementSource(this.audioElement);
+    this.filter = this.audioContext.createBiquadFilter();
+    this.filter.type = "lowpass";
+    this.filter.frequency.value = 22e3;
+    this.filter.Q.value = 0;
+    this.shaper = this.audioContext.createWaveShaper();
+    this.shaper.curve = this.makeDistortionCurve(0);
+    this.shaper.oversample = "4x";
+    this.delay = this.audioContext.createDelay(1);
+    this.delay.delayTime.value = 0;
+    this.delayFeedback = this.audioContext.createGain();
+    this.delayFeedback.gain.value = 0.5;
+    this.delayDry = this.audioContext.createGain();
+    this.delayWet = this.audioContext.createGain();
+    this.delayWet.gain.value = 0;
+    this.gain = this.audioContext.createGain();
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.fftSize = 64;
+    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+    this.source.connect(this.filter);
+    this.filter.connect(this.shaper);
+    this.shaper.connect(this.gain);
+    this.shaper.connect(this.delay);
+    this.delay.connect(this.delayFeedback);
+    this.delayFeedback.connect(this.delay);
+    this.delay.connect(this.delayWet);
+    this.delayWet.connect(this.gain);
+    this.gain.connect(this.analyser);
+    this.analyser.connect(this.audioContext.destination);
+    this.audioElement.crossOrigin = "anonymous";
+  }
+  makeDistortionCurve(amount) {
+    const k = typeof amount === "number" ? amount * 100 : 50;
+    const n_samples = 44100;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n_samples; ++i) {
+      const x = i * 2 / n_samples - 1;
+      curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  }
+  async playTrack(blob) {
+    if (this.audioContext.state === "suspended") {
+      await this.audioContext.resume();
+    }
+    const url = URL.createObjectURL(blob);
+    this.audioElement.src = url;
+    this.audioElement.play();
+    return url;
+  }
+  async playUrl(url) {
+    if (this.audioContext.state === "suspended") {
+      await this.audioContext.resume();
+    }
+    this.audioElement.src = url;
+    try {
+      await this.audioElement.play();
+    } catch (e) {
+    }
+    return url;
+  }
+  setFilter(cutoff, resonance) {
+    const minFreq = 40;
+    const maxFreq = 2e4;
+    const freq = minFreq * Math.pow(maxFreq / minFreq, cutoff);
+    this.filter.frequency.setTargetAtTime(freq, this.audioContext.currentTime, 0.05);
+    if (resonance !== void 0) this.filter.Q.setTargetAtTime(resonance, this.audioContext.currentTime, 0.05);
+  }
+  setDrive(amount) {
+    this.shaper.curve = this.makeDistortionCurve(amount);
+  }
+  setDelay(amount) {
+    const maxMs = 0.6;
+    const delayVal = Math.max(0, Math.min(1, amount)) * maxMs;
+    const wetTarget = delayVal > 0 ? 0.35 : 0;
+    const feedbackBase = 0.45;
+    const feedbackTarget = delayVal <= 0 ? 0 : Math.min(0.7, feedbackBase * (delayVal / maxMs + 0.25));
+    const now = this.audioContext.currentTime;
+    try {
+      const clampedDelay = Math.max(0, Math.min(maxMs, delayVal));
+      this.delay.delayTime.cancelScheduledValues(now);
+      this.delay.delayTime.linearRampToValueAtTime(clampedDelay, now + 0.05);
+      this.delayWet.gain.cancelScheduledValues(now);
+      this.delayWet.gain.linearRampToValueAtTime(wetTarget, now + 0.05);
+      this.delayFeedback.gain.cancelScheduledValues(now);
+      this.delayFeedback.gain.linearRampToValueAtTime(feedbackTarget, now + 0.05);
+    } catch (e) {
+      this.delay.delayTime.setTargetAtTime(delayVal, now, 0.03);
+      this.delayWet.gain.setTargetAtTime(wetTarget, now, 0.03);
+      this.delayFeedback.gain.setTargetAtTime(feedbackTarget, now, 0.03);
+    }
+    this._delayFeedbackDisconnected = false;
+  }
+  pause() {
+    this.audioElement.pause();
+  }
+  async resume() {
+    if (this.audioContext.state === "suspended") {
+      try {
+        await this.audioContext.resume();
+      } catch (e) {
+      }
+    }
+    try {
+      await this.audioElement.play();
+    } catch (e) {
+    }
+  }
+  stop() {
+    this.audioElement.pause();
+    this.audioElement.currentTime = 0;
+  }
+  setVolume(value) {
+    this.audioElement.volume = value;
+  }
+  setPitch(value) {
+    this.audioElement.playbackRate = value;
+    this.audioElement.preservesPitch = false;
+  }
+  getDuration() {
+    return this.audioElement.duration || 0;
+  }
+  getCurrentTime() {
+    return this.audioElement.currentTime || 0;
+  }
+  onEnded(callback) {
+    this.audioElement.onended = callback;
+  }
+  getFrequencyData() {
+    this.analyser.getByteFrequencyData(this.dataArray);
+    return this.dataArray;
+  }
+  async getWaveformData(blob) {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+    const channelData = audioBuffer.getChannelData(0);
+    return channelData;
+  }
+};
+
+// mnt/data/build_playa/tracks.js
+import { createIcons, icons } from "https://esm.sh/lucide";
+createIcons({ icons });
+var currentTracks = [];
+var currentTrackIndex = -1;
+var isPlaying = false;
+function setPlaying(val) {
+  isPlaying = !!val;
+}
+function getIsPlaying() {
+  return isPlaying;
+}
+var tracksList = document.getElementById("tracks-list");
+var fileInput = document.getElementById("file-input");
+var pitchSlider = document.getElementById("pitch-slider");
+var pitchValueLabel = document.getElementById("pitch-value");
+var cutoffSlider = document.getElementById("cutoff-slider");
+var cutoffValueLabel = document.getElementById("cutoff-value");
+var resoSlider = document.getElementById("reso-slider");
+var driveSlider = document.getElementById("drive-slider");
+var delaySlider = document.getElementById("delay-slider");
+var waveformCache = /* @__PURE__ */ new Map();
+async function loadTracks(activePlaylistId2 = null) {
+  if (!activePlaylistId2) {
+    tracksList.innerHTML = '<div class="empty-msg">Select a playlist</div>';
+    currentTracks = [];
+    currentTrackIndex = -1;
+    isPlaying = false;
+    return;
+  }
+  currentTracks = await db_default.tracks.where("playlistId").equals(activePlaylistId2).toArray();
+  tracksList.innerHTML = "";
+  if (currentTracks.length === 0) {
+    try {
+      engine.stop();
+    } catch (e) {
+    }
+    isPlaying = false;
+    currentTrackIndex = -1;
+    tracksList.innerHTML = '<div class="empty-msg">No tracks found. Drop some here!</div>';
+    return;
+  }
+  currentTracks.forEach((track, idx) => {
+    const item = document.createElement("div");
+    item.className = "track-item track-entry";
+    if (idx === currentTrackIndex) item.classList.add("active");
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = `${idx + 1}. ${track.title}`;
+    titleSpan.style.cursor = "pointer";
+    const miniCanvas = document.createElement("canvas");
+    miniCanvas.className = "track-waveform-mini";
+    miniCanvas.width = 80;
+    miniCanvas.height = 16;
+    const delBtn = document.createElement("button");
+    delBtn.className = "mini-del";
+    delBtn.title = "Remove Track";
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
+    delBtn.style.visibility = idx === currentTrackIndex ? "hidden" : "visible";
+    delBtn.onclick = async (e) => {
+      e.stopPropagation();
+      try {
+        await db_default.tracks.delete(track.id);
+        const url = objectUrlCache.get(track.id);
+        if (url) {
+          URL.revokeObjectURL(url);
+          objectUrlCache.delete(track.id);
+        }
+        waveformPrefetch.delete(track.id);
+        if (currentTrackIndex === idx) {
+          engine.stop();
+          isPlaying = false;
+          currentTrackIndex = -1;
+        } else if (currentTrackIndex > idx) {
+          currentTrackIndex--;
+        }
+        await loadTracks(track.playlistId);
+      } catch (err) {
+        console.error("Failed to delete track", err);
+      }
+    };
+    item.onclick = () => playTrack(idx);
+    titleSpan.onclick = (e) => {
+      e.stopPropagation();
+      playTrack(idx);
+    };
+    item.appendChild(titleSpan);
+    item.appendChild(miniCanvas);
+    item.appendChild(delBtn);
+    tracksList.appendChild(item);
+    drawTrackMiniWaveform(track, miniCanvas, idx === currentTrackIndex);
+  });
+  try {
+    createIcons({ icons });
+  } catch (e) {
+  }
+}
+async function drawTrackMiniWaveform(track, canvas, isActive = false) {
+  const ctx = canvas.getContext("2d");
+  let data = waveformCache.get(track.id);
+  if (!data) {
+    try {
+      data = await engine.getWaveformData(track.fileBlob);
+      waveformCache.set(track.id, data);
+    } catch (e) {
+      return;
+    }
+  }
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  const computed = getComputedStyle(document.documentElement);
+  const pinkMain = (computed.getPropertyValue("--pink-main") || "#ff758f").trim();
+  const whiteColor = "rgba(255, 255, 255, 0.95)";
+  function hexToRgba(hex, alpha = 1) {
+    const h2 = hex.replace("#", "").trim();
+    const full = h2.length === 3 ? h2.split("").map((c) => c + c).join("") : h2;
+    const bigint = parseInt(full, 16);
+    const r = bigint >> 16 & 255;
+    const g = bigint >> 8 & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  const isThisActive = !!isActive;
+  try {
+    const parent = canvas.parentElement;
+    if (parent) {
+      const delBtn = parent.querySelector(".mini-del");
+      if (delBtn) {
+        delBtn.style.color = isThisActive ? pinkMain : whiteColor;
+        delBtn.style.display = isThisActive ? "none" : "";
+      }
+    }
+  } catch (e) {
+  }
+  const step = Math.max(1, Math.ceil(data.length / w));
+  const amp = h / 2;
+  for (let i = 0; i < w; i++) {
+    let min = 1;
+    let max = -1;
+    for (let j = 0; j < step; j++) {
+      const idx = i * step + j;
+      if (idx >= data.length) break;
+      const datum = data[idx];
+      if (datum < min) min = datum;
+      if (datum > max) max = datum;
+    }
+    if (isThisActive) {
+      ctx.fillStyle = hexToRgba(pinkMain, 0.96);
+    } else {
+      ctx.fillStyle = whiteColor;
+    }
+    const x = i;
+    const y = (1 + min) * amp;
+    const height = Math.max(1, (max - min) * amp);
+    ctx.fillRect(x, y, 1, height);
+  }
+}
+async function playTrack(index) {
+  if (index < 0 || index >= currentTracks.length) return;
+  currentTrackIndex = index;
+  const track = currentTracks[index];
+  try {
+    const cachedUrl = objectUrlCache.get(track.id);
+    if (cachedUrl) {
+      await engine.playUrl(cachedUrl);
+    } else {
+      await engine.playTrack(track.fileBlob);
+      try {
+        const url = URL.createObjectURL(track.fileBlob);
+        objectUrlCache.set(track.id, url);
+      } catch (e) {
+      }
+    }
+    updateFX();
+    isPlaying = true;
+    updateTracksUI();
+  } catch (e) {
+    console.error("Mangle failed", e);
+  }
+}
+function updateTracksUI() {
+  const items = tracksList.querySelectorAll(".track-entry");
+  const computed = getComputedStyle(document.documentElement);
+  const pinkMain = (computed.getPropertyValue("--pink-main") || "#ff758f").trim();
+  const whiteColor = "rgba(255, 255, 255, 0.95)";
+  items.forEach((item, idx) => {
+    const active = idx === currentTrackIndex;
+    item.classList.toggle("active", active);
+    try {
+      const del = item.querySelector(".mini-del");
+      if (del) {
+        del.style.color = active ? pinkMain : whiteColor;
+        del.style.visibility = active ? "hidden" : "visible";
+      }
+    } catch (e) {
+    }
+    const canvas = item.querySelector(".track-waveform-mini");
+    if (canvas && currentTracks[idx]) {
+      drawTrackMiniWaveform(currentTracks[idx], canvas, active);
+    }
+  });
+}
+function updateFX() {
+  engine.setPitch(parseFloat(pitchSlider.value));
+  engine.setFilter(parseFloat(cutoffSlider.value), parseFloat(resoSlider.value));
+  engine.setDrive(parseFloat(driveSlider.value));
+  engine.setDelay(parseFloat(delaySlider.value));
+}
+async function handleFileUpload(e, activePlaylistId2) {
+  if (!activePlaylistId2) return;
+  const files = Array.from(e.target.files);
+  for (const file of files) {
+    await db_default.tracks.add({
+      title: file.name.replace(/\.[^/.]+$/, ""),
+      fileName: file.name,
+      fileBlob: file,
+      playlistId: activePlaylistId2
+    });
+  }
+  await loadTracks(activePlaylistId2);
+}
+
+// mnt/data/build_playa/playlists.js
+import { createIcons as createIcons2, icons as icons2 } from "https://esm.sh/lucide";
+createIcons2({ icons: icons2 });
+var _storedActive = localStorage.getItem("activePlaylistId");
+var activePlaylistId = _storedActive ? parseInt(_storedActive, 10) : null;
+var playlistsList = document.getElementById("playlists-list");
+var playlistNameInput = document.getElementById("current-playlist-name-input");
+async function ensureDefaultPlaylist() {
+  const count = await db_default.playlists.count();
+  if (count === 0) await db_default.playlists.add({ name: "Mangle Zone 1" });
+}
+async function loadPlaylists() {
+  const playlists = await db_default.playlists.toArray();
+  playlistsList.innerHTML = "";
+  playlists.forEach((pl) => {
+    const item = document.createElement("div");
+    item.className = "track-item playlist-entry";
+    item.dataset.id = pl.id;
+    if (activePlaylistId === pl.id) item.classList.add("active");
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = pl.name;
+    nameSpan.style.flex = "1";
+    nameSpan.style.cursor = "pointer";
+    nameSpan.onclick = () => selectPlaylist(pl.id, pl.name);
+    item.onclick = () => selectPlaylist(pl.id, pl.name);
+    const delBtn = document.createElement("button");
+    delBtn.className = "mini-del";
+    delBtn.title = "Remove Playlist";
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
+    const isActivePL = activePlaylistId === pl.id;
+    if (isActivePL) {
+      delBtn.style.display = "none";
+      delBtn.disabled = true;
+      delBtn.style.pointerEvents = "none";
+    } else {
+      delBtn.style.display = "";
+      delBtn.disabled = false;
+      delBtn.style.pointerEvents = "";
+    }
+    delBtn.onclick = async (e) => {
+      e.stopPropagation();
+      try {
+        const plId = pl.id;
+        const tracksInPL = await db_default.tracks.where("playlistId").equals(plId).toArray();
+        for (const t of tracksInPL) {
+          try {
+            const url = objectUrlCache.get(t.id);
+            if (url) {
+              URL.revokeObjectURL(url);
+              objectUrlCache.delete(t.id);
+            }
+          } catch (e2) {
+          }
+          try {
+            waveformPrefetch.delete(t.id);
+          } catch (e2) {
+          }
+          try {
+            await db_default.tracks.delete(t.id);
+          } catch (e2) {
+          }
+        }
+        await db_default.playlists.delete(plId);
+        const remaining = await db_default.playlists.toArray();
+        if (remaining.length === 0) {
+          const newId = await db_default.playlists.add({ name: "Mangle Zone 1" });
+          await loadPlaylists();
+          selectPlaylist(newId, "Mangle Zone 1");
+        } else {
+          await loadPlaylists();
+          if (activePlaylistId === plId) {
+            const pick = remaining[0];
+            selectPlaylist(pick.id, pick.name);
+          } else {
+            const stillThere = remaining.find((r) => r.id === activePlaylistId);
+            if (stillThere) selectPlaylist(stillThere.id, stillThere.name);
+            else {
+              selectPlaylist(remaining[0].id, remaining[0].name);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to delete playlist", err);
+      }
+    };
+    item.appendChild(nameSpan);
+    item.appendChild(delBtn);
+    playlistsList.appendChild(item);
+  });
+  try {
+    createIcons2({ icons: icons2 });
+  } catch (e) {
+  }
+  if (!activePlaylistId && playlists.length > 0) {
+    selectPlaylist(playlists[0].id, playlists[0].name);
+  }
+}
+async function selectPlaylist(id, name) {
+  activePlaylistId = id;
+  try {
+    localStorage.setItem("activePlaylistId", String(id));
+  } catch (e) {
+  }
+  playlistNameInput.value = name;
+  playlistNameInput.classList.toggle("active", true);
+  await loadTracks(id);
+  const items = playlistsList.querySelectorAll(".playlist-entry");
+  const computed = getComputedStyle(document.documentElement);
+  const pinkMain = (computed.getPropertyValue("--pink-main") || "#ff758f").trim();
+  const whiteColor = "rgba(255,255,255,0.95)";
+  items.forEach((item) => {
+    const isActive = item.dataset.id == id;
+    item.classList.toggle("active", isActive);
+    const del = item.querySelector(".mini-del");
+    if (del) {
+      try {
+        del.style.color = isActive ? pinkMain : whiteColor;
+        if (isActive) {
+          del.style.display = "none";
+          del.disabled = true;
+          del.style.pointerEvents = "none";
+        } else {
+          del.style.display = "";
+          del.disabled = false;
+          del.style.pointerEvents = "";
+        }
+      } catch (e) {
+      }
+    }
+  });
+}
+async function createNewPlaylist() {
+  const newName = "New Mangle " + (await db_default.playlists.count() + 1);
+  const id = await db_default.playlists.add({ name: newName });
+  await loadPlaylists();
+  selectPlaylist(id, newName);
+}
+async function updatePlaylistName() {
+  if (!activePlaylistId) return;
+  const newName = playlistNameInput.value.trim() || "Untitled";
+  await db_default.playlists.update(activePlaylistId, { name: newName });
+  loadPlaylists();
+}
+
+// mnt/data/build_playa/ui.js
+var waveformCanvas = document.getElementById("waveform-canvas");
+var canvasCtx = waveformCanvas.getContext("2d");
+var timeDisplay = document.getElementById("time-current");
+function resizeCanvas() {
+  waveformCanvas.width = waveformCanvas.clientWidth;
+  waveformCanvas.height = waveformCanvas.clientHeight;
+}
+function updateLoopUI() {
+  const freqData = engine.getFrequencyData();
+  drawMainVisualizer(freqData);
+  const duration = engine.getDuration();
+  if (duration > 0) {
+    const current = engine.getCurrentTime();
+    timeDisplay.textContent = formatTime(current);
+  }
+  requestAnimationFrame(updateLoopUI);
+}
+function drawMainVisualizer(data) {
+  const w = waveformCanvas.width;
+  const h = waveformCanvas.height;
+  canvasCtx.clearRect(0, 0, w, h);
+  const barWidth = w / data.length;
+  const isActive = currentTrackIndex !== -1 && getIsPlaying();
+  const computed = getComputedStyle(document.documentElement);
+  const pinkMain = computed.getPropertyValue("--pink-main").trim() || "#ff758f";
+  function hexToRgba(hex, alpha) {
+    const h2 = hex.replace("#", "");
+    const bigint = parseInt(h2.length === 3 ? h2.split("").map((c) => c + c).join("") : h2, 16);
+    const r = bigint >> 16 & 255;
+    const g = bigint >> 8 & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  for (let i = 0; i < data.length; i++) {
+    const magnitude = data[i] / 255;
+    const barHeight = magnitude * h;
+    const alpha = 0.5 + magnitude * 0.5;
+    if (isActive) canvasCtx.fillStyle = hexToRgba(pinkMain, alpha);
+    else canvasCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    canvasCtx.fillRect(i * barWidth, h - barHeight, Math.max(1, barWidth - 1), barHeight);
+  }
+}
+function formatTime(seconds) {
+  if (isNaN(seconds)) return "00:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+
+// mnt/data/build_playa/controls.js
+var playBtn = document.getElementById("play-btn");
+var pauseBtn = document.getElementById("pause-btn");
+var stopBtn = document.getElementById("stop-btn");
+var prevBtn = document.getElementById("prev-btn");
+var nextBtn = document.getElementById("next-btn");
+var resetFxBtn = document.getElementById("reset-fx-btn");
+var randomBtn = document.getElementById("random-btn");
+var volSlider = document.getElementById("volume-slider");
+var pitchSlider2 = document.getElementById("pitch-slider");
+var pitchValueLabel2 = document.getElementById("pitch-value");
+var cutoffSlider2 = document.getElementById("cutoff-slider");
+var cutoffValueLabel2 = document.getElementById("cutoff-value");
+var resoSlider2 = document.getElementById("reso-slider");
+var driveSlider2 = document.getElementById("drive-slider");
+var delaySlider2 = document.getElementById("delay-slider");
+var addPlaylistBtn = document.getElementById("add-playlist-btn");
+var playlistNameInput2 = document.getElementById("current-playlist-name-input");
+var addTracksBtn = document.getElementById("add-tracks-btn");
+var fileInput2 = document.getElementById("file-input");
+function setupEventListeners() {
+  playBtn.onclick = () => {
+    if (currentTrackIndex === -1 && currentTracks.length > 0) playTrack(0);
+    else {
+      engine.resume();
+      setPlaying(true);
+    }
+  };
+  pauseBtn.onclick = () => {
+    engine.pause();
+    setPlaying(false);
+  };
+  stopBtn.onclick = () => {
+    engine.stop();
+    setPlaying(false);
+  };
+  prevBtn.onclick = () => {
+    if (currentTrackIndex > 0) playTrack(currentTrackIndex - 1);
+  };
+  nextBtn.onclick = () => {
+    if (currentTrackIndex < currentTracks.length - 1) playTrack(currentTrackIndex + 1);
+  };
+  resetFxBtn.onclick = () => {
+    pitchSlider2.value = 1;
+    pitchValueLabel2.textContent = "1.00x";
+    cutoffSlider2.value = 1;
+    cutoffValueLabel2.textContent = "MAX";
+    resoSlider2.value = 0;
+    driveSlider2.value = 0;
+    delaySlider2.value = 0;
+    updateFX();
+  };
+  randomBtn.onclick = () => {
+    if (currentTracks.length === 0) return;
+    let randomIndex = Math.floor(Math.random() * currentTracks.length);
+    if (currentTracks.length > 1 && randomIndex === currentTrackIndex) {
+      randomIndex = (randomIndex + 1) % currentTracks.length;
+    }
+    playTrack(randomIndex);
+  };
+  volSlider.oninput = (e) => engine.setVolume(e.target.value);
+  pitchSlider2.oninput = (e) => {
+    const val = parseFloat(e.target.value);
+    engine.setPitch(val);
+    pitchValueLabel2.textContent = val.toFixed(2) + "x";
+  };
+  cutoffSlider2.oninput = (e) => {
+    const val = parseFloat(e.target.value);
+    engine.setFilter(val, parseFloat(resoSlider2.value));
+    cutoffValueLabel2.textContent = val > 0.95 ? "MAX" : (val * 100).toFixed(0) + "%";
+  };
+  resoSlider2.oninput = (e) => {
+    engine.setFilter(parseFloat(cutoffSlider2.value), parseFloat(e.target.value));
+  };
+  driveSlider2.oninput = (e) => {
+    engine.setDrive(parseFloat(e.target.value));
+  };
+  delaySlider2.oninput = (e) => {
+    engine.setDelay(parseFloat(e.target.value));
+  };
+  addPlaylistBtn.onclick = createNewPlaylist;
+  playlistNameInput2.onblur = updatePlaylistName;
+  playlistNameInput2.onkeydown = (e) => {
+    if (e.key === "Enter") playlistNameInput2.blur();
+  };
+  addTracksBtn.onclick = () => fileInput2.click();
+  fileInput2.onchange = (e) => handleFileUpload(e, activePlaylistId);
+  engine.onEnded(() => {
+    if (currentTrackIndex < currentTracks.length - 1) playTrack(currentTrackIndex + 1);
+    else setPlaying(false);
+  });
+  window.onresize = () => {
+    const evt = new Event("resize");
+    window.dispatchEvent(evt);
+  };
+}
+
+// mnt/data/build_playa/app.js
+createIcons3({ icons: icons3 });
+var engine = new AudioEngine();
+var objectUrlCache = /* @__PURE__ */ new Map();
+var waveformPrefetch = /* @__PURE__ */ new Set();
+async function init() {
+  await ensureDefaultPlaylist();
+  await loadPlaylists();
+  await loadTracks();
+  setupEventListeners();
+  resizeCanvas();
+  requestAnimationFrame(updateLoopUI);
+}
+init();
+export {
+  engine,
+  objectUrlCache,
+  waveformPrefetch
+};
+
+</script>
+</body>
+</html>

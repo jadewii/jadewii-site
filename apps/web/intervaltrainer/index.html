@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Interval Trainer â JAde Wii</title>
+  <link rel="stylesheet" href="../../../assets/site.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --panel-2: #f9f9f9;
+      --text: #111111;
+      --muted: #5b5b5b;
+      --border: #e0e0e0;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      --green: #27ae60;
+      --gold: #d4af37;
+      --red: #c0392b;
+      --teal: #16a085;
+      --sky: #87ceeb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .page.page-app {
+      padding-top: 7.5rem;
+      padding-bottom: 2rem;
+      min-height: 100vh;
+      font-family: "Roboto Mono", monospace;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .back-to-apps:hover {
+      background-color: #6a5acd;
+      transform: translateY(-2px);
+    }
+
+    .app-shell {
+      height: calc(100vh - 140px);
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.85fr);
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      min-height: 0;
+    }
+
+    .main-panel {
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .side-panel {
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto auto auto minmax(0, 1fr);
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .title-wrap h1,
+    .title-wrap p,
+    .badge,
+    .control label,
+    .section-label,
+    button,
+    select,
+    #interval-display,
+    #feedback,
+    .label,
+    .value,
+    #level-display,
+    .side-note {
+      text-transform: uppercase;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
+
+    .title-wrap p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 52ch;
+      line-height: 1.45;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      margin-bottom: 10px;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .control {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .control label,
+    .section-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    select,
+    button {
+      font: inherit;
+    }
+
+    select {
+      width: 100%;
+      min-width: 0;
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--text);
+      padding: 0 14px;
+      appearance: none;
+      outline: none;
+    }
+
+    .game-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      display: grid;
+      grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    #interval-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 110px;
+      border: 2px dashed var(--border);
+      border-radius: 20px;
+      background: #fff;
+      text-align: center;
+      padding: 12px;
+      font-size: clamp(1.6rem, 3.2vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.05;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr 0.9fr;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+    }
+
+    button:hover {
+      filter: brightness(0.97);
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+
+    #play-interval-btn {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    #play-interval-btn.beginner {
+      background: var(--green);
+    }
+    #play-interval-btn.intermediate {
+      background: var(--gold);
+      color: #111;
+    }
+    #play-interval-btn.advanced {
+      background: var(--red);
+    }
+
+    #listen-again-btn {
+      background: var(--sky);
+      color: #111;
+      font-weight: 700;
+    }
+
+    #new-game-btn {
+      background: var(--teal);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    #interval-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      min-height: 0;
+      align-content: start;
+    }
+
+    #interval-options button {
+      min-height: 58px;
+      background: #111;
+      color: #fff;
+      font-weight: 700;
+      font-size: clamp(0.9rem, 1.3vw, 1rem);
+      line-height: 1.15;
+      padding: 12px 10px;
+    }
+
+    #feedback {
+      min-height: 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .correct {
+      color: #1f8f4d;
+    }
+    .incorrect {
+      color: #d43a2f;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+
+    .stat .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .stat .value {
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      font-weight: 700;
+    }
+
+    #level-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    #level-buttons button {
+      color: #fff;
+      font-weight: 700;
+      min-height: 54px;
+    }
+
+    #level-buttons button[onclick*="beginner"] {
+      background: var(--green);
+    }
+    #level-buttons button[onclick*="intermediate"] {
+      background: var(--gold);
+      color: #111;
+    }
+    #level-buttons button[onclick*="advanced"] {
+      background: var(--red);
+    }
+
+    #level-display {
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+
+    .beginner {
+      background: #dff4e8;
+      color: #124b2b;
+    }
+    .intermediate {
+      background: #f8efc8;
+      color: #5d4700;
+    }
+    .advanced {
+      background: #f6d7d3;
+      color: #6f1e16;
+    }
+
+    .side-note {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      color: var(--muted);
+      line-height: 1.5;
+      overflow: auto;
+    }
+
+    .tiny {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 1100px) {
+      .page.page-app {
+        min-height: auto;
+      }
+
+      .app-shell {
+        height: auto;
+        min-height: calc(100vh - 180px);
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+
+      .side-panel,
+      .main-panel {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .control-row,
+      .action-row,
+      .stats,
+      #level-buttons,
+      #interval-options {
+        grid-template-columns: 1fr;
+      }
+
+      #interval-display {
+        min-height: 92px;
+        font-size: 1.9rem;
+      }
+
+      .main-panel,
+      .side-panel {
+        padding: 14px;
+      }
+
+      .game-card,
+      .control,
+      .stat,
+      .side-note,
+      #level-display {
+        border-radius: 16px;
+      }
+    }
+
+    @media (max-height: 820px) and (min-width: 900px) {
+      .app-shell {
+        gap: 12px;
+        height: calc(100vh - 140px);
+      }
+
+      .main-panel,
+      .side-panel {
+        padding: 14px;
+        gap: 10px;
+      }
+
+      .topbar {
+        padding-bottom: 10px;
+      }
+
+      .title-wrap p {
+        font-size: 0.88rem;
+      }
+
+      .control,
+      .game-card,
+      .stat,
+      .side-note,
+      #level-display {
+        padding: 12px;
+      }
+
+      #interval-display {
+        min-height: 90px;
+      }
+
+      #interval-options button,
+      #level-buttons button,
+      .action-row button,
+      select {
+        min-height: 46px;
+        height: auto;
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+    }
+
+            .app-page-header {
+                margin-bottom: 24px;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+  </style>
+</head>
+<body data-page="app-detail" data-root="../../../">
+  <div id="site-header"></div>
+
+  <main class="page page-app">
+    <div class="container">
+                <div class="app-page-header">
+                    <a href="../../../apps.html">â back to apps</a>
+                </div>
+      <div class="app-shell">
+        <section class="panel main-panel">
+          <div class="topbar">
+            <div class="title-wrap">
+              <div class="badge">INTERVAL TRAINER</div>
+              <h1>INTERVAL TRAINER</h1>
+              <p>LISTEN TO THE INTERVAL AND CHOOSE THE CORRECT ANSWER. SWITCH WAVEFORM, CHANGE ROOT NOTE, AND MOVE THROUGH THREE DIFFICULTY LEVELS.</p>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <div class="control">
+              <label for="instrument-select">WAVEFORM</label>
+              <select id="instrument-select" onchange="changeInstrument()">
+                <option value="sine">SINE</option>
+                <option value="square">SQUARE</option>
+                <option value="sawtooth">SAWTOOTH</option>
+                <option value="triangle">TRIANGLE</option>
+              </select>
+            </div>
+
+            <div class="control">
+              <label for="root-note-select">ROOT NOTE</label>
+              <select id="root-note-select" onchange="changeRootNote()">
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="D">D</option>
+                <option value="D#">D#</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F#</option>
+                <option value="G">G</option>
+                <option value="G#">G#</option>
+                <option value="A" selected>A</option>
+                <option value="A#">A#</option>
+                <option value="B">B</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="game-card">
+            <div class="section-label">CURRENT INTERVAL</div>
+            <div id="interval-display">TAP PLAY INTERVAL TO START</div>
+
+            <div class="action-row">
+              <button id="play-interval-btn" onclick="playInterval()" class="beginner">PLAY INTERVAL</button>
+              <button id="listen-again-btn" onclick="listenAgain()">LISTEN AGAIN</button>
+              <button id="new-game-btn" onclick="newGame()">NEW GAME</button>
+            </div>
+
+            <div id="feedback"></div>
+
+            <div id="interval-options"></div>
+          </div>
+        </section>
+
+        <aside class="panel side-panel">
+          <div>
+            <div class="section-label">SCORE</div>
+            <div class="stats">
+              <div class="stat">
+                <div class="label">CORRECT</div>
+                <div class="value" id="correct-score">0</div>
+              </div>
+              <div class="stat">
+                <div class="label">INCORRECT</div>
+                <div class="value" id="incorrect-score">0</div>
+              </div>
+              <div class="stat">
+                <div class="label">COMPLETED</div>
+                <div class="value" id="intervals-completed">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-label">DIFFICULTY</div>
+            <div id="level-buttons">
+              <button onclick="changeLevel('beginner')">BEGINNER</button>
+              <button onclick="changeLevel('intermediate')">INTERMEDIATE</button>
+              <button onclick="changeLevel('advanced')">ADVANCED</button>
+            </div>
+          </div>
+
+          <div id="level-display" class="beginner">CURRENT LEVEL: BEGINNER</div>
+
+          <div class="side-note">
+            <strong>HOW IT WORKS</strong><br /><br />
+            HIT <strong>PLAY INTERVAL</strong>, LISTEN TO THE TWO NOTES, THEN CHOOSE THE CORRECT INTERVAL. USE <strong>LISTEN AGAIN</strong> ANY TIME. CHANGE WAVEFORM OR ROOT NOTE TO TRAIN YOUR EAR IN DIFFERENT CONTEXTS.
+            <br /><br />
+            <div class="tiny">BUILT WITH BROWSER AUDIO. WORKS BEST FROM A LOCAL SERVER OR LIVE SITE INSTEAD OF OPENING DIRECTLY FROM FILE:///.</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="../../../assets/site.js"></script>
+  <script>
+    let audioContext;
+
+    const intervals = {
+      beginner: ["MINOR 2ND", "MAJOR 2ND", "MINOR 3RD", "MAJOR 3RD", "PERFECT 4TH", "PERFECT 5TH", "OCTAVE"],
+      intermediate: ["MINOR 2ND", "MAJOR 2ND", "MINOR 3RD", "MAJOR 3RD", "PERFECT 4TH", "TRITONE", "PERFECT 5TH", "MINOR 6TH", "MAJOR 6TH", "MINOR 7TH", "MAJOR 7TH", "OCTAVE"],
+      advanced: ["MINOR 2ND", "MAJOR 2ND", "MINOR 3RD", "MAJOR 3RD", "PERFECT 4TH", "TRITONE", "PERFECT 5TH", "MINOR 6TH", "MAJOR 6TH", "MINOR 7TH", "MAJOR 7TH", "OCTAVE", "MINOR 9TH", "MAJOR 9TH", "MINOR 10TH", "MAJOR 10TH"]
+    };
+
+    const intervalRatios = {
+      "MINOR 2ND": 16/15, "MAJOR 2ND": 9/8, "MINOR 3RD": 6/5, "MAJOR 3RD": 5/4, "PERFECT 4TH": 4/3,
+      "TRITONE": Math.pow(2, 6/12), "PERFECT 5TH": 3/2, "MINOR 6TH": 8/5, "MAJOR 6TH": 5/3,
+      "MINOR 7TH": 16/9, "MAJOR 7TH": 15/8, "OCTAVE": 2, "MINOR 9TH": 16/7, "MAJOR 9TH": 9/4,
+      "MINOR 10TH": 12/5, "MAJOR 10TH": 5/2
+    };
+
+    const noteFrequencies = {
+      "C": 261.63, "C#": 277.18, "D": 293.66, "D#": 311.13, "E": 329.63, "F": 349.23,
+      "F#": 369.99, "G": 392.0, "G#": 415.3, "A": 440.0, "A#": 466.16, "B": 493.88
+    };
+
+    const noteColors = {
+      "C": "#FFB3BA", "C#": "#FFDFBA", "D": "#FFFFBA", "D#": "#BAFFC9", "E": "#BAE1FF", "F": "#D0BAFF",
+      "F#": "#F2BAFF", "G": "#FFB3BA", "G#": "#BAFFC9", "A": "#FFD6D6", "A#": "#E6D2B5", "B": "#C1E1C1"
+    };
+
+    let currentInterval;
+    let score = {correct: 0, incorrect: 0, intervalsCompleted: 0};
+    let currentLevel = "beginner";
+    let currentInstrument = "sine";
+    let baseFrequency = noteFrequencies["A"];
+
+    function ensureAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    }
+
+    function playNote(frequency, duration = 0.5) {
+      ensureAudioContext();
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = currentInstrument;
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+      const gainNode = audioContext.createGain();
+      gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    function playInterval() {
+      currentInterval = intervals[currentLevel][Math.floor(Math.random() * intervals[currentLevel].length)];
+      const ratio = intervalRatios[currentInterval];
+
+      playNote(baseFrequency);
+      setTimeout(() => playNote(baseFrequency * ratio), 500);
+
+      document.getElementById("interval-display").textContent = "LISTEN";
+      updateIntervalOptions();
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("feedback").className = "";
+    }
+
+    function listenAgain() {
+      if (!currentInterval) return;
+      const ratio = intervalRatios[currentInterval];
+      playNote(baseFrequency);
+      setTimeout(() => playNote(baseFrequency * ratio), 500);
+    }
+
+    function changeRootNote() {
+      const selectedNote = document.getElementById("root-note-select").value;
+      baseFrequency = noteFrequencies[selectedNote];
+      document.getElementById("root-note-select").style.backgroundColor = noteColors[selectedNote];
+    }
+
+    function updateScoreDisplay() {
+      document.getElementById("correct-score").textContent = score.correct;
+      document.getElementById("incorrect-score").textContent = score.incorrect;
+      document.getElementById("intervals-completed").textContent = score.intervalsCompleted;
+    }
+
+    function checkAnswer(selectedInterval) {
+      const feedbackElement = document.getElementById("feedback");
+
+      if (selectedInterval === currentInterval) {
+        feedbackElement.textContent = "CORRECT!";
+        feedbackElement.className = "correct";
+        score.correct++;
+        score.intervalsCompleted++;
+        updateScoreDisplay();
+        setTimeout(() => { playInterval(); }, 900);
+      } else {
+        feedbackElement.textContent = "INCORRECT. TRY AGAIN!";
+        feedbackElement.className = "incorrect";
+        score.incorrect++;
+        updateScoreDisplay();
+      }
+    }
+
+    function updateIntervalOptions() {
+      const intervalOptions = document.getElementById("interval-options");
+      intervalOptions.innerHTML = "";
+
+      const options = [currentInterval];
+      while (options.length < 4) {
+        const randomInterval = intervals[currentLevel][Math.floor(Math.random() * intervals[currentLevel].length)];
+        if (!options.includes(randomInterval)) {
+          options.push(randomInterval);
+        }
+      }
+
+      options.sort(() => Math.random() - 0.5).forEach((interval) => {
+        const button = document.createElement("button");
+        button.textContent = interval;
+        button.onclick = () => checkAnswer(interval);
+        intervalOptions.appendChild(button);
+      });
+    }
+
+    function newGame() {
+      score = {correct: 0, incorrect: 0, intervalsCompleted: 0};
+      updateScoreDisplay();
+      currentInterval = null;
+      document.getElementById("interval-display").textContent = "TAP PLAY INTERVAL TO START";
+      document.getElementById("interval-options").innerHTML = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("feedback").className = "";
+    }
+
+    function changeLevel(level) {
+      currentLevel = level;
+      const levelDisplay = document.getElementById("level-display");
+      levelDisplay.textContent = `CURRENT LEVEL: ${level.toUpperCase()}`;
+      levelDisplay.className = level;
+
+      const playIntervalBtn = document.getElementById("play-interval-btn");
+      playIntervalBtn.className = level;
+      playIntervalBtn.id = "play-interval-btn";
+
+      newGame();
+    }
+
+    function changeInstrument() {
+      currentInstrument = document.getElementById("instrument-select").value;
+    }
+
+    changeLevel("beginner");
+    changeRootNote();
+  </script>
+</body>
+</html>

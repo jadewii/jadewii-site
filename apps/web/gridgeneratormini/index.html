@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>GridGenerator Mini â JAde Wii</title>
+        <link rel="stylesheet" href="../../../assets/site.css" />
+        <style>
+            .page.page-app {
+                padding-top: 7.5rem;
+                padding-bottom: 2rem;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #ffffff;
+                font-family: "futura", futura;
+            }
+
+            .back-to-apps:hover {
+                background-color: #6a5acd;
+                transform: translateY(-2px);
+            }
+
+            .tracker-container {
+                background-color: #ffb3d9;
+                padding: 20px;
+                max-width: 95vw;
+                max-height: calc(100vh - 180px);
+                overflow-y: auto;
+            }
+
+            .tracker-grid {
+                display: grid;
+                grid-template-columns: repeat(16, 1fr);
+                gap: 5px;
+                margin-bottom: 10px;
+            }
+
+            .cell {
+                width: 25px;
+                height: 25px;
+                background-color: #fff0f5;
+                border: 2px solid #ff69b4;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .cell.active {
+                background-color: #ff69b4;
+            }
+
+            .controls {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            button {
+                background-color: #ff69b4;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            button:hover {
+                background-color: #ff1493;
+            }
+
+            .kawaii-face {
+                font-size: 40px;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .instrument-labels {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 5px;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .instrument-label {
+                font-size: 14px;
+                color: #ff1493;
+                white-space: nowrap;
+            }
+
+            #generateButton {
+                background-color: #00cc99;
+                margin-top: 20px;
+            }
+
+            #generateButton:hover {
+                background-color: #00aa77;
+            }
+
+            #tempoDisplay,
+            #scaleDisplay {
+                text-align: center;
+                font-size: 18px;
+                color: #ff1493;
+                margin-top: 10px;
+            }
+
+            @media (max-width: 768px) {
+                .page.page-app {
+                    padding-top: 6rem;
+                }
+
+                .tracker-container {
+                    max-height: calc(100vh - 120px);
+                    padding: 15px;
+                }
+            }
+
+            .app-page-header {
+                margin-bottom: 24px;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+        
+            .app-page-header {
+                position: fixed;
+                top: 90px;
+                left: 20px;
+                z-index: 999;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body data-page="app-detail" data-root="../../../">
+        <div id="site-header"></div>
+
+        <main class="page page-app">
+            <div class="app-page-header">
+                <a href="../../../apps.html">← back to apps</a>
+            </div>
+            <div class="tracker-container">
+                <div class="kawaii-face">Êâ¢á´¥â¢Ê</div>
+                <div class="controls">
+                    <button id="playButton">â¶ Play</button>
+                    <button id="stopButton">â  Stop</button>
+                    <button id="clearButton">Clear</button>
+                </div>
+                <div class="instrument-labels">
+                    <div class="instrument-label">instrument 1</div>
+                    <div class="tracker-grid" id="sineGrid"></div>
+                    <div class="instrument-label">instrument 2</div>
+                    <div class="tracker-grid" id="sawGrid"></div>
+                    <div class="instrument-label">instrument 3</div>
+                    <div class="tracker-grid" id="squareGrid"></div>
+                    <div class="instrument-label">Bass</div>
+                    <div class="tracker-grid" id="bassGrid"></div>
+                    <div class="instrument-label">Kick</div>
+                    <div class="tracker-grid" id="kickGrid"></div>
+                    <div class="instrument-label">Snare</div>
+                    <div class="tracker-grid" id="snareGrid"></div>
+                    <div class="instrument-label">Open Hat</div>
+                    <div class="tracker-grid" id="openHatGrid"></div>
+                    <div class="instrument-label">Closed Hat</div>
+                    <div class="tracker-grid" id="closedHatGrid"></div>
+                </div>
+                <button id="generateButton">Generate Random Pattern</button>
+                <div id="tempoDisplay"></div>
+                <div id="scaleDisplay"></div>
+            </div>
+        </main>
+
+        <div id="site-footer"></div>
+        <script src="../../../assets/site.js"></script>
+        <script>
+            const audioContext = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+            let isPlaying = false;
+            let currentStep = 0;
+            let bpm = 120;
+            const stepsPerBeat = 4;
+            const totalSteps = 16;
+
+            const scales = {
+                "C Major": [
+                    261.63, 293.66, 329.63, 349.23, 392.0, 440.0, 493.88,
+                ],
+                "A Minor": [
+                    220.0, 246.94, 261.63, 293.66, 329.63, 349.23, 415.3,
+                ],
+                "G Major": [
+                    196.0, 220.0, 246.94, 261.63, 293.66, 329.63, 392.0,
+                ],
+                "E Minor": [
+                    164.81, 196.0, 220.0, 246.94, 261.63, 293.66, 329.63,
+                ],
+                "F Major": [
+                    174.61, 196.0, 220.0, 233.08, 261.63, 293.66, 349.23,
+                ],
+                "D Minor": [
+                    146.83, 164.81, 174.61, 196.0, 220.0, 246.94, 293.66,
+                ],
+            };
+
+            let currentScale = "C Major";
+            let currentScaleNotes = scales[currentScale];
+
+            const bassNotes = [
+                65.41, 73.42, 82.41, 87.31, 98.0, 110.0, 123.47, 130.81,
+            ];
+
+            const grids = {
+                sine: createGrid("sineGrid"),
+                saw: createGrid("sawGrid"),
+                square: createGrid("squareGrid"),
+                bass: createGrid("bassGrid"),
+                kick: createGrid("kickGrid"),
+                snare: createGrid("snareGrid"),
+                openHat: createGrid("openHatGrid"),
+                closedHat: createGrid("closedHatGrid"),
+            };
+
+            function createGrid(id) {
+                const grid = document.getElementById(id);
+                const cells = [];
+                for (let i = 0; i < totalSteps; i++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    cell.addEventListener("click", () => toggleCell(cell));
+                    grid.appendChild(cell);
+                    cells.push(cell);
+                }
+                return cells;
+            }
+
+            function toggleCell(cell) {
+                cell.classList.toggle("active");
+            }
+
+            function playStep() {
+                Object.entries(grids).forEach(([instrument, grid]) => {
+                    if (grid[currentStep].classList.contains("active")) {
+                        playSound(instrument);
+                    }
+                });
+
+                Object.values(grids).forEach((grid) => {
+                    grid.forEach((cell) => (cell.style.backgroundColor = ""));
+                    grid[currentStep].style.backgroundColor = "#ffff00";
+                });
+
+                currentStep = (currentStep + 1) % totalSteps;
+            }
+
+            function playSound(instrument) {
+                switch (instrument) {
+                    case "sine":
+                    case "saw":
+                    case "square":
+                        playOscillator(instrument);
+                        break;
+                    case "bass":
+                        playTone(
+                            bassNotes[
+                                Math.floor(Math.random() * bassNotes.length)
+                            ],
+                            0.5,
+                            "sine",
+                        );
+                        break;
+                    case "kick":
+                        playDrum("kick");
+                        break;
+                    case "snare":
+                        play808Snare();
+                        break;
+                    case "openHat":
+                    case "closedHat":
+                        playScaledHat(instrument);
+                        break;
+                }
+            }
+
+            function playOscillator(type) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(
+                    currentScaleNotes[
+                        Math.floor(Math.random() * currentScaleNotes.length)
+                    ],
+                    audioContext.currentTime,
+                );
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioContext.currentTime + 0.5,
+                );
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+
+            function playTone(frequency, duration, type = "sine") {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(
+                    frequency,
+                    audioContext.currentTime,
+                );
+
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioContext.currentTime + duration,
+                );
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + duration);
+            }
+
+            function playDrum(type) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.frequency.setValueAtTime(
+                    150,
+                    audioContext.currentTime,
+                );
+                oscillator.frequency.exponentialRampToValueAtTime(
+                    0.01,
+                    audioContext.currentTime + 0.5,
+                );
+                gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioContext.currentTime + 0.5,
+                );
+
+                const filter = audioContext.createBiquadFilter();
+                filter.type = "lowpass";
+                filter.frequency.setValueAtTime(1000, audioContext.currentTime);
+
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+
+            function playScaledHat(type) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+
+                const baseFrequency =
+                    currentScaleNotes[
+                        Math.floor(Math.random() * currentScaleNotes.length)
+                    ];
+                const scaledFrequency = baseFrequency * 2; // Octave higher for more hat-like sound
+
+                oscillator.type = "square";
+                oscillator.frequency.setValueAtTime(
+                    scaledFrequency,
+                    audioContext.currentTime,
+                );
+
+                filter.type = "highpass";
+                filter.frequency.setValueAtTime(
+                    scaledFrequency,
+                    audioContext.currentTime,
+                );
+
+                if (type === "openHat") {
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.01,
+                        audioContext.currentTime + 0.3,
+                    );
+                } else {
+                    // closedHat
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.01,
+                        audioContext.currentTime + 0.05,
+                    );
+                }
+
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.start();
+                oscillator.stop(
+                    audioContext.currentTime +
+                        (type === "openHat" ? 0.3 : 0.05),
+                );
+            }
+
+            function play808Snare() {
+                const noise = audioContext.createBufferSource();
+                const noiseFilter = audioContext.createBiquadFilter();
+                const noiseEnvelope = audioContext.createGain();
+                const noiseBufferSize = audioContext.sampleRate * 0.1;
+                const buffer = audioContext.createBuffer(
+                    1,
+                    noiseBufferSize,
+                    audioContext.sampleRate,
+                );
+                const bufferData = buffer.getChannelData(0);
+
+                for (let i = 0; i < noiseBufferSize; i++) {
+                    bufferData[i] = Math.random() * 2 - 1;
+                }
+
+                noise.buffer = buffer;
+                noiseFilter.type = "lowpass";
+                noiseFilter.frequency.value = 3000;
+                noiseEnvelope.gain.setValueAtTime(1, audioContext.currentTime);
+                noiseEnvelope.gain.exponentialRampToValueAtTime(
+                    0.01,
+                    audioContext.currentTime + 0.2,
+                );
+
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseEnvelope);
+                noiseEnvelope.connect(audioContext.destination);
+
+                const osc = audioContext.createOscillator();
+                const oscEnvelope = audioContext.createGain();
+
+                osc.type = "triangle";
+                osc.frequency.value = 180;
+                oscEnvelope.gain.setValueAtTime(0.5, audioContext.currentTime);
+                oscEnvelope.gain.exponentialRampToValueAtTime(
+                    0.01,
+                    audioContext.currentTime + 0.1,
+                );
+
+                osc.connect(oscEnvelope);
+                oscEnvelope.connect(audioContext.destination);
+
+                osc.start(audioContext.currentTime);
+                noise.start(audioContext.currentTime);
+
+                osc.stop(audioContext.currentTime + 0.2);
+                noise.stop(audioContext.currentTime + 0.2);
+            }
+
+            document
+                .getElementById("playButton")
+                .addEventListener("click", () => {
+                    if (!isPlaying) {
+                        isPlaying = true;
+                        currentStep = 0;
+                        playLoop();
+                    }
+                });
+
+            document
+                .getElementById("stopButton")
+                .addEventListener("click", () => {
+                    isPlaying = false;
+                });
+
+            document
+                .getElementById("clearButton")
+                .addEventListener("click", () => {
+                    Object.values(grids).forEach((grid) => {
+                        grid.forEach((cell) => cell.classList.remove("active"));
+                    });
+                });
+
+            function playLoop() {
+                if (!isPlaying) return;
+                playStep();
+                setTimeout(playLoop, ((60 / bpm) * 1000) / stepsPerBeat);
+            }
+
+            document
+                .getElementById("generateButton")
+                .addEventListener("click", generateRandomPattern);
+
+            function generateRandomPattern() {
+                // Clear existing patterns
+                Object.values(grids).forEach((grid) => {
+                    grid.forEach((cell) => cell.classList.remove("active"));
+                });
+
+                // Generate new tempo
+                bpm = Math.floor(Math.random() * (180 - 60) + 60);
+                document.getElementById("tempoDisplay").textContent =
+                    `Tempo: ${bpm} BPM`;
+
+                // Change scale randomly
+                const scaleNames = Object.keys(scales);
+                currentScale =
+                    scaleNames[Math.floor(Math.random() * scaleNames.length)];
+                currentScaleNotes = scales[currentScale];
+                document.getElementById("scaleDisplay").textContent =
+                    `Scale: ${currentScale}`;
+
+                // Generate random patterns for each instrument
+                Object.keys(grids).forEach((instrument) => {
+                    let density;
+                    switch (instrument) {
+                        case "sine":
+                        case "saw":
+                        case "square":
+                            density = 0.3;
+                            break;
+                        case "bass":
+                            density = 0.25;
+                            break;
+                        case "kick":
+                            density = 0.5;
+                            break;
+                        case "snare":
+                            density = 0.25;
+                            break;
+                        case "openHat":
+                            density = 0.125;
+                            break;
+                        case "closedHat":
+                            density = 0.5;
+                            break;
+                    }
+
+                    for (let i = 0; i < totalSteps; i++) {
+                        if (Math.random() < density) {
+                            grids[instrument][i].classList.add("active");
+                        }
+                    }
+                });
+            }
+
+            // Initialize
+            generateRandomPattern();
+        </script>
+    </body>
+</html>

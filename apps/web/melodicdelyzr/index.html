@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Melodic Delyzr — JAde Wii</title>
+        <link rel="stylesheet" href="../../../assets/site.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Futura:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            .page.page-app {
+                padding-top: 7.5rem;
+                padding-bottom: 2rem;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                background-color: #ffffff;
+                font-family: "Futura", sans-serif;
+            }
+
+            .jadewii {
+                background-color: #4b0082;
+                padding: 30px;
+                max-height: calc(100vh - 180px);
+                overflow-y: auto;
+                width: 90%;
+                max-width: 1200px;
+            }
+
+            .display {
+                width: 100%;
+                height: 70px;
+                background-color: #2f4f4f;
+                border: 4px solid #1a1a1a;
+                border-radius: 5px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #00ff00;
+                font-size: 24px;
+                font-weight: bold;
+                margin: 0 auto 20px;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            }
+
+            .main-content {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 30px;
+                align-items: start;
+            }
+
+            .left-section {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .right-section {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .control-button {
+                padding: 20px;
+                font-size: 16px;
+                border: none;
+                background-color: #6a5acd;
+                color: #fff;
+                cursor: pointer;
+                font-family: "Futura", sans-serif;
+                border-radius: 5px;
+                font-weight: bold;
+                transition: all 0.2s;
+            }
+
+            .control-button:hover {
+                background-color: #7a6acd;
+                transform: translateY(-2px);
+            }
+
+            .slider {
+                -webkit-appearance: none;
+                width: 100%;
+                height: 50px;
+                background: #6a5acd;
+                outline: none;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+                border-radius: 5px;
+            }
+
+            .slider:hover {
+                opacity: 1;
+            }
+
+            .slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 40px;
+                height: 50px;
+                background: #ff69b4;
+                cursor: pointer;
+                border-radius: 3px;
+            }
+
+            .slider::-moz-range-thumb {
+                width: 40px;
+                height: 50px;
+                background: #ff69b4;
+                cursor: pointer;
+                border-radius: 3px;
+            }
+
+            .pad-grid {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                gap: 12px;
+            }
+
+            .pad {
+                width: 100%;
+                height: 80px;
+                border: none;
+                font-size: 20px;
+                font-weight: bold;
+                cursor: pointer;
+                background-color: #ffff00;
+                color: #1a1a1a;
+                font-family: "Futura", sans-serif;
+                border-radius: 5px;
+                transition: all 0.2s;
+            }
+
+            .pad:hover {
+                background-color: #ffff66;
+                transform: scale(1.05);
+            }
+
+            .pad:active {
+                transform: scale(0.95);
+            }
+
+            .function-buttons {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+
+            .function-button {
+                padding: 20px;
+                font-size: 16px;
+                border: none;
+                background-color: #ff69b4;
+                color: #fff;
+                cursor: pointer;
+                font-family: "Futura", sans-serif;
+                border-radius: 5px;
+                font-weight: bold;
+                transition: all 0.2s;
+            }
+
+            .function-button:hover {
+                background-color: #ff79c4;
+                transform: translateY(-2px);
+            }
+
+            .slider-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .slider-label {
+                color: #fff;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            @media (max-width: 768px) {
+                .page.page-app {
+                    padding-top: 6rem;
+                }
+
+                .jadewii {
+                    width: 95%;
+                    max-width: 400px;
+                    max-height: calc(100vh - 120px);
+                    padding: 20px;
+                }
+
+                .display {
+                    height: 60px;
+                    font-size: 18px;
+                }
+
+                .main-content {
+                    grid-template-columns: 1fr;
+                    gap: 20px;
+                }
+
+                .controls {
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 10px;
+                }
+
+                .control-button {
+                    padding: 10px;
+                    font-size: 12px;
+                }
+
+                .slider {
+                    height: 35px;
+                }
+
+                .slider::-webkit-slider-thumb {
+                    width: 25px;
+                    height: 35px;
+                }
+
+                .slider::-moz-range-thumb {
+                    width: 25px;
+                    height: 35px;
+                }
+
+                .pad-grid {
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 10px;
+                }
+
+                .pad {
+                    height: 60px;
+                    font-size: 16px;
+                }
+
+                .function-button {
+                    padding: 10px;
+                    font-size: 14px;
+                }
+
+                .slider-label {
+                    font-size: 14px;
+                }
+            }
+
+            .app-page-header {
+                width: 90%;
+                max-width: 1200px;
+                margin-bottom: 12px;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body data-page="app-detail" data-root="../../../">
+        <div id="site-header"></div>
+
+        <main class="page page-app">
+            <div class="app-page-header">
+                <a href="../../../apps.html" style="color: #111; text-decoration: none; font-size: 13px; opacity: 0.6; font-weight: 600;">← back to apps</a>
+            </div>
+            <div class="jadewii">
+                <div class="display" id="display">JAde Wii Instruments</div>
+
+                <div class="main-content">
+                    <div class="left-section">
+                        <div class="pad-grid">
+                            <button class="pad" onclick="playNote(0)">
+                                一
+                            </button>
+                            <button class="pad" onclick="playNote(1)">
+                                二
+                            </button>
+                            <button class="pad" onclick="playNote(2)">
+                                三
+                            </button>
+                            <button class="pad" onclick="playNote(3)">
+                                四
+                            </button>
+                            <button class="pad" onclick="playNote(4)">
+                                五
+                            </button>
+                            <button class="pad" onclick="playNote(5)">
+                                六
+                            </button>
+                            <button class="pad" onclick="playNote(6)">
+                                七
+                            </button>
+                            <button class="pad" onclick="playNote(7)">
+                                八
+                            </button>
+                            <button class="pad" onclick="playNote(8)">
+                                九
+                            </button>
+                            <button class="pad" onclick="playNote(9)">
+                                十
+                            </button>
+                            <button class="pad" onclick="playNote(10)">
+                                十一
+                            </button>
+                            <button class="pad" onclick="playNote(11)">
+                                十二
+                            </button>
+                            <button class="pad" onclick="playNote(12)">
+                                十三
+                            </button>
+                            <button class="pad" onclick="playNote(13)">
+                                十四
+                            </button>
+                            <button class="pad" onclick="playNote(14)">
+                                十五
+                            </button>
+                            <button class="pad" onclick="playNote(15)">
+                                十六
+                            </button>
+                            <button class="pad" onclick="playNote(16)">
+                                十七
+                            </button>
+                            <button class="pad" onclick="playNote(17)">
+                                十八
+                            </button>
+                            <button class="pad" onclick="playNote(18)">
+                                十九
+                            </button>
+                            <button class="pad" onclick="playNote(19)">
+                                二十
+                            </button>
+                            <button class="pad" onclick="playNote(20)">
+                                二十一
+                            </button>
+                            <button class="pad" onclick="playNote(21)">
+                                二十二
+                            </button>
+                            <button class="pad" onclick="playNote(22)">
+                                二十三
+                            </button>
+                            <button class="pad" onclick="playNote(23)">
+                                二十四
+                            </button>
+                            <button class="pad" onclick="playNote(24)">
+                                二十五
+                            </button>
+                            <button class="pad" onclick="playNote(25)">
+                                二十六
+                            </button>
+                            <button class="pad" onclick="playNote(26)">
+                                二十七
+                            </button>
+                            <button class="pad" onclick="playNote(27)">
+                                二十八
+                            </button>
+                            <button class="pad" onclick="playNote(28)">
+                                二十九
+                            </button>
+                            <button class="pad" onclick="playNote(29)">
+                                三十
+                            </button>
+                            <button class="pad" onclick="playNote(30)">
+                                三十一
+                            </button>
+                            <button class="pad" onclick="playNote(31)">
+                                三十二
+                            </button>
+                        </div>
+
+                        <div class="function-buttons">
+                            <button
+                                class="function-button"
+                                onclick="toggleLoop()"
+                            >
+                                LOOP
+                            </button>
+                            <button
+                                class="function-button"
+                                onclick="changeScale()"
+                            >
+                                SCALE
+                            </button>
+                            <button
+                                class="function-button"
+                                onclick="transposeSequence()"
+                            >
+                                TRANSPOSE
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="right-section">
+                        <div class="controls">
+                            <button
+                                class="control-button"
+                                onclick="adjustOctave(1)"
+                            >
+                                OCTAVE +
+                            </button>
+                            <button
+                                class="control-button"
+                                onclick="adjustOctave(-1)"
+                            >
+                                OCTAVE -
+                            </button>
+                            <button
+                                class="control-button"
+                                onclick="cycleInstrument()"
+                            >
+                                INSTRUMENT
+                            </button>
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="2"
+                                value="0.5"
+                                step="0.1"
+                                class="slider"
+                                id="sustainSlider"
+                                oninput="adjustSustain(this.value)"
+                            />
+                            <input
+                                type="range"
+                                min="4"
+                                max="64"
+                                value="32"
+                                step="1"
+                                class="slider"
+                                id="lengthSlider"
+                                oninput="adjustSequenceLength(this.value)"
+                            />
+                            <input
+                                type="range"
+                                min="20"
+                                max="20000"
+                                value="20000"
+                                step="1"
+                                class="slider"
+                                id="lowPassSlider"
+                                oninput="adjustLowPass(this.value)"
+                            />
+                            <input
+                                type="range"
+                                min="-12"
+                                max="12"
+                                value="0"
+                                step="1"
+                                class="slider"
+                                id="semitoneSlider"
+                                oninput="adjustSemitones(this.value)"
+                            />
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                value="0"
+                                step="0.01"
+                                class="slider"
+                                id="delayTimeSlider"
+                                oninput="adjustDelayTime(this.value)"
+                            />
+                        </div>
+
+                        <div class="slider-container">
+                            <div class="slider-label">Volume</div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                value="0.5"
+                                step="0.01"
+                                class="slider"
+                                id="volumeSlider"
+                                oninput="adjustVolume(this.value)"
+                            />
+                        </div>
+
+                        <div class="slider-container">
+                            <div class="slider-label">BPM</div>
+                            <input
+                                type="range"
+                                min="60"
+                                max="200"
+                                value="120"
+                                step="1"
+                                class="slider"
+                                id="bpmSlider"
+                                oninput="adjustBPM(this.value)"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="site-footer"></div>
+        <script src="/assets/site.js"></script>
+        <script>
+            const audioContext = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+
+            const scales = {
+                Major: [
+                    0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24, 26,
+                    28, 29, 31, 33, 35, 36, 38, 40, 41, 43, 45, 47, 48, 50, 52,
+                    53,
+                ],
+                Minor: [
+                    0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20, 22, 24, 26,
+                    27, 29, 31, 32, 34, 36, 38, 39, 41, 43, 44, 46, 48, 50, 51,
+                    53,
+                ],
+                Pentatonic: [
+                    0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26, 28, 31, 33, 36,
+                    38, 40, 43, 45, 48, 50, 52, 55, 57, 60, 62, 64, 67, 69, 72,
+                    74,
+                ],
+                Blues: [
+                    0, 3, 5, 6, 7, 10, 12, 15, 17, 18, 19, 22, 24, 27, 29, 30,
+                    31, 34, 36, 39, 41, 42, 43, 46, 48, 51, 53, 54, 55, 58, 60,
+                    63,
+                ],
+            };
+
+            const instruments = ["sine", "square", "sawtooth", "triangle"];
+
+            let currentScale = "Major";
+            let isLooping = false;
+            let loopInterval;
+            let sequence = [];
+            let octaveTranspose = 0;
+            let currentInstrument = "sine";
+            let sustain = 0.5;
+            let sequenceLength = 32;
+            let volume = 0.5;
+            let delayTime = 0;
+            let bpm = 120;
+            let lowPassFrequency = 20000;
+            let semitoneShift = 0;
+
+            const japaneseNumbers = [
+                "一",
+                "二",
+                "三",
+                "四",
+                "五",
+                "六",
+                "七",
+                "八",
+                "九",
+                "十",
+                "十一",
+                "十二",
+                "十三",
+                "十四",
+                "十五",
+                "十六",
+                "十七",
+                "十八",
+                "十九",
+                "二十",
+                "二十一",
+                "二十二",
+                "二十三",
+                "二十四",
+                "二十五",
+                "二十六",
+                "二十七",
+                "二十八",
+                "二十九",
+                "三十",
+                "三十一",
+                "三十二",
+            ];
+
+            function playNote(index) {
+                const baseFrequency = 261.63;
+                const semitoneRatio = Math.pow(2, 1 / 12);
+                const frequency =
+                    baseFrequency *
+                    Math.pow(
+                        semitoneRatio,
+                        scales[currentScale][index] +
+                            octaveTranspose * 12 +
+                            semitoneShift,
+                    );
+
+                const osc = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const delayNode = audioContext.createDelay();
+                const feedbackNode = audioContext.createGain();
+                const lowPassFilter = audioContext.createBiquadFilter();
+
+                osc.type = currentInstrument;
+                osc.frequency.setValueAtTime(
+                    frequency,
+                    audioContext.currentTime,
+                );
+
+                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioContext.currentTime + sustain,
+                );
+
+                delayNode.delayTime.value = delayTime;
+                feedbackNode.gain.value = 0.3;
+
+                lowPassFilter.type = "lowpass";
+                lowPassFilter.frequency.value = lowPassFrequency;
+                lowPassFilter.Q.value = 1;
+
+                osc.connect(lowPassFilter);
+                lowPassFilter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                if (delayTime > 0) {
+                    gainNode.connect(delayNode);
+                    delayNode.connect(feedbackNode);
+                    feedbackNode.connect(delayNode);
+                    delayNode.connect(audioContext.destination);
+                }
+
+                osc.start();
+                osc.stop(audioContext.currentTime + sustain + delayTime * 4);
+
+                document.getElementById("display").textContent =
+                    `音符 ${japaneseNumbers[index]} in ${currentScale} Scale`;
+            }
+
+            function changeScale() {
+                const scaleNames = Object.keys(scales);
+                const currentIndex = scaleNames.indexOf(currentScale);
+                currentScale =
+                    scaleNames[(currentIndex + 1) % scaleNames.length];
+                document.getElementById("display").textContent =
+                    `スケール: ${currentScale}`;
+            }
+
+            function toggleLoop() {
+                isLooping = !isLooping;
+                if (isLooping) {
+                    startLoop();
+                    document.getElementById("display").textContent =
+                        "ループ: オン";
+                } else {
+                    stopLoop();
+                    document.getElementById("display").textContent =
+                        "ループ: オフ";
+                }
+            }
+
+            function startLoop() {
+                sequence = [];
+                for (let i = 0; i < sequenceLength; i++) {
+                    sequence.push(Math.floor(Math.random() * 32));
+                }
+
+                let step = 0;
+                const intervalTime = ((60 / bpm) * 1000) / 4;
+                loopInterval = setInterval(() => {
+                    playNote(sequence[step]);
+                    step = (step + 1) % sequenceLength;
+                }, intervalTime);
+            }
+
+            function stopLoop() {
+                clearInterval(loopInterval);
+            }
+
+            function adjustOctave(delta) {
+                octaveTranspose = Math.max(
+                    -2,
+                    Math.min(2, octaveTranspose + delta),
+                );
+                document.getElementById("display").textContent =
+                    `オクターブ: ${octaveTranspose > 0 ? "+" : ""}${octaveTranspose}`;
+            }
+
+            function cycleInstrument() {
+                const currentIndex = instruments.indexOf(currentInstrument);
+                currentInstrument =
+                    instruments[(currentIndex + 1) % instruments.length];
+                document.getElementById("display").textContent =
+                    `楽器: ${currentInstrument}`;
+            }
+
+            function adjustSustain(value) {
+                sustain = parseFloat(value);
+                document.getElementById("display").textContent =
+                    `サステイン: ${sustain.toFixed(2)}秒`;
+            }
+
+            function adjustSequenceLength(value) {
+                sequenceLength = parseInt(value);
+                document.getElementById("display").textContent =
+                    `シーケンスの長さ: ${sequenceLength} ステップ`;
+                if (isLooping) {
+                    stopLoop();
+                    startLoop();
+                }
+            }
+
+            function adjustLowPass(value) {
+                lowPassFrequency = parseFloat(value);
+                document.getElementById("display").textContent =
+                    `ローパス: ${lowPassFrequency.toFixed(0)}Hz`;
+            }
+
+            function adjustSemitones(value) {
+                semitoneShift = parseInt(value);
+                document.getElementById("display").textContent =
+                    `半音シフト: ${semitoneShift > 0 ? "+" : ""}${semitoneShift}`;
+            }
+
+            function adjustDelayTime(value) {
+                delayTime = parseFloat(value);
+                document.getElementById("display").textContent =
+                    `ディレイ時間: ${(delayTime * 1000).toFixed(0)}ms`;
+            }
+
+            function transposeSequence() {
+                sequence = sequence.map((note) => (note + 1) % 32);
+                document.getElementById("display").textContent =
+                    `シーケンスを転調しました`;
+            }
+
+            function adjustVolume(value) {
+                volume = parseFloat(value);
+                document.getElementById("display").textContent =
+                    `音量: ${(volume * 100).toFixed(0)}%`;
+            }
+
+            function adjustBPM(value) {
+                bpm = parseInt(value);
+                document.getElementById("display").textContent = `BPM: ${bpm}`;
+                if (isLooping) {
+                    stopLoop();
+                    startLoop();
+                }
+            }
+        </script>
+    </body>
+</html>

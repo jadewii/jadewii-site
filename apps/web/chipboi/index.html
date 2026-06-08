@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>chipboi — JAde Wii</title>
+        <link rel="stylesheet" href="../../../assets/site.css" />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+            :root {
+                --chip-green: #00ff00;
+                --chip-panel: rgba(0, 20, 40, 0.96);
+                --chip-module: rgba(0, 40, 0, 0.78);
+            }
+
+            .page.page-app {
+                padding-top: 7.5rem;
+                padding-bottom: 3rem;
+                background-color: #ffffff;
+            }
+
+            .app-page-header {
+                margin-bottom: 24px;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+
+            .chipboi-grid {
+                display: grid;
+                gap: 1.2rem;
+            }
+
+
+            #soundscape {
+                font-family: "Press Start 2P", cursive;
+                color: #fff;
+                background-color: var(--chip-panel);
+                border: 4px solid var(--chip-green);
+                box-shadow:
+                    0 10px 30px rgba(0, 0, 0, 0.18),
+                    inset 0 0 10px #000;
+                width: 100%;
+                max-height: calc(100vh - 200px);
+                overflow-y: auto;
+                display: grid;
+                grid-template-rows: auto auto auto auto;
+                gap: 10px;
+                padding: 12px;
+                box-sizing: border-box;
+                image-rendering: pixelated;
+                border-radius: 18px;
+            }
+
+            #tempo-control {
+                display: grid;
+                grid-template-columns: 78px minmax(0, 1fr) 72px;
+                align-items: center;
+                gap: 10px;
+                min-width: 0;
+            }
+
+            #tempo-value {
+                margin: 0;
+                font-size: 10px;
+                text-align: right;
+                white-space: nowrap;
+            }
+
+            #modules {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                min-width: 0;
+            }
+
+            .module {
+                min-width: 0;
+                background-color: var(--chip-module);
+                border: 2px solid var(--chip-green);
+                padding: 10px;
+                box-shadow: 0 0 10px rgba(0, 255, 0, 0.18);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                min-height: 170px;
+                border-radius: 12px;
+            }
+
+            h2 {
+                text-align: center;
+                color: var(--chip-green);
+                margin: 0 0 10px;
+                text-shadow: 2px 2px #003300;
+                font-size: 11px;
+                line-height: 1.3;
+            }
+
+            .control {
+                display: grid;
+                grid-template-columns: 92px minmax(0, 1fr) 32px;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+                min-width: 0;
+            }
+
+            .control:last-child {
+                margin-bottom: 0;
+            }
+
+            label {
+                margin: 0;
+                font-size: 9px;
+                line-height: 1.3;
+                text-shadow: 1px 1px #003300;
+                min-width: 0;
+            }
+
+            .division-value {
+                margin: 0;
+                font-size: 9px;
+                text-align: right;
+                min-width: 0;
+            }
+
+            input[type="range"] {
+                -webkit-appearance: none;
+                width: 100%;
+                min-width: 0;
+                height: 14px;
+                background: #003300;
+                outline: none;
+                opacity: 0.95;
+                margin: 0;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 14px;
+                height: 14px;
+                background: var(--chip-green);
+                cursor: pointer;
+            }
+
+            input[type="range"]::-moz-range-thumb {
+                width: 14px;
+                height: 14px;
+                background: var(--chip-green);
+                cursor: pointer;
+                border: 0;
+            }
+
+            button,
+            select {
+                background-color: #003300;
+                color: var(--chip-green);
+                border: 2px solid var(--chip-green);
+                padding: 7px 8px;
+                margin: 0;
+                cursor: pointer;
+                font-size: 10px;
+                line-height: 1.2;
+                font-family: "Press Start 2P", cursive;
+                text-transform: uppercase;
+            }
+
+            button:hover,
+            select:hover {
+                background-color: #004400;
+            }
+
+            button.active {
+                background-color: #006600;
+            }
+
+            #oscilloscope-container {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 10px;
+                align-items: stretch;
+                min-width: 0;
+            }
+
+            .visualizer-wrapper {
+                display: grid;
+                grid-template-rows: 74px auto;
+                gap: 6px;
+                align-items: stretch;
+                min-width: 0;
+            }
+
+            .visualizer {
+                width: 100%;
+                height: 74px;
+                background-color: #001100;
+                border: 2px solid var(--chip-green);
+                margin: 0;
+                overflow: hidden;
+                display: block;
+                min-width: 0;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: repeat(7, minmax(0, 1fr));
+                gap: 8px;
+                align-items: stretch;
+            }
+
+            #current-scale {
+                text-align: center;
+                margin: 0;
+                font-size: 10px;
+                line-height: 1.2;
+            }
+
+            @keyframes blink {
+                0% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+
+            .blink {
+                animation: blink 1s infinite;
+            }
+
+            @media (max-width: 1180px) {
+                .module {
+                    min-height: 150px;
+                }
+
+                .control {
+                    grid-template-columns: 82px minmax(0, 1fr) 28px;
+                    gap: 6px;
+                }
+
+                label,
+                .division-value,
+                #tempo-value,
+                #current-scale {
+                    font-size: 8px;
+                }
+
+                h2,
+                button,
+                select {
+                    font-size: 9px;
+                }
+
+                .visualizer-wrapper {
+                    grid-template-rows: 62px auto;
+                }
+
+                .visualizer {
+                    height: 62px;
+                }
+            }
+
+            @media (max-width: 900px) {
+                #soundscape {
+                    max-height: calc(100vh - 160px);
+                }
+
+                #modules,
+                #oscilloscope-container,
+                .controls {
+                    grid-template-columns: 1fr;
+                }
+
+                .module {
+                    min-height: auto;
+                }
+
+                .visualizer-wrapper {
+                    grid-template-rows: 58px auto;
+                }
+
+                .visualizer {
+                    height: 58px;
+                }
+            }
+        </style>
+    </head>
+    <body data-page="app-detail" data-root="../../../">
+        <div id="site-header"></div>
+
+        <main class="page page-app">
+            <div class="container chipboi-grid">
+                <div class="app-page-header">
+                    <a href="../../../apps.html">← back to apps</a>
+                </div>
+                <div id="soundscape">
+                        <div id="tempo-control" class="control">
+                            <label for="tempo">Tempo</label>
+                            <input
+                                type="range"
+                                id="tempo"
+                                min="60"
+                                max="180"
+                                step="1"
+                                value="120"
+                            />
+                            <span id="tempo-value">120 BPM</span>
+                        </div>
+
+                        <div id="modules">
+                            <div class="module">
+                                <h2>Square Wave Arpeggio</h2>
+                                <div class="control">
+                                    <label for="square-octave">Octave</label
+                                    ><input
+                                        type="range"
+                                        id="square-octave"
+                                        min="-2"
+                                        max="2"
+                                        step="1"
+                                        value="0"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="square-sustain">Sustain</label
+                                    ><input
+                                        type="range"
+                                        id="square-sustain"
+                                        min="0"
+                                        max="1"
+                                        step="0.1"
+                                        value="0.7"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="square-division"
+                                        >Time Division</label
+                                    ><input
+                                        type="range"
+                                        id="square-division"
+                                        min="1"
+                                        max="8"
+                                        step="1"
+                                        value="2"
+                                    /><span
+                                        id="square-division-value"
+                                        class="division-value"
+                                        >2</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="module">
+                                <h2>Triangle Wave Arpeggio</h2>
+                                <div class="control">
+                                    <label for="triangle-octave">Octave</label
+                                    ><input
+                                        type="range"
+                                        id="triangle-octave"
+                                        min="-2"
+                                        max="2"
+                                        step="1"
+                                        value="0"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="triangle-sustain">Sustain</label
+                                    ><input
+                                        type="range"
+                                        id="triangle-sustain"
+                                        min="0"
+                                        max="1"
+                                        step="0.1"
+                                        value="0.7"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="triangle-division"
+                                        >Time Division</label
+                                    ><input
+                                        type="range"
+                                        id="triangle-division"
+                                        min="1"
+                                        max="8"
+                                        step="1"
+                                        value="3"
+                                    /><span
+                                        id="triangle-division-value"
+                                        class="division-value"
+                                        >3</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="module">
+                                <h2>Sawtooth Wave Arpeggio</h2>
+                                <div class="control">
+                                    <label for="sawtooth-octave">Octave</label
+                                    ><input
+                                        type="range"
+                                        id="sawtooth-octave"
+                                        min="-2"
+                                        max="2"
+                                        step="1"
+                                        value="0"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="sawtooth-sustain">Sustain</label
+                                    ><input
+                                        type="range"
+                                        id="sawtooth-sustain"
+                                        min="0"
+                                        max="1"
+                                        step="0.1"
+                                        value="0.7"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="sawtooth-division"
+                                        >Time Division</label
+                                    ><input
+                                        type="range"
+                                        id="sawtooth-division"
+                                        min="1"
+                                        max="8"
+                                        step="1"
+                                        value="4"
+                                    /><span
+                                        id="sawtooth-division-value"
+                                        class="division-value"
+                                        >4</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="module">
+                                <h2>Drum Track</h2>
+                                <div class="control">
+                                    <label for="drum-pitch">Pitch</label
+                                    ><input
+                                        type="range"
+                                        id="drum-pitch"
+                                        min="-12"
+                                        max="12"
+                                        step="1"
+                                        value="0"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="drum-sustain">Sustain</label
+                                    ><input
+                                        type="range"
+                                        id="drum-sustain"
+                                        min="0"
+                                        max="1"
+                                        step="0.1"
+                                        value="0.5"
+                                    /><span></span>
+                                </div>
+                                <div class="control">
+                                    <label for="drum-division"
+                                        >Time Division</label
+                                    ><input
+                                        type="range"
+                                        id="drum-division"
+                                        min="1"
+                                        max="8"
+                                        step="1"
+                                        value="4"
+                                    /><span
+                                        id="drum-division-value"
+                                        class="division-value"
+                                        >4</span
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="oscilloscope-container">
+                            <div class="visualizer-wrapper">
+                                <canvas
+                                    id="visualizer1"
+                                    class="visualizer"
+                                ></canvas
+                                ><button id="loop1" class="blink">
+                                    Square
+                                </button>
+                            </div>
+                            <div class="visualizer-wrapper">
+                                <canvas
+                                    id="visualizer2"
+                                    class="visualizer"
+                                ></canvas
+                                ><button id="loop2" class="blink">
+                                    Triangle
+                                </button>
+                            </div>
+                            <div class="visualizer-wrapper">
+                                <canvas
+                                    id="visualizer3"
+                                    class="visualizer"
+                                ></canvas
+                                ><button id="loop3" class="blink">
+                                    Sawtooth
+                                </button>
+                            </div>
+                            <div class="visualizer-wrapper">
+                                <canvas
+                                    id="visualizer4"
+                                    class="visualizer"
+                                ></canvas
+                                ><button id="loop4" class="blink">Drums</button>
+                            </div>
+                        </div>
+
+                        <div class="controls">
+                            <button id="randomize" class="blink">
+                                Randomize
+                            </button>
+                            <button id="random-pattern" class="blink">
+                                Random Pattern
+                            </button>
+                            <button id="random-scale" class="blink">
+                                Random Scale
+                            </button>
+                            <button id="random-tempo" class="blink">
+                                Random Tempo
+                            </button>
+                            <button id="random-octave" class="blink">
+                                Random Octave
+                            </button>
+                            <button id="random-sustain" class="blink">
+                                Random Sustain
+                            </button>
+                            <button id="stop">Stop</button>
+                        </div>
+
+                        <div id="current-scale">Current Scale: Major</div>
+                    </div>
+            </div>
+        </main>
+
+        <div id="site-footer"></div>
+        <script src="../../../assets/site.js"></script>
+
+        <!-- keep your existing app script here exactly as-is -->
+    </body>
+</html>

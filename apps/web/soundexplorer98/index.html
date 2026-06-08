@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Sound Explorer 98 — JAde Wii</title>
+        <link rel="stylesheet" href="../../../assets/site.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            .page.page-app {
+                padding-top: 7.5rem;
+                padding-bottom: 2rem;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #ffffff;
+                font-family: "Press Start 2P", cursive;
+            }
+
+            .app-header {
+                position: fixed;
+                top: 80px;
+                left: 20px;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .app-title {
+                font-size: 24px;
+                font-weight: bold;
+                color: #333;
+            }
+
+            .back-to-apps {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #4b0082;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 5px;
+                font-size: 14px;
+                font-weight: bold;
+                transition: all 0.2s;
+            }
+
+            .back-to-apps:hover {
+                background-color: #6a5acd;
+                transform: translateY(-2px);
+            }
+
+            .container {
+                width: 100%;
+                max-width: 960px;
+                background-color: #c0c0c0;
+                padding: 20px;
+                box-sizing: border-box;
+                max-height: calc(100vh - 180px);
+                overflow-y: auto;
+            }
+            h1 {
+                text-align: center;
+                color: #000000;
+                text-shadow: 1px 1px #ffffff;
+                margin: 0 0 20px 0;
+                font-size: 3em;
+            }
+            .tracker {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                margin-top: 20px;
+            }
+            .channel {
+                background-color: #ffffff;
+                padding: 10px;
+                border-radius: 0;
+                box-shadow:
+                    inset -1px -1px #808080,
+                    inset 1px 1px #ffffff;
+            }
+            .channel-title {
+                text-align: center;
+                margin-bottom: 10px;
+                color: #000080;
+                font-size: 0.7em;
+                text-shadow: 1px 1px #ffffff;
+            }
+            .step {
+                background-color: #ffffff;
+                border: 2px solid #808080;
+                color: #000000;
+                padding: 5px 2px;
+                margin: 2px 0;
+                width: 100%;
+                text-align: center;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.6em;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                user-select: none;
+                box-sizing: border-box;
+            }
+            .step:hover {
+                background-color: #d3d3d3;
+            }
+            .step.active {
+                background-color: #000080;
+                color: #ffffff;
+                box-shadow:
+                    inset -1px -1px #000040,
+                    inset 1px 1px #4040ff;
+            }
+            .controls {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            button {
+                background-color: #c0c0c0;
+                color: #000000;
+                border: none;
+                padding: 8px 16px;
+                margin: 5px;
+                cursor: pointer;
+                font-family: "Press Start 2P", cursive;
+                font-size: 0.7em;
+                transition: all 0.3s ease;
+                box-shadow:
+                    inset -2px -2px #808080,
+                    inset 2px 2px #ffffff;
+            }
+            button:hover {
+                background-color: #d3d3d3;
+            }
+            button:active {
+                box-shadow:
+                    inset 2px 2px #808080,
+                    inset -2px -2px #ffffff;
+            }
+            .led {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #808080;
+                display: inline-block;
+                margin-right: 3px;
+                transition: background-color 0.2s;
+            }
+            .led.active {
+                background-color: #ff0000;
+                box-shadow: 0 0 5px #ff0000;
+            }
+            .oscilloscope {
+                width: 100%;
+                height: 50px;
+                background-color: #008000;
+                margin-top: 10px;
+                border: 2px solid #000000;
+            }
+            .parameter-display {
+                background-color: #2a2a2a;
+                color: #ffffff;
+                padding: 10px;
+                margin-top: 20px;
+                border-radius: 0;
+                font-size: 0.8em;
+                box-shadow:
+                    inset -1px -1px #808080,
+                    inset 1px 1px #ffffff;
+            }
+
+            @media (max-width: 768px) {
+                .page.page-app {
+                    padding-top: 6rem;
+                }
+
+                .app-header {
+                    top: 70px;
+                    left: 10px;
+                }
+
+                .app-title {
+                    font-size: 18px;
+                }
+
+                .back-to-apps {
+                    padding: 8px 16px;
+                    font-size: 12px;
+                }
+
+                .container {
+                    max-width: 95%;
+                    max-height: calc(100vh - 120px);
+                    padding: 15px;
+                }
+
+                h1 {
+                    font-size: 2em;
+                }
+
+                .tracker {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 8px;
+                }
+
+                .channel-title {
+                    font-size: 0.6em;
+                }
+
+                .step {
+                    font-size: 0.5em;
+                    padding: 3px 2px;
+                }
+
+                button {
+                    font-size: 0.6em;
+                    padding: 6px 12px;
+                }
+
+                .parameter-display {
+                    font-size: 0.7em;
+                }
+            }
+
+            .app-page-header {
+                margin-bottom: 24px;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body data-page="app-detail" data-root="../../../">
+        <div id="site-header"></div>
+
+        <div class="app-header">
+            <h1 class="app-title">Sound Explorer 98</h1>
+            <a href="../../../apps.html" class="back-to-apps">← Back to Apps</a>
+        </div>
+
+        <main class="page page-app">
+            <div class="container">
+                <div class="app-page-header">
+                    <a href="../../../apps.html">← back to apps</a>
+                </div>
+                <h1>波形表示</h1>
+
+                <div
+                    id="led-container"
+                    style="text-align: center; margin-bottom: 15px"
+                >
+                    <!-- LEDs will be generated here -->
+                </div>
+
+                <div class="tracker" id="tracker">
+                    <!-- Channels will be generated here -->
+                </div>
+
+                <div class="controls">
+                    <button onclick="playRandomSequence()">
+                        Play Random Sequence
+                    </button>
+                    <button onclick="stopTrack()">Stop</button>
+                    <button onclick="changeScale()">Change Scale</button>
+                </div>
+
+                <div class="parameter-display" id="parameter-display">
+                    <!-- Random parameters will be displayed here -->
+                </div>
+            </div>
+        </main>
+
+        <div id="site-footer"></div>
+        <script src="../../../assets/site.js"></script>
+        <script>
+            const audioContext = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+            let isPlaying = false;
+            let currentStep = 0;
+            let interval;
+            let tempo = 120;
+
+            const channels = [
+                {
+                    name: "Pulse 1",
+                    type: "square",
+                    baseFrequency: 146.83,
+                    octave: 0,
+                    muted: false,
+                    subOscillatorLevel: 0,
+                    analyser: null,
+                    oscilloscopeData: new Uint8Array(128),
+                },
+                {
+                    name: "Pulse 2",
+                    type: "square",
+                    baseFrequency: 293.66,
+                    octave: 0,
+                    muted: false,
+                    subOscillatorLevel: 0,
+                    analyser: null,
+                    oscilloscopeData: new Uint8Array(128),
+                },
+                {
+                    name: "Wave",
+                    type: "triangle",
+                    baseFrequency: 87.31,
+                    octave: 0,
+                    muted: false,
+                    subOscillatorLevel: 0,
+                    analyser: null,
+                    oscilloscopeData: new Uint8Array(128),
+                },
+                {
+                    name: "Noise",
+                    type: "white",
+                    baseFrequency: 43.65,
+                    octave: 0,
+                    muted: false,
+                    subOscillatorLevel: 0,
+                    analyser: null,
+                    oscilloscopeData: new Uint8Array(128),
+                },
+            ];
+
+            const instrumentTypes = ["square", "sawtooth", "triangle", "sine"];
+            const noiseTypes = ["white", "pink", "brown"];
+
+            const scales = {
+                major: [0, 2, 4, 5, 7, 9, 11, 12],
+                minor: [0, 2, 3, 5, 7, 8, 10, 12],
+                harmonicMinor: [0, 2, 3, 5, 7, 8, 11, 12],
+                melodicMinor: [0, 2, 3, 5, 7, 9, 11, 12],
+                pentatonicMajor: [0, 2, 4, 7, 9, 12],
+                pentatonicMinor: [0, 3, 5, 7, 10, 12],
+                blues: [0, 3, 5, 6, 7, 10, 12],
+                dorian: [0, 2, 3, 5, 7, 9, 10, 12],
+                phrygian: [0, 1, 3, 5, 7, 8, 10, 12],
+                lydian: [0, 2, 4, 6, 7, 9, 11, 12],
+                mixolydian: [0, 2, 4, 5, 7, 9, 10, 12],
+                locrian: [0, 1, 3, 5, 6, 8, 10, 12],
+                wholeTone: [0, 2, 4, 6, 8, 10, 12],
+                chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            };
+
+            let currentScale = scales.major;
+            let currentScaleName = "major";
+
+            function createTracker() {
+                const tracker = document.getElementById("tracker");
+                channels.forEach((channel, channelIndex) => {
+                    const channelDiv = document.createElement("div");
+                    channelDiv.className = "channel";
+                    channelDiv.innerHTML = `
+          <h3 class="channel-title">${channel.name} (${channel.type})</h3>
+          <canvas class="oscilloscope" id="oscilloscope-${channelIndex}" width="150" height="50"></canvas>
+          ${Array(16)
+              .fill()
+              .map(
+                  (_, stepIndex) => `
+            <div class="step" id="channel-${channelIndex}-step-${stepIndex}" onclick="toggleStep(${channelIndex}, ${stepIndex})"></div>
+          `,
+              )
+              .join("")}
+        `;
+                    tracker.appendChild(channelDiv);
+
+                    // Setup analyser for each channel
+                    const analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    channel.analyser = analyser;
+                });
+
+                const ledContainer = document.getElementById("led-container");
+                for (let i = 0; i < 16; i++) {
+                    const led = document.createElement("div");
+                    led.className = "led";
+                    led.id = `led-${i}`;
+                    ledContainer.appendChild(led);
+                }
+            }
+
+            function toggleStep(channelIndex, stepIndex) {
+                const step = document.getElementById(
+                    `channel-${channelIndex}-step-${stepIndex}`,
+                );
+                step.classList.toggle("active");
+                if (step.classList.contains("active")) {
+                    const randomNote =
+                        currentScale[
+                            Math.floor(Math.random() * currentScale.length)
+                        ];
+                    const noteName = String.fromCharCode(65 + (randomNote % 7));
+                    step.textContent = noteName;
+                } else {
+                    step.textContent = "";
+                }
+            }
+
+            function calculateFrequency(semitones, channelIndex) {
+                const octaveShift = channels[channelIndex].octave;
+                return (
+                    channels[channelIndex].baseFrequency *
+                    Math.pow(2, (semitones + octaveShift * 12) / 12)
+                );
+            }
+
+            function playNote(channelIndex, frequency) {
+                const channel = channels[channelIndex];
+                let oscillator;
+                let subOscillator;
+
+                if (
+                    channel.type === "white" ||
+                    channel.type === "pink" ||
+                    channel.type === "brown"
+                ) {
+                    const bufferSize = audioContext.sampleRate * 0.1;
+                    const buffer = audioContext.createBuffer(
+                        1,
+                        bufferSize,
+                        audioContext.sampleRate,
+                    );
+                    const output = buffer.getChannelData(0);
+
+                    if (channel.type === "white") {
+                        for (let i = 0; i < bufferSize; i++) {
+                            output[i] = Math.random() * 2 - 1;
+                        }
+                    } else if (channel.type === "pink") {
+                        let b0, b1, b2, b3, b4, b5, b6;
+                        b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+                        for (let i = 0; i < bufferSize; i++) {
+                            const white = Math.random() * 2 - 1;
+                            b0 = 0.99886 * b0 + white * 0.0555179;
+                            b1 = 0.99332 * b1 + white * 0.0750759;
+                            b2 = 0.969 * b2 + white * 0.153852;
+                            b3 = 0.8665 * b3 + white * 0.3104856;
+                            b4 = 0.55 * b4 + white * 0.5329522;
+                            b5 = -0.7616 * b5 - white * 0.016898;
+                            output[i] =
+                                b0 +
+                                b1 +
+                                b2 +
+                                b3 +
+                                b4 +
+                                b5 +
+                                b6 +
+                                white * 0.5362;
+                            output[i] *= 0.11;
+                            b6 = white * 0.115926;
+                        }
+                    } else if (channel.type === "brown") {
+                        let lastOut = 0.0;
+                        for (let i = 0; i < bufferSize; i++) {
+                            const white = Math.random() * 2 - 1;
+                            output[i] = (lastOut + 0.02 * white) / 1.02;
+                            lastOut = output[i];
+                            output[i] *= 3.5;
+                        }
+                    }
+                    oscillator = audioContext.createBufferSource();
+                    oscillator.buffer = buffer;
+                    oscillator.loop = true;
+                } else {
+                    oscillator = audioContext.createOscillator();
+                    oscillator.type = channel.type;
+                    oscillator.frequency.setValueAtTime(
+                        frequency,
+                        audioContext.currentTime,
+                    );
+
+                    if (channel.subOscillatorLevel > 0) {
+                        subOscillator = audioContext.createOscillator();
+                        subOscillator.type = channel.type;
+                        subOscillator.frequency.setValueAtTime(
+                            frequency / 2,
+                            audioContext.currentTime,
+                        );
+                    }
+                }
+
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioContext.currentTime + 0.1,
+                );
+
+                oscillator.connect(channel.analyser);
+                channel.analyser.connect(gainNode);
+
+                if (subOscillator) {
+                    const subGainNode = audioContext.createGain();
+                    subGainNode.gain.setValueAtTime(
+                        0.1 * channel.subOscillatorLevel,
+                        audioContext.currentTime,
+                    );
+                    subGainNode.gain.exponentialRampToValueAtTime(
+                        0.001,
+                        audioContext.currentTime + 0.1,
+                    );
+                    subOscillator.connect(subGainNode);
+                    subGainNode.connect(audioContext.destination);
+                }
+
+                gainNode.connect(audioContext.destination);
+
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.1);
+
+                if (subOscillator) {
+                    subOscillator.start();
+                    subOscillator.stop(audioContext.currentTime + 0.1);
+                }
+
+                updateOscilloscope(channelIndex);
+            }
+
+            function updateOscilloscope(channelIndex) {
+                const channel = channels[channelIndex];
+                const analyser = channel.analyser;
+                analyser.getByteTimeDomainData(channel.oscilloscopeData);
+                drawOscilloscope(channelIndex);
+            }
+
+            function drawOscilloscope(channelIndex) {
+                const channel = channels[channelIndex];
+                const canvas = document.getElementById(
+                    `oscilloscope-${channelIndex}`,
+                );
+                const canvasCtx = canvas.getContext("2d");
+                const width = canvas.width;
+                const height = canvas.height;
+
+                canvasCtx.fillStyle = "#081820";
+                canvasCtx.fillRect(0, 0, width, height);
+                canvasCtx.lineWidth = 2;
+                canvasCtx.strokeStyle = "#70c088";
+                canvasCtx.beginPath();
+
+                const sliceWidth =
+                    (width * 1.0) / channel.oscilloscopeData.length;
+                let x = 0;
+
+                for (let i = 0; i < channel.oscilloscopeData.length; i++) {
+                    const v = channel.oscilloscopeData[i] / 128.0;
+                    const y = v * height;
+
+                    if (i === 0) {
+                        canvasCtx.moveTo(x, y);
+                    } else {
+                        canvasCtx.lineTo(x, y);
+                    }
+
+                    x += sliceWidth;
+                }
+
+                canvasCtx.lineTo(width, height / 2);
+                canvasCtx.stroke();
+            }
+
+            function playStep() {
+                document.querySelectorAll(".led").forEach((led, index) => {
+                    led.classList.toggle("active", index === currentStep);
+                });
+
+                channels.forEach((channel, channelIndex) => {
+                    if (!channel.muted) {
+                        const step = document.getElementById(
+                            `channel-${channelIndex}-step-${currentStep}`,
+                        );
+                        if (step.classList.contains("active")) {
+                            const note = step.textContent;
+                            const semitones = note.charCodeAt(0) - 65;
+                            playNote(
+                                channelIndex,
+                                calculateFrequency(
+                                    currentScale[
+                                        semitones % currentScale.length
+                                    ],
+                                    channelIndex,
+                                ),
+                            );
+                        }
+                    }
+                });
+
+                currentStep = (currentStep + 1) % 16;
+            }
+
+            function stopTrack() {
+                isPlaying = false;
+                clearInterval(interval);
+                document
+                    .querySelectorAll(".led")
+                    .forEach((led) => led.classList.remove("active"));
+            }
+
+            function randomizeTones() {
+                channels.forEach((channel, channelIndex) => {
+                    for (let i = 0; i < 16; i++) {
+                        const step = document.getElementById(
+                            `channel-${channelIndex}-step-${i}`,
+                        );
+                        if (Math.random() < 0.5) {
+                            const randomNote =
+                                currentScale[
+                                    Math.floor(
+                                        Math.random() * currentScale.length,
+                                    )
+                                ];
+                            const noteName = String.fromCharCode(
+                                65 + (randomNote % 7),
+                            );
+                            step.classList.add("active");
+                            step.textContent = noteName;
+                        } else {
+                            step.classList.remove("active");
+                            step.textContent = "";
+                        }
+                    }
+                });
+            }
+
+            function randomizeParameters() {
+                tempo = Math.floor(Math.random() * (240 - 60) + 60);
+
+                channels.forEach((channel, index) => {
+                    channel.octave = Math.floor(Math.random() * 5) - 2;
+                    channel.subOscillatorLevel = Math.random();
+
+                    if (channel.name === "Noise") {
+                        channel.type =
+                            noiseTypes[
+                                Math.floor(Math.random() * noiseTypes.length)
+                            ];
+                    } else {
+                        channel.type =
+                            instrumentTypes[
+                                Math.floor(
+                                    Math.random() * instrumentTypes.length,
+                                )
+                            ];
+                    }
+
+                    document.querySelector(
+                        `.channel:nth-child(${index + 1}) .channel-title`,
+                    ).textContent = `${channel.name} (${channel.type})`;
+                });
+
+                changeScale();
+                displayParameters();
+            }
+
+            function changeScale() {
+                const scaleNames = Object.keys(scales);
+                let newScaleName;
+                do {
+                    newScaleName =
+                        scaleNames[
+                            Math.floor(Math.random() * scaleNames.length)
+                        ];
+                } while (newScaleName === currentScaleName);
+
+                currentScaleName = newScaleName;
+                currentScale = scales[currentScaleName];
+
+                // Update existing notes to fit the new scale
+                channels.forEach((channel, channelIndex) => {
+                    for (let i = 0; i < 16; i++) {
+                        const step = document.getElementById(
+                            `channel-${channelIndex}-step-${i}`,
+                        );
+                        if (step.classList.contains("active")) {
+                            const randomNote =
+                                currentScale[
+                                    Math.floor(
+                                        Math.random() * currentScale.length,
+                                    )
+                                ];
+                            const noteName = String.fromCharCode(
+                                65 + (randomNote % 7),
+                            );
+                            step.textContent = noteName;
+                        }
+                    }
+                });
+
+                displayParameters();
+            }
+
+            function displayParameters() {
+                const parameterDisplay =
+                    document.getElementById("parameter-display");
+                parameterDisplay.innerHTML = `
+        <p>Tempo: ${tempo} BPM</p>
+        <p>Scale: ${currentScaleName}</p>
+        ${channels
+            .map(
+                (channel) => `
+          <p>${channel.name}: ${channel.type}, Octave: ${channel.octave}, Sub-osc: ${Math.round(channel.subOscillatorLevel * 100)}%</p>
+        `,
+            )
+            .join("")}
+      `;
+            }
+
+            function playRandomSequence() {
+                stopTrack();
+                randomizeParameters();
+                randomizeTones();
+                isPlaying = true;
+                currentStep = 0;
+                interval = setInterval(playStep, 60000 / tempo / 4);
+            }
+
+            createTracker();
+            displayParameters();
+        </script>
+    </body>
+</html>

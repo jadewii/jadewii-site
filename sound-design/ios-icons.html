@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iOS App Icons Sound Grid</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 1400px;
+      width: 100%;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 2.4% 2.1%;
+      background-image: url('appleicons.jpg');
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      padding: 4.2% 4% 5% 4%;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      aspect-ratio: 1600/1200;
+    }
+
+    .icon-item {
+      position: relative;
+      aspect-ratio: 1;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: transparent;
+    }
+
+    .icon-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0);
+      border-radius: 22%;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      opacity: 0;
+    }
+
+    .icon-item:hover .icon-overlay {
+      background: rgba(255, 255, 255, 0.2);
+      opacity: 1;
+    }
+
+    .icon-item:active {
+      transform: scale(0.95);
+    }
+
+    .icon-item:active .icon-overlay {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+
+    /* Debug display */
+    #debug {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.85);
+      color: #6EE7B7;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-family: monospace;
+      z-index: 99999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .icon-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .icon-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .icon-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .title {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-grid" id="iconGrid"></div>
+  </div>
+
+  <div id="debug"></div>
+
+  <script>
+    // List of sound files from potential sounds folder
+    const SOUNDS = [
+      'potential sounds/002 copy.m4a',
+      'potential sounds/004 copy.m4a',
+      'potential sounds/031 copy.m4a',
+      'potential sounds/035 copy.m4a',
+      'potential sounds/041 copy.m4a',
+      'potential sounds/044 copy.m4a',
+      'potential sounds/061 copy.m4a',
+      'potential sounds/064 copy.m4a',
+      'potential sounds/093 copy.m4a',
+      'potential sounds/095 copy.m4a',
+      'potential sounds/104 copy.m4a',
+      'potential sounds/108 copy.m4a',
+      'potential sounds/109 copy.m4a',
+      'potential sounds/2Glitch_Drum_03 copy.m4a',
+      'potential sounds/2Glitch_Drum_04 copy.m4a',
+      'potential sounds/2Glitch_Drum_06 copy.m4a',
+      'potential sounds/2Glitch_Drum_08 copy.m4a',
+      'potential sounds/2Glitch_Drum_11 copy.m4a',
+      'potential sounds/2Glitch_Drum_14 copy.m4a',
+      'potential sounds/2Glitch_Drum_19 copy.m4a',
+      'potential sounds/2Glitch_Drum_21 copy.m4a',
+      'potential sounds/2Glitch_Drum_23 copy.m4a',
+      'potential sounds/2Glitch_Drum_24 copy.m4a',
+      'potential sounds/2Glitch_Drum_30 copy.m4a',
+      'potential sounds/2Glitch_Drum_31 copy.m4a',
+      'potential sounds/2Glitch_Drum_32 copy.m4a',
+      'potential sounds/3Glitch_Drum_26 copy.m4a',
+      'potential sounds/3Glitch_Drum_30 copy.m4a',
+      'potential sounds/3Glitch_Drum_33 copy.m4a',
+      'potential sounds/3Glitch_Drum_40 copy.m4a',
+      'potential sounds/3Glitch_Drum_48 copy.m4a',
+      'potential sounds/3Glitch_Drum_49 copy.m4a',
+      'potential sounds/3Glitch_Drum_50 copy.m4a',
+      'potential sounds/3Glitch_Drum_51 copy.m4a',
+      'potential sounds/3Glitch_Drum_58 copy.m4a',
+      'potential sounds/3Glitch_Drum_64 copy.m4a',
+      'potential sounds/4Glitch_Drum_03 copy.m4a',
+      'potential sounds/4Glitch_Drum_08 copy.m4a',
+      'potential sounds/4Glitch_Drum_13 copy.m4a',
+      'potential sounds/4Glitch_Drum_14 copy.m4a',
+      'potential sounds/4Glitch_Drum_16 copy.m4a',
+      'potential sounds/4Glitch_Drum_23 copy.m4a',
+      'potential sounds/4Glitch_Drum_25 copy.m4a',
+      'potential sounds/4Glitch_Drum_30 copy.m4a',
+      'potential sounds/4Glitch_Drum_31 copy.m4a',
+      'potential sounds/4Glitch_Drum_34 copy.m4a',
+      'potential sounds/4Glitch_Drum_43 copy.m4a',
+      'potential sounds/4Glitch_Drum_46 copy.m4a',
+      'potential sounds/4Glitch_Drum_51 copy.m4a',
+      'potential sounds/4Glitch_Drum_53 copy.m4a',
+      'potential sounds/4Glitch_Drum_54 copy.m4a',
+      'potential sounds/4Glitch_Drum_58 copy.m4a',
+      'potential sounds/4Glitch_Drum_60 copy.m4a',
+      'potential sounds/4Glitch_Drum_65.6 copy.m4a',
+      'potential sounds/4Glitch_Drum_69 copy.m4a',
+      'potential sounds/064 copy.m4a'
+    ];
+
+    // Audio cache
+    const audioCache = {};
+
+    // Preload all sounds
+    function preloadAudio() {
+      SOUNDS.forEach(path => {
+        const audio = new Audio(path);
+        audio.preload = 'auto';
+        audioCache[path] = audio;
+      });
+    }
+
+    // Play random sound
+    function playRandomSound(element) {
+      const randomSound = SOUNDS[Math.floor(Math.random() * SOUNDS.length)];
+      const audio = audioCache[randomSound];
+
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(err => {
+          showDebug(`Failed to play: ${randomSound.split('/').pop()}`);
+        });
+
+        showDebug(`Playing: ${randomSound.split('/').pop()}`);
+      } else {
+        showDebug(`Sound not found: ${randomSound}`);
+      }
+    }
+
+    // Show debug message
+    function showDebug(message) {
+      const debug = document.getElementById('debug');
+      debug.textContent = message;
+      debug.style.opacity = '1';
+      setTimeout(() => {
+        debug.style.opacity = '0';
+      }, 1500);
+    }
+
+    // Create 55 icon placeholders
+    function createIconGrid() {
+      const grid = document.getElementById('iconGrid');
+
+      for (let i = 1; i <= 55; i++) {
+        const item = document.createElement('div');
+        item.className = 'icon-item';
+
+        const overlay = document.createElement('div');
+        overlay.className = 'icon-overlay';
+        overlay.textContent = '🔊';
+
+        item.appendChild(overlay);
+
+        item.addEventListener('click', function() {
+          playRandomSound(this);
+        });
+
+        grid.appendChild(item);
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      createIconGrid();
+      preloadAudio();
+
+      setTimeout(() => {
+        showDebug(`Ready: ${SOUNDS.length} sounds loaded`);
+      }, 500);
+    });
+  </script>
+</body>
+</html>

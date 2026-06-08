@@ -1,0 +1,836 @@
+<html>
+    <head>
+        <base href="https://websim.ai" />
+        <title>Vintage Chinese Toy Soundscape</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap");
+
+            body {
+                font-family: "Ma Shan Zheng", cursive;
+                background-color: #ffffff;
+                color: #ffffff;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+            }
+            #soundscape {
+                background-color: #0095b6;
+                border: 8px solid #de3163;
+                box-shadow: 0 0 20px #ffffff;
+                padding: 20px;
+                max-width: 800px;
+                width: 95vw;
+                height: 90vh;
+                position: relative;
+                overflow: hidden;
+                border-radius: 15px;
+                display: flex;
+                flex-direction: column;
+            }
+            #modules {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                flex-grow: 1;
+                overflow-y: auto;
+            }
+            .module {
+                background-color: #000000;
+                border: 4px solid #de3163;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            h1,
+            h2 {
+                text-align: center;
+                color: #ffffff;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .control {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            label {
+                flex: 1;
+                margin-right: 10px;
+                font-size: 1.2em;
+            }
+            input[type="range"] {
+                flex: 2;
+                -webkit-appearance: none;
+                width: 100%;
+                height: 10px;
+                background: #de3163;
+                outline: none;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+                border-radius: 5px;
+            }
+            input[type="range"]:hover {
+                opacity: 1;
+            }
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 25px;
+                height: 25px;
+                background: #ffffff;
+                cursor: pointer;
+                border-radius: 50%;
+                border: 2px solid #0095b6;
+            }
+            button,
+            select {
+                background-color: #de3163;
+                color: #ffffff;
+                border: none;
+                padding: 10px 20px;
+                margin: 5px;
+                cursor: pointer;
+                font-size: 18px;
+                font-family: "Arial", sans-serif;
+                transition: all 0.3s;
+                border-radius: 5px;
+                box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            }
+            button:hover,
+            select:hover {
+                background-color: #0095b6;
+            }
+            button.active {
+                background-color: #0095b6;
+                box-shadow: inset 0 0 10px #ffffff;
+            }
+            #oscilloscope-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 20px;
+            }
+            .visualizer-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .visualizer {
+                width: 200px;
+                height: 100px;
+                background-color: #000000;
+                border: 4px solid #de3163;
+                border-radius: 10px;
+                box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+                margin: 5px;
+            }
+            .controls {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            #delay-control {
+                display: flex;
+                align-items: center;
+                margin: 0 10px;
+            }
+            #delay-control label {
+                margin-right: 10px;
+                white-space: nowrap;
+            }
+            #delay-slider {
+                width: 150px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="soundscape">
+            <h1>中国古玩音景</h1>
+            <div id="modules">
+                <div class="module">
+                    <h2>云彩</h2>
+                    <div class="control">
+                        <label for="clouds-sustain">持续</label>
+                        <input
+                            type="range"
+                            id="clouds-sustain"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.7"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="clouds-texture">质地</label>
+                        <input
+                            type="range"
+                            id="clouds-texture"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.3"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="clouds-blend">混合</label>
+                        <input
+                            type="range"
+                            id="clouds-blend"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.6"
+                        />
+                    </div>
+                </div>
+                <div class="module">
+                    <h2>铃声</h2>
+                    <div class="control">
+                        <label for="rings-frequency">频率</label>
+                        <input
+                            type="range"
+                            id="rings-frequency"
+                            min="20"
+                            max="2000"
+                            step="1"
+                            value="880"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="rings-repeat">重复</label>
+                        <input
+                            type="range"
+                            id="rings-repeat"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.4"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="rings-brightness">亮度</label>
+                        <input
+                            type="range"
+                            id="rings-brightness"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.8"
+                        />
+                    </div>
+                </div>
+                <div class="module">
+                    <h2>元素</h2>
+                    <div class="control">
+                        <label for="elements-contour">轮廓</label>
+                        <input
+                            type="range"
+                            id="elements-contour"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.5"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="elements-bow">弓</label>
+                        <input
+                            type="range"
+                            id="elements-bow"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.2"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="elements-blow">吹</label>
+                        <input
+                            type="range"
+                            id="elements-blow"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.9"
+                        />
+                    </div>
+                </div>
+                <div class="module">
+                    <h2>时间分割</h2>
+                    <div class="control">
+                        <label for="loop1-time">Loop 1</label>
+                        <input
+                            type="range"
+                            id="loop1-time"
+                            min="0.1"
+                            max="2"
+                            step="0.1"
+                            value="1.5"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="loop2-time">Loop 2</label>
+                        <input
+                            type="range"
+                            id="loop2-time"
+                            min="0.1"
+                            max="2"
+                            step="0.1"
+                            value="0.8"
+                        />
+                    </div>
+                    <div class="control">
+                        <label for="loop3-time">Loop 3</label>
+                        <input
+                            type="range"
+                            id="loop3-time"
+                            min="0.1"
+                            max="2"
+                            step="0.1"
+                            value="1.2"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div id="oscilloscope-container">
+                <div class="visualizer-wrapper">
+                    <canvas id="visualizer1" class="visualizer"></canvas>
+                    <button id="loop1">Loop 1 (Low)</button>
+                </div>
+                <div class="visualizer-wrapper">
+                    <canvas id="visualizer2" class="visualizer"></canvas>
+                    <button id="loop2">Loop 2 (Mid)</button>
+                </div>
+                <div class="visualizer-wrapper">
+                    <canvas id="visualizer3" class="visualizer"></canvas>
+                    <button id="loop3">Loop 3 (High)</button>
+                </div>
+            </div>
+            <div class="controls">
+                <div id="delay-control">
+                    <label for="delay-slider">延迟:</label>
+                    <input
+                        type="range"
+                        id="delay-slider"
+                        min="0"
+                        max="1"
+                        step="0.001"
+                        value="0.3"
+                    />
+                </div>
+                <button id="randomize">Randomize</button>
+                <button id="change-octaves">Change Octaves</button>
+                <select id="scale-select">
+                    <option value="pentatonic">Pentatonic</option>
+                    <option value="major">Major</option>
+                    <option value="minor">Minor</option>
+                    <option value="dorian">Dorian</option>
+                    <option value="phrygian">Phrygian</option>
+                </select>
+                <button id="stop">Stop</button>
+            </div>
+        </div>
+
+        <script>
+            const audioContext = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+            const masterGain = audioContext.createGain();
+            masterGain.gain.setValueAtTime(0.5, audioContext.currentTime);
+            masterGain.connect(audioContext.destination);
+
+            const analyser1 = audioContext.createAnalyser();
+            const analyser2 = audioContext.createAnalyser();
+            const analyser3 = audioContext.createAnalyser();
+            analyser1.fftSize = 2048;
+            analyser2.fftSize = 2048;
+            analyser3.fftSize = 2048;
+            const bufferLength = analyser1.frequencyBinCount;
+            const dataArray1 = new Uint8Array(bufferLength);
+            const dataArray2 = new Uint8Array(bufferLength);
+            const dataArray3 = new Uint8Array(bufferLength);
+
+            let isPlaying = false;
+            let isLooping1 = false;
+            let isLooping2 = false;
+            let isLooping3 = false;
+            let loopInterval1, loopInterval2, loopInterval3;
+            let animationFrame1, animationFrame2, animationFrame3;
+
+            const scales = {
+                pentatonic: [0, 2, 4, 7, 9],
+                major: [0, 2, 4, 5, 7, 9, 11],
+                minor: [0, 2, 3, 5, 7, 8, 10],
+                dorian: [0, 2, 3, 5, 7, 9, 10],
+                phrygian: [0, 1, 3, 5, 7, 8, 10],
+            };
+
+            let octaveOffset1 = 0;
+            let octaveOffset2 = 0;
+            let octaveOffset3 = 0;
+
+            // Create delay node
+            const delayNode = audioContext.createDelay(1.0);
+            delayNode.delayTime.value = 0.3;
+            const delayFeedback = audioContext.createGain();
+            delayFeedback.gain.value = 0.4;
+
+            // Connect delay to master gain
+            delayNode.connect(delayFeedback);
+            delayFeedback.connect(delayNode);
+            delayNode.connect(masterGain);
+
+            function startPlayback() {
+                if (!isPlaying) {
+                    isPlaying = true;
+                    document.getElementById("stop").classList.remove("active");
+                }
+                startVisualization();
+            }
+
+            function stopPlayback() {
+                if (isPlaying) {
+                    isPlaying = false;
+                    document.getElementById("stop").classList.add("active");
+                }
+                stopAllLoops();
+                stopVisualization();
+            }
+
+            function clearOscilloscopes() {
+                const visualizerCtx1 = visualizer1.getContext("2d");
+                const visualizerCtx2 = visualizer2.getContext("2d");
+                const visualizerCtx3 = visualizer3.getContext("2d");
+
+                visualizerCtx1.clearRect(
+                    0,
+                    0,
+                    visualizer1.width,
+                    visualizer1.height,
+                );
+                visualizerCtx2.clearRect(
+                    0,
+                    0,
+                    visualizer2.width,
+                    visualizer2.height,
+                );
+                visualizerCtx3.clearRect(
+                    0,
+                    0,
+                    visualizer3.width,
+                    visualizer3.height,
+                );
+            }
+
+            function randomize() {
+                document
+                    .querySelectorAll('input[type="range"]')
+                    .forEach((input) => {
+                        input.value = Math.random();
+                        input.dispatchEvent(new Event("input"));
+                    });
+                randomizeOctaves();
+                if (!isPlaying) startPlayback();
+            }
+
+            function randomizeOctaves() {
+                octaveOffset1 = Math.floor(Math.random() * 5) - 2;
+                octaveOffset2 = Math.floor(Math.random() * 5) - 2;
+                octaveOffset3 = Math.floor(Math.random() * 5) - 2;
+            }
+
+            function getRandomNote(scale, octaveOffset) {
+                const rootNote = 48 + octaveOffset * 12; // C3 + octave offset
+                const scaleNote =
+                    scale[Math.floor(Math.random() * scale.length)];
+                return rootNote + scaleNote;
+            }
+
+            function midiToFrequency(midiNote) {
+                return 440 * Math.pow(2, (midiNote - 69) / 12);
+            }
+
+            function createBeautifulMelody(
+                noteDurations,
+                analyser,
+                octaveOffset,
+            ) {
+                const selectedScale =
+                    document.getElementById("scale-select").value;
+                const scale = scales[selectedScale];
+                const notes = [];
+                let totalDuration = 0;
+
+                // Create a melody with 8 notes
+                for (let i = 0; i < 8; i++) {
+                    const note = getRandomNote(scale, octaveOffset);
+                    const duration =
+                        noteDurations[
+                            Math.floor(Math.random() * noteDurations.length)
+                        ];
+                    notes.push({ note, duration });
+                    totalDuration += duration;
+                }
+
+                const melodyDuration = totalDuration * 2; // 2 seconds per whole note
+
+                let currentTime = audioContext.currentTime;
+                notes.forEach(({ note, duration }) => {
+                    const freq = midiToFrequency(note);
+                    const noteDuration = duration * 2;
+
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(freq, currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(
+                        freq * 1.01,
+                        currentTime + noteDuration * 0.9,
+                    );
+
+                    gain.gain.setValueAtTime(0.2, currentTime);
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.001,
+                        currentTime + noteDuration,
+                    );
+
+                    osc.connect(gain);
+                    gain.connect(analyser);
+                    analyser.connect(delayNode);
+                    analyser.connect(masterGain);
+
+                    osc.start(currentTime);
+                    osc.stop(currentTime + noteDuration);
+
+                    currentTime += noteDuration;
+                });
+
+                return melodyDuration * 1000; // Convert to milliseconds
+            }
+
+            function toggleLoop1() {
+                if (isLooping1) {
+                    clearInterval(loopInterval1);
+                    isLooping1 = false;
+                    document.getElementById("loop1").classList.remove("active");
+                } else {
+                    if (!isPlaying) startPlayback();
+                    isLooping1 = true;
+                    document.getElementById("loop1").classList.add("active");
+                    createAndScheduleLoop1();
+                }
+            }
+
+            function toggleLoop2() {
+                if (isLooping2) {
+                    clearInterval(loopInterval2);
+                    isLooping2 = false;
+                    document.getElementById("loop2").classList.remove("active");
+                } else {
+                    if (!isPlaying) startPlayback();
+                    isLooping2 = true;
+                    document.getElementById("loop2").classList.add("active");
+                    createAndScheduleLoop2();
+                }
+            }
+
+            function toggleLoop3() {
+                if (isLooping3) {
+                    clearInterval(loopInterval3);
+                    isLooping3 = false;
+                    document.getElementById("loop3").classList.remove("active");
+                } else {
+                    if (!isPlaying) startPlayback();
+                    isLooping3 = true;
+                    document.getElementById("loop3").classList.add("active");
+                    createAndScheduleLoop3();
+                }
+            }
+
+            function createAndScheduleLoop1() {
+                const timeDivision = parseFloat(
+                    document.getElementById("loop1-time").value,
+                );
+                const duration = createBeautifulMelody(
+                    [1, 0.5, 0.25].map((d) => d * timeDivision),
+                    analyser1,
+                    octaveOffset1,
+                );
+                clearInterval(loopInterval1);
+                if (isLooping1) {
+                    loopInterval1 = setInterval(
+                        () =>
+                            createBeautifulMelody(
+                                [1, 0.5, 0.25].map((d) => d * timeDivision),
+                                analyser1,
+                                octaveOffset1,
+                            ),
+                        duration,
+                    );
+                }
+            }
+
+            function createAndScheduleLoop2() {
+                const timeDivision = parseFloat(
+                    document.getElementById("loop2-time").value,
+                );
+                const duration = createBeautifulMelody(
+                    [0.75, 0.25, 0.125].map((d) => d * timeDivision),
+                    analyser2,
+                    octaveOffset2,
+                );
+                clearInterval(loopInterval2);
+                if (isLooping2) {
+                    loopInterval2 = setInterval(
+                        () =>
+                            createBeautifulMelody(
+                                [0.75, 0.25, 0.125].map(
+                                    (d) => d * timeDivision,
+                                ),
+                                analyser2,
+                                octaveOffset2,
+                            ),
+                        duration,
+                    );
+                }
+            }
+
+            function createAndScheduleLoop3() {
+                const timeDivision = parseFloat(
+                    document.getElementById("loop3-time").value,
+                );
+                const duration = createBeautifulMelody(
+                    [1.5, 0.5, 0.25].map((d) => d * timeDivision),
+                    analyser3,
+                    octaveOffset3,
+                );
+                clearInterval(loopInterval3);
+                if (isLooping3) {
+                    loopInterval3 = setInterval(
+                        () =>
+                            createBeautifulMelody(
+                                [1.5, 0.5, 0.25].map((d) => d * timeDivision),
+                                analyser3,
+                                octaveOffset3,
+                            ),
+                        duration,
+                    );
+                }
+            }
+
+            function stopAllLoops() {
+                clearInterval(loopInterval1);
+                clearInterval(loopInterval2);
+                clearInterval(loopInterval3);
+                isLooping1 = false;
+                isLooping2 = false;
+                isLooping3 = false;
+                document.getElementById("loop1").classList.remove("active");
+                document.getElementById("loop2").classList.remove("active");
+                document.getElementById("loop3").classList.remove("active");
+            }
+
+            function startVisualization() {
+                drawVisualizer(analyser1, dataArray1, visualizer1, "#FFFFFF");
+                drawVisualizer(analyser2, dataArray2, visualizer2, "#90EE90");
+                drawVisualizer(analyser3, dataArray3, visualizer3, "#FFB6C1");
+            }
+
+            function stopVisualization() {
+                cancelAnimationFrame(animationFrame1);
+                cancelAnimationFrame(animationFrame2);
+                cancelAnimationFrame(animationFrame3);
+                clearOscilloscopes();
+            }
+
+            function drawVisualizer(analyser, dataArray, canvas, strokeColor) {
+                const ctx = canvas.getContext("2d");
+                const width = canvas.width;
+                const height = canvas.height;
+
+                function draw() {
+                    analyser.getByteTimeDomainData(dataArray);
+
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = strokeColor;
+                    ctx.beginPath();
+
+                    const sliceWidth = (width * 1.0) / bufferLength;
+                    let x = 0;
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        const v = dataArray[i] / 128.0;
+                        const y = (v * height) / 2;
+
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+
+                        x += sliceWidth;
+                    }
+
+                    ctx.lineTo(width, height / 2);
+                    ctx.stroke();
+
+                    if (analyser === analyser1) {
+                        animationFrame1 = requestAnimationFrame(() => draw());
+                    } else if (analyser === analyser2) {
+                        animationFrame2 = requestAnimationFrame(() => draw());
+                    } else if (analyser === analyser3) {
+                        animationFrame3 = requestAnimationFrame(() => draw());
+                    }
+                }
+
+                draw();
+            }
+
+            function changeOctaves() {
+                randomizeOctaves();
+                if (isLooping1) {
+                    clearInterval(loopInterval1);
+                    createAndScheduleLoop1();
+                }
+                if (isLooping2) {
+                    clearInterval(loopInterval2);
+                    createAndScheduleLoop2();
+                }
+                if (isLooping3) {
+                    clearInterval(loopInterval3);
+                    createAndScheduleLoop3();
+                }
+            }
+
+            document
+                .getElementById("stop")
+                .addEventListener("click", stopPlayback);
+            document
+                .getElementById("randomize")
+                .addEventListener("click", randomize);
+            document
+                .getElementById("change-octaves")
+                .addEventListener("click", changeOctaves);
+            document
+                .getElementById("loop1")
+                .addEventListener("click", toggleLoop1);
+            document
+                .getElementById("loop2")
+                .addEventListener("click", toggleLoop2);
+            document
+                .getElementById("loop3")
+                .addEventListener("click", toggleLoop3);
+
+            document
+                .getElementById("delay-slider")
+                .addEventListener("input", (event) => {
+                    const delayTime = parseFloat(event.target.value);
+                    delayNode.delayTime.setTargetAtTime(
+                        delayTime,
+                        audioContext.currentTime,
+                        0.1,
+                    );
+                });
+
+            document
+                .querySelectorAll('input[type="range"]')
+                .forEach((input) => {
+                    input.addEventListener("input", () => {
+                        if (
+                            input.id.includes("loop") &&
+                            input.id.includes("-time")
+                        ) {
+                            const loopNumber = input.id.charAt(4);
+                            if (isLooping1 && loopNumber === "1")
+                                createAndScheduleLoop1();
+                            if (isLooping2 && loopNumber === "2")
+                                createAndScheduleLoop2();
+                            if (isLooping3 && loopNumber === "3")
+                                createAndScheduleLoop3();
+                        }
+                    });
+                });
+
+            // Initialize the app
+            document.addEventListener("DOMContentLoaded", () => {
+                // Set initial values for sliders
+                document
+                    .querySelectorAll('input[type="range"]')
+                    .forEach((input) => {
+                        input.dispatchEvent(new Event("input"));
+                    });
+
+                // Start with a random scale
+                const scaleSelect = document.getElementById("scale-select");
+                scaleSelect.selectedIndex = Math.floor(
+                    Math.random() * scaleSelect.options.length,
+                );
+
+                // Add event listener for scale change
+                scaleSelect.addEventListener("change", () => {
+                    if (isLooping1) {
+                        clearInterval(loopInterval1);
+                        createAndScheduleLoop1();
+                    }
+                    if (isLooping2) {
+                        clearInterval(loopInterval2);
+                        createAndScheduleLoop2();
+                    }
+                    if (isLooping3) {
+                        clearInterval(loopInterval3);
+                        createAndScheduleLoop3();
+                    }
+                });
+
+                // Initialize random octaves
+                randomizeOctaves();
+
+                // Add keyboard shortcuts
+                document.addEventListener("keydown", (event) => {
+                    switch (event.key) {
+                        case " ":
+                            if (isPlaying) stopPlayback();
+                            else startPlayback();
+                            break;
+                        case "r":
+                            randomize();
+                            break;
+                        case "1":
+                            toggleLoop1();
+                            break;
+                        case "2":
+                            toggleLoop2();
+                            break;
+                        case "3":
+                            toggleLoop3();
+                            break;
+                        case "o":
+                            changeOctaves();
+                            break;
+                    }
+                });
+
+                // Resize visualizer canvas
+                function resizeVisualizer() {
+                    visualizer1.width = visualizer1.offsetWidth;
+                    visualizer1.height = visualizer1.offsetHeight;
+                    visualizer2.width = visualizer2.offsetWidth;
+                    visualizer2.height = visualizer2.offsetHeight;
+                    visualizer3.width = visualizer3.offsetWidth;
+                    visualizer3.height = visualizer3.offsetHeight;
+                }
+
+                resizeVisualizer();
+                window.addEventListener("resize", resizeVisualizer);
+            });
+        </script>
+    </body>
+</html>

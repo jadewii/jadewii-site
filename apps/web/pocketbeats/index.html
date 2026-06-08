@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PocketBeats â JAde Wii</title>
+  <link rel="stylesheet" href="../../../assets/site.css" />
+  <style>
+    .page.page-app {
+      padding-top: 7.5rem;
+      padding-bottom: 2rem;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ffffff;
+      font-family: "Helvetica", "Arial", sans-serif;
+      color: #0f380f;
+    }
+
+    .back-to-apps:hover {
+      background-color: #8bac0f;
+      transform: translateY(-2px);
+    }
+
+    .gameboy {
+      background-color: #9bbc0f;
+      border: 20px solid #8b8b8b;
+      border-radius: 20px 20px 80px 20px;
+      padding: 20px;
+      box-shadow:
+        -5px 0 0 #6b6b6b,
+        5px 0 0 #6b6b6b,
+        0 5px 0 #6b6b6b,
+        inset 0 10px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+      max-height: calc(100vh - 180px);
+      overflow: hidden;
+    }
+
+    .screen {
+      background-color: #0f380f;
+      border: 10px solid #346856;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 20px;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      color: #9bbc0f;
+      font-size: 18px;
+      margin: 0 0 10px 0;
+      text-shadow: 1px 1px 0 #306230;
+    }
+
+    .tracker {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+
+    .track-label {
+      text-align: right;
+      padding-right: 5px;
+      font-size: 10px;
+      color: #9bbc0f;
+    }
+
+    .note {
+      width: 15px;
+      height: 15px;
+      background-color: #306230;
+      border: 1px solid #9bbc0f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 8px;
+    }
+
+    .note.active {
+      background-color: #9bbc0f;
+      color: #0f380f;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .button {
+      padding: 10px;
+      font-size: 14px;
+      background-color: #8b8b8b;
+      color: #0f380f;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-transform: uppercase;
+      font-weight: bold;
+      box-shadow:
+        0 5px 0 #6b6b6b,
+        inset 0 5px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .button:hover {
+      background-color: #9b9b9b;
+    }
+
+    .button:active {
+      transform: translateY(5px);
+      box-shadow: none;
+    }
+
+    #visualizer {
+      width: 100%;
+      height: 30px;
+      background-color: #306230;
+      position: relative;
+      overflow: hidden;
+      border-radius: 5px;
+    }
+
+    .bar {
+      position: absolute;
+      bottom: 0;
+      width: 5px;
+      background-color: #9bbc0f;
+      transition: height 0.1s;
+    }
+
+    .logo {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 12px;
+      color: #306230;
+      font-weight: bold;
+    }
+
+    .info {
+      color: #9bbc0f;
+      font-size: 10px;
+      text-align: center;
+      margin-top: 5px;
+    }
+
+    .transpose-controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .transpose-button {
+      font-size: 12px;
+      width: 40px;
+      height: 40px;
+      margin: 0 5px;
+    }
+
+    @media (max-width: 768px) {
+      .page.page-app {
+        padding-top: 6rem;
+      }
+
+      .gameboy {
+        max-height: calc(100vh - 120px);
+      }
+    }
+
+            .app-page-header {
+                margin-bottom: 24px;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+  
+            .app-page-header {
+                position: fixed;
+                top: 90px;
+                left: 20px;
+                z-index: 999;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+        </style>
+</head>
+<body data-page="app-detail" data-root="../../../">
+  <div id="site-header"></div>
+
+  <main class="page page-app">
+            <div class="app-page-header">
+                <a href="../../../apps.html">← back to apps</a>
+            </div>
+    <div class="gameboy">
+      <div class="screen">
+        <h1>PocketBeats</h1>
+        <div class="tracker" id="tracker"></div>
+        <div id="visualizer"></div>
+        <div id="info" class="info"></div>
+        <div class="transpose-controls">
+          <button id="transpose-down" class="button transpose-button">-8ve</button>
+          <button id="transpose-up" class="button transpose-button">+8ve</button>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="start" class="button">Start</button>
+        <button id="generate" class="button">Gen</button>
+        <button id="stop" class="button">Stop</button>
+      </div>
+      <div class="logo">POCKET-BEATS</div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="../../../assets/site.js"></script>
+  <script>
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const tracks = 8;
+    const steps = 8;
+    let currentScale = [];
+    let tempo = 120;
+    let sequence = Array(tracks).fill().map(() => Array(steps).fill(null));
+    let isPlaying = false;
+    let currentStep = 0;
+    let octaveShift = 0;
+
+    const scales = {
+      Major: [0, 2, 4, 5, 7, 9, 11],
+      Minor: [0, 2, 3, 5, 7, 8, 10],
+      Pentatonic: [0, 2, 4, 7, 9],
+      Blues: [0, 3, 5, 6, 7, 10],
+      Chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    };
+
+    const instruments = [
+      { name: "Lead", type: "square", color: "#9bbc0f" },
+      { name: "Bass", type: "triangle", color: "#9bbc0f" },
+      { name: "Pad", type: "sine", color: "#9bbc0f" },
+      { name: "Arp", type: "sawtooth", color: "#9bbc0f" },
+      { name: "Kick", type: "custom", color: "#9bbc0f" },
+      { name: "Snare", type: "noise", color: "#9bbc0f" },
+      { name: "HiHat", type: "noise", color: "#9bbc0f" },
+      { name: "Clap", type: "noise", color: "#9bbc0f" },
+    ];
+
+    function createTracker() {
+      const tracker = document.getElementById("tracker");
+      for (let i = 0; i < tracks; i++) {
+        const label = document.createElement("div");
+        label.className = "track-label";
+        label.textContent = instruments[i].name;
+        tracker.appendChild(label);
+
+        for (let j = 0; j < steps; j++) {
+          const note = document.createElement("div");
+          note.className = "note";
+          note.dataset.track = i;
+          note.dataset.step = j;
+          note.addEventListener("click", toggleNote);
+          tracker.appendChild(note);
+        }
+      }
+    }
+
+    function toggleNote(event) {
+      const { track, step } = event.target.dataset;
+      if (sequence[track][step] === null) {
+        sequence[track][step] = currentScale[Math.floor(Math.random() * currentScale.length)];
+        event.target.classList.add("active");
+        event.target.textContent = sequence[track][step];
+      } else {
+        sequence[track][step] = null;
+        event.target.classList.remove("active");
+        event.target.textContent = "";
+      }
+    }
+
+    function generateSong() {
+      const scaleNames = Object.keys(scales);
+      const randomScaleName = scaleNames[Math.floor(Math.random() * scaleNames.length)];
+      currentScale = scales[randomScaleName];
+      tempo = Math.floor(Math.random() * (160 - 80 + 1)) + 80;
+      sequence = Array(tracks).fill().map(() =>
+        Array(steps).fill().map(() =>
+          Math.random() < 0.4 ? currentScale[Math.floor(Math.random() * currentScale.length)] : null,
+        ),
+      );
+      updateTrackerDisplay();
+      updateInfo(randomScaleName);
+    }
+
+    function updateInfo(scaleName) {
+      const infoElement = document.getElementById("info");
+      infoElement.textContent = `Scale: ${scaleName} | Tempo: ${tempo} BPM | Octave: ${octaveShift >= 0 ? "+" : ""}${octaveShift}`;
+    }
+
+    function updateTrackerDisplay() {
+      const noteElements = document.querySelectorAll(".note");
+      noteElements.forEach((el) => {
+        const { track, step} = el.dataset;
+        if (sequence[track][step] !== null) {
+          el.classList.add("active");
+          el.textContent = sequence[track][step];
+        } else {
+          el.classList.remove("active");
+          el.textContent = "";
+        }
+      });
+    }
+
+    function playNote(note, time, instrument) {
+      if (instrument.type === "custom") {
+        playKickDrum(time);
+      } else if (instrument.type === "noise") {
+        playNoise(time, instrument.name);
+      } else {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = instrument.type;
+        osc.frequency.setValueAtTime(noteToFreq(note + octaveShift * 12), time);
+        gain.gain.setValueAtTime(0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(time);
+        osc.stop(time + 0.5);
+      }
+    }
+
+    function playKickDrum(time) {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.frequency.setValueAtTime(150, time);
+      osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+      gain.gain.setValueAtTime(1, time);
+      gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start(time);
+      osc.stop(time + 0.5);
+    }
+
+    function playNoise(time, type) {
+      const bufferSize = audioContext.sampleRate * 0.1;
+      const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+      const output = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = audioContext.createBufferSource();
+      noise.buffer = buffer;
+
+      const gain = audioContext.createGain();
+      const filter = audioContext.createBiquadFilter();
+
+      if (type === "Snare") {
+        filter.type = "highpass";
+        filter.frequency.value = 1000;
+        gain.gain.setValueAtTime(0.5, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+      } else if (type === "HiHat") {
+        filter.type = "highpass";
+        filter.frequency.value = 7000;
+        gain.gain.setValueAtTime(0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+      } else if (type === "Clap") {
+        filter.type = "bandpass";
+        filter.frequency.value = 1000;
+        gain.gain.setValueAtTime(0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+      }
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioContext.destination);
+
+      noise.start(time);
+      noise.stop(time + 0.5);
+    }
+
+    function noteToFreq(note) {
+      return 440 * Math.pow(2, note / 12);
+    }
+
+    function playSequence() {
+      const time = audioContext.currentTime;
+      for (let i = 0; i < tracks; i++) {
+        if (sequence[i][currentStep] !== null) {
+          playNote(sequence[i][currentStep], time, instruments[i]);
+        }
+      }
+      currentStep = (currentStep + 1) % steps;
+      updateVisualizer();
+      if (isPlaying) {
+        setTimeout(playSequence, ((60 / tempo) * 1000) / 2);
+      }
+    }
+
+    function updateVisualizer() {
+      const visualizer = document.getElementById("visualizer");
+      visualizer.innerHTML = "";
+      for (let i = 0; i < tracks; i++) {
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        bar.style.left = `${i * (100 / tracks)}%`;
+        bar.style.height = sequence[i][currentStep] !== null ? `${Math.random() * 20 + 10}px` : "0px";
+        visualizer.appendChild(bar);
+      }
+    }
+
+    function startSequence() {
+      if (!isPlaying) {
+        isPlaying = true;
+        currentStep = 0;
+        playSequence();
+      }
+    }
+
+    function stopSequence() {
+      isPlaying = false;
+      currentStep = 0;
+      updateVisualizer();
+    }
+
+    function transposeOctave(direction) {
+      octaveShift += direction;
+      octaveShift = Math.max(-2, Math.min(2, octaveShift));
+      updateInfo(Object.keys(scales).find((key) => scales[key] === currentScale));
+    }
+
+    document.getElementById("generate").addEventListener("click", generateSong);
+    document.getElementById("start").addEventListener("click", startSequence);
+    document.getElementById("stop").addEventListener("click", stopSequence);
+    document.getElementById("transpose-up").addEventListener("click", () => transposeOctave(1));
+    document.getElementById("transpose-down").addEventListener("click", () => transposeOctave(-1));
+
+    createTracker();
+    generateSong();
+  </script>
+</body>
+</html>

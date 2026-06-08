@@ -1,0 +1,1989 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sound Design Portfolio</title>
+
+        <script>
+            (function () {
+                const root = document.documentElement;
+                root.style.setProperty("--bg", "#ffffff");
+                root.style.setProperty("--fg", "#000000");
+            })();
+        </script>
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            :root {
+                --bg: #ffffff;
+                --fg: #000000;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html,
+            body {
+                background: var(--bg);
+                color: var(--fg);
+                font-family:
+                    "Inter",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    sans-serif;
+                overflow-x: hidden;
+            }
+
+            body {
+                min-height: 100vh;
+                padding: 60px 40px;
+            }
+
+            .apple-logo-header {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            .apple-logo {
+                width: 60px;
+                height: auto;
+            }
+
+            header {
+                text-align: center;
+                margin-bottom: 32px;
+            }
+
+            h1 {
+                font-size: 48px;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+                margin-bottom: 12px;
+                color: #000000;
+            }
+
+            .subtitle {
+                font-size: 18px;
+                color: rgba(0, 0, 0, 0.6);
+                font-weight: 400;
+                margin-bottom: 0;
+            }
+
+            /* GIF section */
+            .gif-section {
+                text-align: center;
+                margin: 80px auto 40px auto;
+            }
+
+            .jadewii-gif {
+                max-width: 120px;
+                width: 100%;
+                height: auto;
+                border-radius: 16px;
+            }
+
+            /* Sounds collection section */
+            .sounds-collection-title {
+                text-align: center;
+                font-size: 18px;
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.7);
+                margin-bottom: 40px;
+                margin-top: 20px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            /* Sound circles grid */
+            .sound-circles-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+                gap: 20px;
+                max-width: 1400px;
+                margin: 0 auto 80px auto;
+                padding: 0 40px;
+            }
+
+            /* Individual sound circle */
+            .sound-circle {
+                aspect-ratio: 1;
+                border-radius: 50%;
+                border: 3px solid #a5a5a5;
+                background: #ffffff;
+                cursor: pointer;
+                transition: background 0.1s, border-color 0.1s;
+                touch-action: manipulation;
+            }
+
+            .sound-circle.playing {
+                /* Color set dynamically via JavaScript */
+            }
+
+            /* Audio Controls */
+            .audio-controls {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                max-width: 1400px;
+                margin: 0 auto 40px auto;
+                padding: 0 40px;
+            }
+
+            .knob-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .knob-wrapper {
+                position: relative;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .knob {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: #ffffff;
+                position: relative;
+                transition: transform 0.05s, border-color 0.2s, background 0.2s;
+                border: 3px solid #a5a5a5;
+            }
+
+            .knob:active {
+                transform: scale(0.98);
+            }
+
+            /* Design 2: Double circle with dot - starts gray, colors when active */
+            .knob::before {
+                content: '';
+                position: absolute;
+                width: 52px;
+                height: 52px;
+                border-radius: 50%;
+                border: 3px solid #a5a5a5;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                transition: border-color 0.2s;
+            }
+
+            .knob::after {
+                content: '';
+                position: absolute;
+                width: 6px;
+                height: 6px;
+                background: #a5a5a5;
+                border-radius: 50%;
+                top: 14px;
+                left: 50%;
+                transform: translateX(-50%);
+                transition: background 0.2s;
+            }
+
+            /* Active states - colored INSIDE when enabled */
+            /* 1. Compressor: Blue */
+            #compressorKnob.active {
+                background: #3498DB;
+                border-color: #2874A6;
+            }
+            #compressorKnob.active::before {
+                background: #85C1E9; /* 50% lighter blue */
+                border-color: #2874A6;
+            }
+            #compressorKnob.active::after {
+                background: #1A4E7A; /* Darker than border */
+            }
+
+            /* 2. Distortion: Red */
+            #distortionKnob.active {
+                background: #E74C3C;
+                border-color: #C0392B;
+            }
+            #distortionKnob.active::before {
+                background: #F5B7B1; /* 50% lighter red */
+                border-color: #C0392B;
+            }
+            #distortionKnob.active::after {
+                background: #7B241C; /* Darker than border */
+            }
+
+            /* 3. Filter: Orange */
+            #filterKnob.active {
+                background: #F39C12;
+                border-color: #D68910;
+            }
+            #filterKnob.active::before {
+                background: #F9D79B; /* 50% lighter orange */
+                border-color: #D68910;
+            }
+            #filterKnob.active::after {
+                background: #9A6608; /* Darker than border */
+            }
+
+            /* 4. Chorus: Yellow */
+            #chorusKnob.active {
+                background: #F1C40F;
+                border-color: #D4AC0D;
+            }
+            #chorusKnob.active::before {
+                background: #F9E79F; /* 50% lighter yellow */
+                border-color: #D4AC0D;
+            }
+            #chorusKnob.active::after {
+                background: #9A7D0A; /* Darker than border */
+            }
+
+            /* 5. Phaser: Purple */
+            #phaserKnob.active {
+                background: #9B59B6;
+                border-color: #7D3C98;
+            }
+            #phaserKnob.active::before {
+                background: #D7BDE2; /* 50% lighter purple */
+                border-color: #7D3C98;
+            }
+            #phaserKnob.active::after {
+                background: #512E65; /* Darker than border */
+            }
+
+            /* 6. Delay: Green */
+            #delayKnob.active {
+                background: #2ECC71;
+                border-color: #27AE60;
+            }
+            #delayKnob.active::before {
+                background: #A9DFBF; /* 50% lighter green */
+                border-color: #27AE60;
+            }
+            #delayKnob.active::after {
+                background: #1E7E34; /* Darker than border */
+            }
+
+            /* 7. Reverb: Pink */
+            #reverbKnob.active {
+                background: #EC7063;
+                border-color: #E74C3C;
+            }
+            #reverbKnob.active::before {
+                background: #F5B7B1; /* 50% lighter pink */
+                border-color: #E74C3C;
+            }
+            #reverbKnob.active::after {
+                background: #A93226; /* Darker than border */
+            }
+
+            /* 8. Bitcrusher: Black */
+            #bitcrusherKnob.active {
+                background: #2C3E50;
+                border-color: #1C2833;
+            }
+            #bitcrusherKnob.active::before {
+                background: #5D6D7E; /* 50% lighter gray */
+                border-color: #1C2833;
+            }
+            #bitcrusherKnob.active::after {
+                background: #0B1218; /* Darker than border */
+            }
+
+            .knob-label {
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                padding: 8px 16px;
+                border: 3px solid #a5a5a5;
+                border-radius: 6px;
+                background: #ffffff;
+                cursor: pointer;
+                transition: all 0.2s;
+                color: rgba(0, 0, 0, 0.6);
+            }
+
+            .knob-label:hover {
+                transform: scale(1.05);
+            }
+
+            .knob-label:active {
+                transform: scale(0.98);
+            }
+
+            /* Active button states - white background with colored outline */
+            .knob-label[data-param="compressor"].active {
+                background: #ffffff;
+                border-color: #3498DB;
+                color: #1A4E7A;
+            }
+
+            .knob-label[data-param="distortion"].active {
+                background: #ffffff;
+                border-color: #E74C3C;
+                color: #7B241C;
+            }
+
+            .knob-label[data-param="filter"].active {
+                background: #ffffff;
+                border-color: #F39C12;
+                color: #9A6608;
+            }
+
+            .knob-label[data-param="chorus"].active {
+                background: #ffffff;
+                border-color: #F1C40F;
+                color: #9A7D0A;
+            }
+
+            .knob-label[data-param="phaser"].active {
+                background: #ffffff;
+                border-color: #9B59B6;
+                color: #512E65;
+            }
+
+            .knob-label[data-param="delay"].active {
+                background: #ffffff;
+                border-color: #2ECC71;
+                color: #1E7E34;
+            }
+
+            .knob-label[data-param="reverb"].active {
+                background: #ffffff;
+                border-color: #EC7063;
+                color: #A93226;
+            }
+
+            .knob-label[data-param="bitcrusher"].active {
+                background: #ffffff;
+                border-color: #2C3E50;
+                color: #0B1218;
+            }
+
+            /* Debug display */
+            #debug {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.95);
+                color: #00ff00;
+                padding: 15px 20px;
+                border-radius: 12px;
+                font-size: 16px;
+                font-family: monospace;
+                z-index: 99999;
+                pointer-events: auto;
+                user-select: text;
+                cursor: text;
+                border: 3px solid #00ff00;
+                min-width: 300px;
+                max-width: 500px;
+            }
+
+            /* Play button section */
+            .play-button-section {
+                text-align: center;
+                margin: 32px auto 20px auto;
+            }
+
+            .play-button {
+                width: 140px;
+                height: 140px;
+                border-radius: 50%;
+                border: 6px solid #303030;
+                background: #ffffff;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0s, background 0s;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            }
+
+            .play-button:hover {
+                transform: scale(1.05);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+                background: #000000;
+                border-color: #000000;
+            }
+
+            .play-button:hover .play-triangle {
+                border-left-color: #ffffff;
+            }
+
+            .play-button:active {
+                transform: scale(1.02);
+            }
+
+            .play-triangle {
+                width: 0;
+                height: 0;
+                border-left: 40px solid #303030;
+                border-top: 25px solid transparent;
+                border-bottom: 25px solid transparent;
+                margin-left: 8px;
+                transition: none;
+            }
+
+            .play-all-text {
+                text-align: center;
+                font-size: 18px;
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.7);
+                margin-top: 20px;
+                margin-bottom: 60px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            /* Video section */
+            .video-section {
+                max-width: 1200px;
+                margin: 0 auto 80px auto;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 24px;
+                padding: 0 40px;
+            }
+
+            .video-item {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .video-container {
+                position: relative;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 3px solid #808080;
+                aspect-ratio: 16/9;
+                background: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .video-container video {
+                width: 100%;
+                height: auto;
+                display: none;
+            }
+
+            .video-thumbnail {
+                position: absolute;
+                inset: 0;
+                background: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family:
+                    "Inter",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    sans-serif;
+                font-size: 22px;
+                font-weight: 400;
+                color: #4a4a4a;
+                letter-spacing: -0.02em;
+                transition: opacity 0.3s ease;
+            }
+
+            .video-thumbnail img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .video-thumbnail span {
+                position: absolute;
+                z-index: 2;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+
+            .video-container:hover {
+                border-color: transparent;
+            }
+
+            .video-container:hover .video-thumbnail span {
+                opacity: 0;
+            }
+
+            .video-container:hover .video-thumbnail img {
+                opacity: 1;
+            }
+
+            .video-title {
+                text-align: center;
+                font-size: 12px;
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.7);
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            /* Lightbox modal */
+            .lightbox {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                opacity: 0;
+                transition: opacity 0.3s;
+                pointer-events: none;
+            }
+
+            .lightbox.active {
+                display: flex;
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .lightbox-content {
+                position: relative;
+                max-width: 90%;
+                max-height: 90%;
+            }
+
+            .lightbox video {
+                max-width: 90vw;
+                max-height: 90vh;
+                border-radius: 8px;
+            }
+
+            .lightbox-nav {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background: rgba(255, 255, 255, 0.15);
+                border: none;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                color: white;
+                font-size: 32px;
+                cursor: pointer;
+                transition: all 0.3s;
+                backdrop-filter: blur(10px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .lightbox-nav:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-50%) scale(1.1);
+            }
+
+            .lightbox-prev {
+                left: -80px;
+            }
+
+            .lightbox-next {
+                right: -80px;
+            }
+
+            .lightbox-close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.15);
+                border: none;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                color: white;
+                font-size: 28px;
+                cursor: pointer;
+                transition: all 0.3s;
+                backdrop-filter: blur(10px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10001;
+                pointer-events: auto;
+            }
+
+            .lightbox-close:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: scale(1.1);
+            }
+
+            /* Soundtracks video section */
+            .soundtracks-section {
+                max-width: 900px;
+                margin: 80px auto 80px auto;
+                text-align: center;
+            }
+
+            .soundtracks-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.7);
+                margin-bottom: 30px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            .soundtracks-video-container {
+                border-radius: 16px;
+                overflow: hidden;
+                background: transparent;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+                aspect-ratio: 16/9;
+            }
+
+            .soundtracks-video-container video {
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: cover;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                body {
+                    padding: 30px 15px;
+                }
+
+                .apple-logo-header {
+                    margin-bottom: 20px;
+                }
+
+                .apple-logo {
+                    width: 40px;
+                }
+
+                header {
+                    margin-bottom: 30px;
+                }
+
+                h1 {
+                    font-size: 32px;
+                    margin-bottom: 20px;
+                }
+
+                .subtitle {
+                    font-size: 14px;
+                }
+
+                .play-button-section {
+                    margin: 40px auto 40px auto;
+                }
+
+                .play-button {
+                    width: 132px;
+                    height: 132px;
+                }
+
+                .play-triangle {
+                    border-left: 38px solid #303030;
+                    border-top: 24px solid transparent;
+                    border-bottom: 24px solid transparent;
+                    margin-left: 8px;
+                }
+
+                .play-all-text {
+                    font-size: 14px;
+                    margin-bottom: 30px;
+                    letter-spacing: 1.5px;
+                }
+
+                .video-section {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 15px;
+                    padding: 0 15px;
+                    margin-bottom: 50px;
+                }
+
+                .video-container {
+                    border: 2px solid #808080;
+                    border-radius: 12px;
+                }
+
+                .video-thumbnail {
+                    font-size: 14px;
+                }
+
+                .video-title {
+                    font-size: 10px;
+                }
+
+                .gif-section {
+                    margin: 60px auto 30px auto;
+                }
+
+                .jadewii-gif {
+                    max-width: 90px;
+                }
+
+                .sounds-collection-title {
+                    font-size: 18px;
+                    margin-bottom: 25px;
+                    letter-spacing: 0.5px;
+                }
+
+                .sound-circles-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                    gap: 12px;
+                    padding: 0 15px;
+                    margin-bottom: 60px;
+                }
+
+                .sound-circle {
+                    border: 2px solid #a5a5a5;
+                }
+
+                .soundtracks-section {
+                    margin: 60px auto 60px auto;
+                }
+
+                .soundtracks-title {
+                    font-size: 18px;
+                    margin-bottom: 20px;
+                    letter-spacing: 0.5px;
+                }
+
+                .soundtracks-video-container {
+                    border-radius: 12px;
+                }
+
+                .lightbox-prev {
+                    left: 10px;
+                }
+
+                .lightbox-next {
+                    right: 10px;
+                }
+
+                .lightbox-nav {
+                    width: 50px;
+                    height: 50px;
+                    font-size: 24px;
+                }
+
+                .lightbox-close {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 24px;
+                }
+            }
+
+            /* Extra small screens */
+            @media (max-width: 480px) {
+                body {
+                    padding: 20px 10px;
+                }
+
+                h1 {
+                    font-size: 28px;
+                }
+
+                .subtitle {
+                    font-size: 12px;
+                }
+
+                .play-button {
+                    width: 110px;
+                    height: 110px;
+                }
+
+                .play-triangle {
+                    border-left: 32px solid #303030;
+                    border-top: 20px solid transparent;
+                    border-bottom: 20px solid transparent;
+                    margin-left: 6px;
+                }
+
+                .play-all-text {
+                    font-size: 12px;
+                }
+
+                .video-section {
+                    gap: 12px;
+                    padding: 0 10px;
+                }
+
+                .video-thumbnail {
+                    font-size: 12px;
+                }
+
+                .jadewii-gif {
+                    max-width: 70px;
+                }
+
+                .sounds-collection-title {
+                    font-size: 16px;
+                }
+
+                .sound-circles-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+                    gap: 10px;
+                    padding: 0 10px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="apple-logo-header">
+            <img src="apple/apple.svg" alt="Apple" class="apple-logo" />
+        </div>
+
+        <header>
+            <h1>Sound Design</h1>
+            <p class="subtitle">JAde Wii x Apple</p>
+        </header>
+
+        <div class="play-button-section">
+            <div class="play-button" id="playShowreelBtn">
+                <div class="play-triangle"></div>
+            </div>
+        </div>
+
+        <div class="play-all-text">Play All</div>
+
+        <div class="video-section">
+            <div class="video-item">
+                <div class="video-container" data-video-index="0">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/startup.png" alt="Power On" loading="lazy">
+                        <span>Power On</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/mac_videos/power%20on.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">TVOS</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="1">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/power%20on.png" alt="Startup" loading="lazy">
+                        <span>Startup</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/mac_videos/startup.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">MACOS</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="2">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/trash.png" alt="Trash" loading="lazy">
+                        <span>Trash</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/mac_videos/trash.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">MACOS</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="3">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/typing.png" alt="Typing" loading="lazy">
+                        <span>Typing</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/iphone_videos/typing.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">IPHONE</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="4">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/ringtones.png" alt="Ringtones" loading="lazy">
+                        <span>Ringtones</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/iphone_videos/ringtones.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">IPHONE</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="5">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/arcade%20commercial.png" alt="Arcade Commercial" loading="lazy">
+                        <span>Arcade Commercial</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/iphone_videos/arcade%20commercial.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">ARCADE</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="6">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/sasquatch%20commercial.png" alt="Sasquatch Dance" loading="lazy">
+                        <span>Sasquatch Dance</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/iphone_videos/sasquatch%20dance.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">ARCADE</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="7">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/sneaky%20sasquatch.png" alt="Sneaky Sasquatch" loading="lazy">
+                        <span>Sneaky Sasquatch</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/iphone_videos/sneaky%20sasquatch.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">ARCADE</div>
+            </div>
+            <div class="video-item">
+                <div class="video-container" data-video-index="8">
+                    <div class="video-thumbnail">
+                        <img src="apple/thumbnails/toca%20boca.png" alt="Toca Boca" loading="lazy">
+                        <span>Toca Boca</span>
+                    </div>
+                    <video preload="metadata">
+                        <source
+                            src="apple/iphone_videos/toca%20boca.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+                <div class="video-title">ARCADE</div>
+            </div>
+        </div>
+
+        <div class="soundtracks-section">
+            <h2 class="soundtracks-title">Soundtracks</h2>
+            <div class="soundtracks-video-container">
+                <video controls preload="metadata" poster="apple/thumbnails/soundtracks.png">
+                    <source src="apple/soundtracks_compressed.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+
+        <h2 class="sounds-collection-title">Explore More Sounds</h2>
+
+        <div class="sound-circles-grid" id="soundCirclesGrid"></div>
+
+        <!-- Lightbox Modal -->
+        <div class="lightbox" id="lightbox">
+            <div class="lightbox-content">
+                <button class="lightbox-close" id="lightboxClose">
+                    &times;
+                </button>
+                <button class="lightbox-nav lightbox-prev" id="lightboxPrev">
+                    &lt;
+                </button>
+                <video id="lightboxVideo" controls preload="metadata">
+                    <source src="" type="video/mp4" />
+                </video>
+                <button class="lightbox-nav lightbox-next" id="lightboxNext">
+                    &gt;
+                </button>
+            </div>
+        </div>
+
+        <script>
+            // Knob sound assignments (each knob plays a specific sound)
+            const KNOB_SOUNDS = {
+                compressor: "F4 copy.mp3",
+                distortion: "Glitch_Drum_01 copy.mp3",
+                filter: "AC14-C copy.mp3",
+                chorus: "FM 13.mp3",
+                phaser: "MH17 copy.mp3",
+                delay: "PM 12 copy.mp3",
+                reverb: "T19 copy.mp3",
+                bitcrusher: "4Glitch_Drum_03 copy.mp3"
+            };
+
+            // Knob audio cache (separate from circle cache)
+            const knobAudioCache = {};
+
+            // List of all sound files
+            const SOUND_FILES = [
+                "002 copy.mp3",
+                "004 copy.mp3",
+                "031 copy.mp3",
+                "035 copy.mp3",
+                "041 copy.mp3",
+                "044 copy.mp3",
+                "061 copy.mp3",
+                "064 copy.mp3",
+                "093 copy.mp3",
+                "095 copy.mp3",
+                "104 copy.mp3",
+                "108 copy.mp3",
+                "109 copy.mp3",
+                "2Glitch_Drum_03 copy.mp3",
+                "2Glitch_Drum_04 copy.mp3",
+                "2Glitch_Drum_06 copy.mp3",
+                "2Glitch_Drum_08 copy.mp3",
+                "2Glitch_Drum_11 copy.mp3",
+                "2Glitch_Drum_14 copy.mp3",
+                "2Glitch_Drum_19 copy.mp3",
+                "2Glitch_Drum_21 copy.mp3",
+                "2Glitch_Drum_23 copy.mp3",
+                "2Glitch_Drum_24 copy.mp3",
+                "2Glitch_Drum_31 copy.mp3",
+                "2Glitch_Drum_32 copy.mp3",
+                "3Glitch_Drum_26 copy.mp3",
+                "3Glitch_Drum_30 copy.mp3",
+                "3Glitch_Drum_33 copy.mp3",
+                "3Glitch_Drum_40 copy.mp3",
+                "3Glitch_Drum_48 copy.mp3",
+                "3Glitch_Drum_49 copy.mp3",
+                "3Glitch_Drum_50 copy.mp3",
+                "3Glitch_Drum_51 copy.mp3",
+                "3Glitch_Drum_58 copy.mp3",
+                "3Glitch_Drum_64 copy.mp3",
+                "4Glitch_Drum_03 copy.mp3",
+                "4Glitch_Drum_08 copy.mp3",
+                "4Glitch_Drum_13 copy.mp3",
+                "4Glitch_Drum_14 copy.mp3",
+                "4Glitch_Drum_16 copy.mp3",
+                "4Glitch_Drum_25 copy.mp3",
+                "4Glitch_Drum_30 copy.mp3",
+                "4Glitch_Drum_31 copy.mp3",
+                "4Glitch_Drum_34 copy.mp3",
+                "4Glitch_Drum_43 copy.mp3",
+                "4Glitch_Drum_46 copy.mp3",
+                "4Glitch_Drum_51 copy.mp3",
+                "4Glitch_Drum_53 copy.mp3",
+                "4Glitch_Drum_54 copy.mp3",
+                "4Glitch_Drum_58 copy.mp3",
+                "4Glitch_Drum_60 copy.mp3",
+                "4Glitch_Drum_65.6 copy.mp3",
+                "4Glitch_Drum_69 copy.mp3",
+                "4Glitch_Drum_72 copy.mp3",
+                "AC14-C copy.mp3",
+                "AC18-Cm copy.mp3",
+                "AC2-Cm copy.mp3",
+                "AC21-C copy.mp3",
+                "AC22-C copy.mp3",
+                "AC24-C copy.mp3",
+                "AC28-C copy.mp3",
+                "AC3-C7 copy.mp3",
+                "AC30-C copy.mp3",
+                "AC30-C7 copy.mp3",
+                "AC32-C copy.mp3",
+                "AC32-Cm7 copy.mp3",
+                "AC37-C7 copy.mp3",
+                "AC42-C7 copy.mp3",
+                "AC5-C7 copy.mp3",
+                "AC50-Cm7 copy.mp3",
+                "AC7-C copy.mp3",
+                "F4 copy.mp3",
+                "FM 13.mp3",
+                "FM 14.mp3",
+                "FM 16.mp3",
+                "FM 18.mp3",
+                "FM 19 copy.mp3",
+                "FM 22 copy.mp3",
+                "FM 30 copy.mp3",
+                "FM 31 copy.mp3",
+                "FM 9.mp3",
+                "Glitch_Drum_01 copy.mp3",
+                "Glitch_Drum_03 copy.mp3",
+                "Glitch_Drum_04 copy.mp3",
+                "Glitch_Drum_08 copy.mp3",
+                "Glitch_Drum_104 copy.mp3",
+                "Glitch_Drum_107 copy.mp3",
+                "Glitch_Drum_108 copy.mp3",
+                "Glitch_Drum_11 copy.mp3",
+                "Glitch_Drum_119 copy.mp3",
+                "Glitch_Drum_122 copy.mp3",
+                "Glitch_Drum_14 copy.mp3",
+                "Glitch_Drum_21 copy.mp3",
+                "Glitch_Drum_23 copy.mp3",
+                "Glitch_Drum_28 copy.mp3",
+                "Glitch_Drum_30 copy.mp3",
+                "Glitch_Drum_31 copy.mp3",
+                "Glitch_Drum_32 copy.mp3",
+                "Glitch_Drum_33 copy.mp3",
+                "Glitch_Drum_34 copy.mp3",
+                "Glitch_Drum_36 copy.mp3",
+                "Glitch_Drum_37 copy.mp3",
+                "Glitch_Drum_42 copy.mp3",
+                "Glitch_Drum_48 copy.mp3",
+                "Glitch_Drum_56 copy.mp3",
+                "Glitch_Drum_57 copy.mp3",
+                "Glitch_Drum_64 copy.mp3",
+                "Glitch_Drum_73 copy.mp3",
+                "Glitch_Drum_79 copy.mp3",
+                "Glitch_Drum_82 copy.mp3",
+                "Glitch_Drum_84 copy.mp3",
+                "Glitch_Drum_85 copy.mp3",
+                "Glitch_Drum_86 copy.mp3",
+                "MH17 copy.mp3",
+                "MH24 copy.mp3",
+                "MH51 copy.mp3",
+                "MH54 copy.mp3",
+                "MH61 copy.mp3",
+                "MH67 copy.mp3",
+                "MH69 copy.mp3",
+                "MH85 copy.mp3",
+                "MU15- FX36 copy.mp3",
+                "MU15- FX37 copy.mp3",
+                "MU15- FX38 copy.mp3",
+                "PM 12 copy.mp3",
+                "PM 16 copy.mp3",
+                "PM 18 copy.mp3",
+                "PM 22 copy.mp3",
+                "PM 23 copy.mp3",
+                "PM 27 copy.mp3",
+                "PM 30 copy.mp3",
+                "PM 54 copy.mp3",
+                "PM 61 copy.mp3",
+                "PM 64 copy.mp3",
+                "PM 75 copy.mp3",
+                "Shahi Baaja-06 copy.mp3",
+                "Shahi Baaja-07 copy.mp3",
+                "Shahi Baaja-106 copy.mp3",
+                "Shahi Baaja-127 copy.mp3",
+                "Shahi Baaja-28 copy.mp3",
+                "ST-50 Perc - 20 copy.mp3",
+                "ST-50 Perc - 26 copy.mp3",
+                "ST-50 Phrase - 32 copy.mp3",
+                "ST-50 Shot - 13 copy.mp3",
+                "T19 copy.mp3",
+                "T8 copy.mp3",
+                "TD12 copy.mp3",
+                "TP10 copy.mp3",
+                "TP14 copy.mp3",
+                "TP2 copy.mp3",
+                "WP19 copy.mp3",
+                "WP43 copy.mp3"
+            ]; // Total: 152 sounds
+
+            // Audio cache - cache all sounds (152 total)
+            const audioCache = {};
+            let currentPlayingAudio = null;
+            let currentPlayingElement = null;
+            const MAX_CACHE_SIZE = 200; // Cache all sounds
+
+            // Web Audio API setup
+            let audioContext = null;
+            let masterGain = null;
+            let compressorNode = null;
+            let distortionNode = null;
+            let distortionGain = null;
+            let filterNode = null;
+            let chorusDelay = null;
+            let chorusOsc = null;
+            let chorusGain = null;
+            let phaserNodes = [];
+            let phaserOsc = null;
+            let phaserGain = null;
+            let delayNode = null;
+            let delayFeedback = null;
+            let delayGain = null;
+            let convolverNode = null;
+            let reverbGain = null;
+            let bitcrusherNode = null;
+            let bitcrusherGain = null;
+            let dryGain = null;
+            let audioSourceNodes = {}; // Track source nodes for each audio element
+
+            // Initialize Web Audio API
+            function initAudioContext() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                    // Create master gain (always at 100%)
+                    masterGain = audioContext.createGain();
+                    masterGain.gain.value = 1.0;
+
+                    // 1. COMPRESSOR
+                    compressorNode = audioContext.createDynamicsCompressor();
+                    compressorNode.threshold.value = -24;
+                    compressorNode.knee.value = 30;
+                    compressorNode.ratio.value = 1; // Start bypassed (ratio=1)
+                    compressorNode.attack.value = 0.003;
+                    compressorNode.release.value = 0.25;
+
+                    // 2. DISTORTION (using WaveShaper)
+                    distortionNode = audioContext.createWaveShaper();
+                    distortionNode.curve = makeDistortionCurve(0);
+                    distortionNode.oversample = '4x';
+                    distortionGain = audioContext.createGain();
+                    distortionGain.gain.value = 0; // Dry/wet mix
+                    distortionNode.connect(distortionGain); // Connect distortion to its gain
+
+                    // 3. FILTER
+                    filterNode = audioContext.createBiquadFilter();
+                    filterNode.type = 'lowpass';
+                    filterNode.frequency.value = 22050; // Start wide open
+                    filterNode.Q.value = 1;
+
+                    // 4. CHORUS (using delay + LFO)
+                    chorusDelay = audioContext.createDelay(0.1);
+                    chorusDelay.delayTime.value = 0.02; // 20ms base delay
+                    chorusOsc = audioContext.createOscillator();
+                    chorusOsc.frequency.value = 0.5; // 0.5 Hz LFO
+                    const chorusLFOGain = audioContext.createGain();
+                    chorusLFOGain.gain.value = 0.005; // 5ms modulation depth
+                    chorusOsc.connect(chorusLFOGain);
+                    chorusLFOGain.connect(chorusDelay.delayTime);
+                    chorusOsc.start();
+                    chorusGain = audioContext.createGain();
+                    chorusGain.gain.value = 0; // Dry/wet mix
+
+                    // 5. PHASER (using all-pass filters + LFO)
+                    phaserOsc = audioContext.createOscillator();
+                    phaserOsc.frequency.value = 0.3; // 0.3 Hz LFO
+                    const phaserLFOGain = audioContext.createGain();
+                    phaserLFOGain.gain.value = 800; // Sweep range
+                    phaserOsc.connect(phaserLFOGain);
+                    phaserOsc.start();
+                    // Create 6 all-pass filters for phaser effect
+                    for (let i = 0; i < 6; i++) {
+                        const allpass = audioContext.createBiquadFilter();
+                        allpass.type = 'allpass';
+                        allpass.frequency.value = 350 + (i * 100);
+                        allpass.Q.value = 1;
+                        phaserLFOGain.connect(allpass.frequency);
+                        phaserNodes.push(allpass);
+                    }
+                    phaserGain = audioContext.createGain();
+                    phaserGain.gain.value = 0; // Dry/wet mix
+
+                    // 6. DELAY
+                    delayNode = audioContext.createDelay(5.0);
+                    delayNode.delayTime.value = 0.3; // 300ms
+                    delayFeedback = audioContext.createGain();
+                    delayFeedback.gain.value = 0.5; // Feedback
+                    delayGain = audioContext.createGain();
+                    delayGain.gain.value = 0; // Dry/wet mix
+
+                    // 7. REVERB
+                    convolverNode = audioContext.createConvolver();
+                    createReverbImpulse();
+                    reverbGain = audioContext.createGain();
+                    reverbGain.gain.value = 0; // Dry/wet mix
+
+                    // 8. BIT CRUSHER (using WaveShaper for bit reduction)
+                    bitcrusherNode = audioContext.createWaveShaper();
+                    bitcrusherNode.curve = makeBitcrushCurve(16); // Start at 16-bit (no crush)
+                    bitcrusherGain = audioContext.createGain();
+                    bitcrusherGain.gain.value = 0; // Dry/wet mix
+
+                    // DRY SIGNAL (always 100% - we control wet/dry per effect)
+                    dryGain = audioContext.createGain();
+                    dryGain.gain.value = 1.0; // Always full volume
+
+                    // CONNECT AUDIO GRAPH:
+                    // Source → compressor → distortion+dry → filter → chorus+phaser+delay+reverb+bitcrusher+dry → master → destination
+
+                    // Delay feedback loop
+                    delayNode.connect(delayFeedback);
+                    delayFeedback.connect(delayNode);
+                    delayNode.connect(delayGain);
+
+                    // Phaser chain (connect all-pass filters in series)
+                    for (let i = 0; i < phaserNodes.length - 1; i++) {
+                        phaserNodes[i].connect(phaserNodes[i + 1]);
+                    }
+                    phaserNodes[phaserNodes.length - 1].connect(phaserGain);
+
+                    // Chorus
+                    chorusDelay.connect(chorusGain);
+
+                    // Bitcrusher
+                    bitcrusherNode.connect(bitcrusherGain);
+
+                    // Reverb
+                    convolverNode.connect(reverbGain);
+
+                    // CONNECT FX GRAPH (once, not per sound):
+                    // Compressor → Filter → all effects in parallel
+                    compressorNode.connect(filterNode);
+
+                    // From filter, split to all effects + dry signal
+                    filterNode.connect(distortionNode);
+                    filterNode.connect(chorusDelay);
+                    filterNode.connect(phaserNodes[0]);
+                    filterNode.connect(delayNode);
+                    filterNode.connect(convolverNode);
+                    filterNode.connect(bitcrusherNode);
+                    filterNode.connect(dryGain); // Dry signal always passes through
+
+                    // All wet signals sum to master
+                    dryGain.connect(masterGain);
+                    distortionGain.connect(masterGain);
+                    chorusGain.connect(masterGain);
+                    phaserGain.connect(masterGain);
+                    delayGain.connect(masterGain);
+                    reverbGain.connect(masterGain);
+                    bitcrusherGain.connect(masterGain);
+
+                    // Master to speakers
+                    masterGain.connect(audioContext.destination);
+                }
+            }
+
+            // Make distortion curve
+            function makeDistortionCurve(amount) {
+                const k = amount * 100;
+                const n_samples = 44100;
+                const curve = new Float32Array(n_samples);
+                const deg = Math.PI / 180;
+                for (let i = 0; i < n_samples; i++) {
+                    const x = (i * 2) / n_samples - 1;
+                    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+                }
+                return curve;
+            }
+
+            // Make bitcrusher curve (bit depth reduction)
+            function makeBitcrushCurve(bits) {
+                const n_samples = 44100;
+                const curve = new Float32Array(n_samples);
+                const step = Math.pow(2, bits);
+                for (let i = 0; i < n_samples; i++) {
+                    const x = (i * 2) / n_samples - 1;
+                    curve[i] = Math.round(x * step) / step;
+                }
+                return curve;
+            }
+
+            // Create impulse response for reverb
+            function createReverbImpulse() {
+                const sampleRate = audioContext.sampleRate;
+                const length = sampleRate * 2.5; // 2.5 second reverb
+                const impulse = audioContext.createBuffer(2, length, sampleRate);
+                const impulseL = impulse.getChannelData(0);
+                const impulseR = impulse.getChannelData(1);
+
+                // Generate exponentially decaying noise
+                for (let i = 0; i < length; i++) {
+                    const decay = Math.exp(-i / (sampleRate * 0.4));
+                    impulseL[i] = (Math.random() * 2 - 1) * decay;
+                    impulseR[i] = (Math.random() * 2 - 1) * decay;
+                }
+
+                convolverNode.buffer = impulse;
+            }
+
+            // Update audio parameter when knob changes
+            function updateAudioParameter(param, value) {
+                if (!audioContext) return;
+
+                const now = audioContext.currentTime;
+
+                switch(param) {
+                    case 'compressor':
+                        // Compressor: 0-100 → ratio 1:1 to 20:1
+                        const ratio = 1 + (value / 100) * 19;
+                        compressorNode.ratio.setValueAtTime(ratio, now);
+                        break;
+
+                    case 'distortion':
+                        // Distortion: 0-100 → wet/dry mix + curve
+                        distortionNode.curve = makeDistortionCurve(value / 100);
+                        distortionGain.gain.setValueAtTime((value / 100) * 0.5, now);
+                        break;
+
+                    case 'filter':
+                        // Filter: 100-0 → 22050Hz-200Hz (logarithmic)
+                        const minFreq = 200;
+                        const maxFreq = 22050;
+                        const normalizedValue = value / 100;
+                        const frequency = minFreq * Math.pow(maxFreq / minFreq, normalizedValue);
+                        filterNode.frequency.setValueAtTime(frequency, now);
+                        break;
+
+                    case 'chorus':
+                        // Chorus: 0-100 → wet/dry mix
+                        chorusGain.gain.setValueAtTime((value / 100) * 0.6, now);
+                        break;
+
+                    case 'phaser':
+                        // Phaser: 0-100 → wet/dry mix
+                        phaserGain.gain.setValueAtTime((value / 100) * 0.8, now);
+                        break;
+
+                    case 'delay':
+                        // Delay: 0-100 → delay mix amount
+                        delayGain.gain.setValueAtTime((value / 100) * 0.6, now);
+                        break;
+
+                    case 'reverb':
+                        // Reverb: 0-100 → wet/dry mix
+                        reverbGain.gain.setValueAtTime((value / 100) * 0.8, now);
+                        break;
+
+                    case 'bitcrusher':
+                        // Bitcrusher: 0-100 → 16-bit to 4-bit
+                        const bits = 16 - Math.floor((value / 100) * 12);
+                        bitcrusherNode.curve = makeBitcrushCurve(bits);
+                        bitcrusherGain.gain.setValueAtTime((value / 100) * 0.7, now);
+                        break;
+                }
+            }
+
+            // Generate fixed color for each circle based on index
+            function getCircleColor(index) {
+                // Use HSL for evenly distributed colors across the spectrum
+                const hue = (index * 137.5) % 360; // Golden angle for good distribution
+                const saturation = 65 + (index % 3) * 10; // Vary saturation slightly
+                const lightness = 55 + (index % 4) * 5; // Vary lightness slightly
+                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            }
+
+            // Darken an HSL color
+            function darkenColor(hslColor) {
+                const match = hslColor.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/);
+                if (!match) return hslColor;
+                const h = match[1];
+                const s = Math.min(100, parseInt(match[2]) + 20); // Boost saturation
+                const l = Math.floor(parseInt(match[3]) * 0.3); // Reduce lightness to 30% of original
+                return `hsl(${h}, ${s}%, ${l}%)`;
+            }
+
+            // Pre-calculate all circle colors on load (instant lookup)
+            const circleColors = SOUND_FILES.map((_, index) => getCircleColor(index));
+            const circleBorderColors = circleColors.map(color => darkenColor(color));
+
+            // Create sound circles
+            function createSoundCircles() {
+                const grid = document.getElementById("soundCirclesGrid");
+
+                SOUND_FILES.forEach((filename, index) => {
+                    const circle = document.createElement("div");
+                    circle.className = "sound-circle";
+                    circle.setAttribute(
+                        "data-sound",
+                        `potential sounds/${filename}`,
+                    );
+                    circle.setAttribute("data-index", index); // Store index for color lookup
+
+                    circle.addEventListener("click", function () {
+                        playSound(this.getAttribute("data-sound"), this);
+                    }, { passive: true });
+
+                    grid.appendChild(circle);
+
+                    // NO PRELOADING - audio loaded on-demand when clicked
+                });
+            }
+
+            // Play sound - PURE HTML5 AUDIO (no Web Audio, no effects, just fast playback)
+            function playSound(path, element) {
+                // Get or create audio element
+                let audio = audioCache[path];
+
+                // Stop previous sound ONLY if it's a different sound
+                if (currentPlayingAudio && currentPlayingAudio !== audio) {
+                    currentPlayingAudio.pause();
+                    currentPlayingAudio.currentTime = 0;
+                }
+
+                // Reset previous element visuals ONLY if it's a different element
+                if (currentPlayingElement && currentPlayingElement !== element) {
+                    currentPlayingElement.classList.remove("playing");
+                    currentPlayingElement.style.background = "";
+                    currentPlayingElement.style.borderColor = "";
+                }
+
+                if (!audio) {
+                    // Create new audio - pure HTML5, ZERO Web Audio processing
+                    audio = new Audio(path);
+                    audio.preload = "auto";
+                    audio.volume = 1.0;
+
+                    // Add ended listener
+                    audio.addEventListener("ended", () => {
+                        if (currentPlayingElement === element) {
+                            currentPlayingElement.classList.remove("playing");
+                            currentPlayingElement.style.background = "";
+                            currentPlayingElement.style.borderColor = "";
+                            currentPlayingElement = null;
+                            currentPlayingAudio = null;
+                        }
+                    });
+
+                    // Store in cache
+                    audioCache[path] = audio;
+                }
+
+                // Track current playing audio and element
+                currentPlayingAudio = audio;
+                currentPlayingElement = element;
+
+                // Visual feedback
+                if (element) {
+                    const index = parseInt(element.getAttribute("data-index"));
+                    const color = circleColors[index];
+                    const borderColor = circleBorderColors[index];
+
+                    element.classList.add("playing");
+                    element.style.background = color;
+                    element.style.borderColor = borderColor;
+                }
+
+                // Play audio
+                audio.currentTime = 0;
+                audio.play().catch((err) => {
+                    console.error('Play error:', path, err);
+                });
+            }
+
+            // Play knob sound with pitch control
+            function playKnobSound(param, knobValue) {
+                const filename = KNOB_SOUNDS[param];
+                if (!filename) return;
+
+                const path = `potential sounds/${filename}`;
+                let audio = knobAudioCache[param];
+
+                if (!audio) {
+                    // Create new audio element for this knob
+                    audio = new Audio(path);
+                    audio.preload = "auto";
+                    audio.volume = 1.0;
+                    knobAudioCache[param] = audio;
+                }
+
+                // Map knob value (0-100%) to playbackRate (0.5x to 2x)
+                // 0% = 0.5x (lower pitch), 50% = 1.0x (normal), 100% = 2.0x (higher pitch)
+                const playbackRate = 0.5 + (knobValue / 100) * 1.5;
+                audio.playbackRate = playbackRate;
+
+                // Restart and play
+                audio.currentTime = 0;
+                audio.play().catch((err) => {
+                    console.error('Knob play error:', param, err);
+                });
+            }
+
+            // Show debug message
+            function showDebug(message) {
+                const debug = document.getElementById("debug");
+                debug.textContent = message;
+                debug.style.display = "block";
+            }
+
+            // Lightbox functionality
+            let currentVideoIndex = 0;
+            const videoSources = [
+                "apple/mac_videos/power%20on.mp4",
+                "apple/mac_videos/startup.mp4",
+                "apple/mac_videos/trash.mp4",
+                "apple/iphone_videos/typing.mp4",
+                "apple/iphone_videos/ringtones.mp4",
+                "apple/iphone_videos/arcade%20commercial.mp4",
+                "apple/iphone_videos/sasquatch%20dance.mp4",
+                "apple/iphone_videos/sneaky%20sasquatch.mp4",
+                "apple/iphone_videos/toca%20boca.mp4",
+            ];
+
+            function openLightbox(index) {
+                currentVideoIndex = index;
+                const lightbox = document.getElementById("lightbox");
+                const lightboxVideo = document.getElementById("lightboxVideo");
+
+                // Clear inline styles that might be blocking
+                lightbox.style.display = "";
+                lightbox.style.pointerEvents = "";
+
+                lightboxVideo.src = videoSources[currentVideoIndex];
+                lightbox.classList.add("active");
+
+                // Play with error handling
+                lightboxVideo.play().catch((err) => {
+                    showDebug(`Video play failed: ${err.message}`);
+                });
+            }
+
+            function closeLightbox() {
+                if (isClosing) return; // Prevent multiple simultaneous closes
+                isClosing = true;
+
+                const lightbox = document.getElementById("lightbox");
+                const lightboxVideo = document.getElementById("lightboxVideo");
+
+                // Exit fullscreen if currently in fullscreen
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+
+                lightboxVideo.pause();
+                lightboxVideo.currentTime = 0;
+                lightboxVideo.src = ""; // Reset video source
+                lightbox.classList.remove("active");
+
+                // Reset viewport and body styles
+                document.body.style.overflow = "";
+                document.body.style.position = "";
+                document.body.style.width = "";
+                document.body.style.height = "";
+                document.body.style.transform = "";
+                document.documentElement.style.overflow = "";
+                document.documentElement.style.height = "";
+                document.documentElement.style.position = "";
+
+                // Force pointer events to work
+                lightbox.style.pointerEvents = "none";
+                lightbox.style.display = "none";
+
+                // Mobile fix: Reset viewport scale and force reflow
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    const originalContent = viewport.content;
+                    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                    setTimeout(() => {
+                        viewport.content = 'width=device-width, initial-scale=1.0';
+                        window.scrollTo(0, 0);
+                        // Force reflow
+                        document.body.offsetHeight;
+                    }, 100);
+                }
+
+                // Reset closing flag after a brief delay
+                setTimeout(() => {
+                    isClosing = false;
+                }, 500);
+            }
+
+            function navigateVideo(direction) {
+                currentVideoIndex =
+                    (currentVideoIndex + direction + videoSources.length) %
+                    videoSources.length;
+                const lightboxVideo = document.getElementById("lightboxVideo");
+
+                lightboxVideo.src = videoSources[currentVideoIndex];
+                lightboxVideo.play();
+            }
+
+            function playNextVideo() {
+                const lightboxVideo = document.getElementById("lightboxVideo");
+
+                // If playing showreel, close lightbox when finished
+                if (lightboxVideo.src.includes("jadewiisounds.m4v")) {
+                    closeLightbox();
+                    // Enable play button hover sounds after watching showreel
+                    enablePlayButtonSounds();
+                    return;
+                }
+
+                // Auto-advance to next video for grid videos
+                if (currentVideoIndex < videoSources.length - 1) {
+                    navigateVideo(1);
+                }
+                // If it's the last video, it just stays open - user can navigate or close
+            }
+
+            let isClosing = false;
+
+            function setupLightbox() {
+                const lightboxVideo = document.getElementById("lightboxVideo");
+
+                // Close lightbox when exiting fullscreen (only if not already closing)
+                document.addEventListener("fullscreenchange", function () {
+                    if (!document.fullscreenElement && !isClosing) {
+                        const lightbox = document.getElementById("lightbox");
+                        if (lightbox.classList.contains("active")) {
+                            closeLightbox();
+                        }
+                    }
+                });
+
+                document.addEventListener("webkitfullscreenchange", function () {
+                    if (!document.webkitFullscreenElement && !isClosing) {
+                        const lightbox = document.getElementById("lightbox");
+                        if (lightbox.classList.contains("active")) {
+                            closeLightbox();
+                        }
+                    }
+                });
+
+                // Play button click - plays jadewiisounds.m4v
+                document
+                    .getElementById("playShowreelBtn")
+                    .addEventListener("click", function () {
+                        const lightbox = document.getElementById("lightbox");
+
+                        // Clear inline styles that might be blocking
+                        lightbox.style.display = "";
+                        lightbox.style.pointerEvents = "";
+
+                        lightboxVideo.src = "apple/jadewiisounds.m4v";
+                        lightbox.classList.add("active");
+                        lightboxVideo.play().catch((err) => {
+                            showDebug(`Video play failed: ${err.message}`);
+                        });
+                    });
+
+                // Video thumbnail clicks - opens specific video
+                document
+                    .querySelectorAll(".video-container")
+                    .forEach((container) => {
+                        container.addEventListener("click", function () {
+                            const index = parseInt(
+                                this.getAttribute("data-video-index"),
+                            );
+                            openLightbox(index);
+                        });
+                    });
+
+                // Auto-play next video when current one ends
+                lightboxVideo.addEventListener("ended", playNextVideo);
+
+                // Close button
+                document
+                    .getElementById("lightboxClose")
+                    .addEventListener("click", closeLightbox);
+
+                // Navigation buttons
+                document
+                    .getElementById("lightboxPrev")
+                    .addEventListener("click", () => navigateVideo(-1));
+                document
+                    .getElementById("lightboxNext")
+                    .addEventListener("click", () => navigateVideo(1));
+
+                // Close on background click
+                document
+                    .getElementById("lightbox")
+                    .addEventListener("click", function (e) {
+                        if (e.target === this) {
+                            closeLightbox();
+                        }
+                    });
+
+                // Keyboard navigation
+                document.addEventListener("keydown", function (e) {
+                    const lightbox = document.getElementById("lightbox");
+                    if (!lightbox.classList.contains("active")) return;
+
+                    if (e.key === "Escape") closeLightbox();
+                    if (e.key === "ArrowLeft") navigateVideo(-1);
+                    if (e.key === "ArrowRight") navigateVideo(1);
+                });
+            }
+
+            // Play button hover sounds (enabled after watching showreel)
+            let hoverSoundsEnabled = false;
+            let hoverSound = null;
+            let leaveSound = null;
+
+            function enablePlayButtonSounds() {
+                if (hoverSoundsEnabled) return;
+                hoverSoundsEnabled = true;
+
+                const playButton = document.getElementById("playShowreelBtn");
+                hoverSound = new Audio("potential sounds/play1.m4a");
+                leaveSound = new Audio("potential sounds/play2.m4a");
+
+                // Preload the sounds
+                hoverSound.preload = "auto";
+                leaveSound.preload = "auto";
+                hoverSound.load();
+                leaveSound.load();
+
+                playButton.addEventListener("mouseenter", () => {
+                    if (hoverSoundsEnabled && hoverSound) {
+                        hoverSound.currentTime = 0;
+                        hoverSound.play().catch(() => {});
+                    }
+                });
+
+                playButton.addEventListener("mouseleave", () => {
+                    if (hoverSoundsEnabled && leaveSound) {
+                        leaveSound.currentTime = 0;
+                        leaveSound.play().catch(() => {});
+                    }
+                });
+            }
+
+            // Knob interaction
+            function setupKnobs() {
+                const knobs = document.querySelectorAll('.knob');
+                const labels = document.querySelectorAll('.knob-label');
+
+                knobs.forEach(knob => {
+                    let isDragging = false;
+                    let hasDragged = false;
+                    let startY = 0;
+                    let currentRotation = 0;
+
+                    // Initialize rotation based on initial value
+                    const initialValue = parseFloat(knob.dataset.value);
+                    currentRotation = -135 + (initialValue / 100 * 270);
+                    knob.style.transform = `rotate(${currentRotation}deg)`;
+
+                    const onMove = (e) => {
+                        if (!isDragging) return;
+
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const delta = startY - clientY;
+
+                        // Mark as dragged if mouse moved
+                        if (Math.abs(delta) > 2) {
+                            hasDragged = true;
+                        }
+
+                        currentRotation += delta * 1.5; // Increased sensitivity from 0.5 to 1.5
+
+                        // Clamp rotation between -135deg (0%) and +135deg (100%)
+                        currentRotation = Math.max(-135, Math.min(135, currentRotation));
+
+                        // Update visual rotation
+                        knob.style.transform = `rotate(${currentRotation}deg)`;
+
+                        // Calculate value from rotation (0-100)
+                        const value = ((currentRotation + 135) / 270) * 100;
+                        knob.dataset.value = value;
+
+                        // Play knob sound at current pitch if knob is active
+                        if (knob.classList.contains('active')) {
+                            const param = knob.dataset.param;
+                            playKnobSound(param, value);
+                        }
+
+                        startY = clientY;
+                    };
+
+                    const onEnd = () => {
+                        isDragging = false;
+                        // Reset drag flag after a short delay
+                        setTimeout(() => {
+                            hasDragged = false;
+                        }, 100);
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onEnd);
+                        document.removeEventListener('touchmove', onMove);
+                        document.removeEventListener('touchend', onEnd);
+                    };
+
+                    const onStart = (e) => {
+                        isDragging = true;
+                        hasDragged = false;
+                        startY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                        document.addEventListener('mousemove', onMove);
+                        document.addEventListener('mouseup', onEnd);
+                        document.addEventListener('touchmove', onMove, { passive: false });
+                        document.addEventListener('touchend', onEnd);
+
+                        e.preventDefault();
+                    };
+
+                    knob.addEventListener('mousedown', onStart);
+                    knob.addEventListener('touchstart', onStart, { passive: false });
+
+                    // Click knob to toggle on/off
+                    knob.addEventListener('click', (e) => {
+                        // Don't toggle if we just dragged
+                        if (hasDragged) {
+                            return;
+                        }
+
+                        const param = knob.dataset.param;
+                        const label = document.querySelector(`.knob-label[data-param="${param}"]`);
+
+                        // Toggle active state
+                        knob.classList.toggle('active');
+                        label.classList.toggle('active');
+
+                        const isActive = knob.classList.contains('active');
+
+                        if (isActive) {
+                            // When turning on, set to 100% (or 50% for filter)
+                            const defaultValue = param === 'filter' ? 50 : 100;
+                            knob.dataset.value = defaultValue;
+                            currentRotation = -135 + (defaultValue / 100 * 270);
+                            knob.style.transform = `rotate(${currentRotation}deg)`;
+
+                            // Play sound at current pitch
+                            playKnobSound(param, defaultValue);
+                        }
+                    });
+                });
+
+                // Label toggle buttons
+                labels.forEach(label => {
+                    label.addEventListener('click', () => {
+                        const param = label.dataset.param;
+                        const knob = document.querySelector(`#${param}Knob`);
+
+                        // Toggle active state
+                        label.classList.toggle('active');
+                        knob.classList.toggle('active');
+
+                        const isActive = label.classList.contains('active');
+
+                        if (isActive) {
+                            // When turning on, set to 100% (or 50% for filter)
+                            const defaultValue = param === 'filter' ? 50 : 100;
+                            knob.dataset.value = defaultValue;
+                            const rotation = -135 + (defaultValue / 100 * 270);
+                            knob.style.transform = `rotate(${rotation}deg)`;
+
+                            // Play sound at current pitch
+                            playKnobSound(param, defaultValue);
+                        }
+                    });
+                });
+            }
+
+            // Initialize
+            document.addEventListener("DOMContentLoaded", () => {
+                createSoundCircles();
+                setupLightbox();
+                setupKnobs();
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,403 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+.app-header {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.app-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.back-to-apps {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #ff4081;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.back-to-apps:hover {
+  background-color: #ff5091;
+  transform: translateY(-2px);
+}
+
+.interval-layout {
+  align-items: start;
+}
+
+.interval-tool {
+  font-family: 'Roboto Mono', 'Noto Sans JP', monospace, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfcfa 100%);
+  color: #111111;
+  line-height: 1.6;
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+
+.interval-tool * {
+  min-width: 0;
+}
+
+.interval-tool h2,
+.interval-tool h3 {
+  margin: 0;
+  color: #111111;
+  font-family: 'Noto Sans JP', 'Roboto Mono', sans-serif, monospace;
+}
+
+.interval-tool button,
+.interval-tool select {
+  appearance: none;
+  font-family: inherit;
+  font-size: 0.98rem;
+}
+
+.interval-tool button {
+  border: none;
+  cursor: pointer;
+  transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+}
+
+.interval-tool button:hover {
+  filter: brightness(96%);
+  transform: translateY(-1px);
+}
+
+.interval-tool button:active {
+  transform: translateY(0);
+}
+
+.tool-intro-card {
+  padding: 1rem 1.1rem;
+  border: 1px solid #e8e3d9;
+  border-radius: 22px;
+  background: #f7f4ee;
+  margin-bottom: 1rem;
+}
+
+.tool-lead {
+  margin: 0;
+  color: #343434;
+}
+
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+}
+
+.status-pill,
+.panel-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  border-radius: 999px;
+  border: 1px solid #ded8cc;
+  background: #ffffff;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5b5851;
+  font-weight: 700;
+}
+
+.interval-panel {
+  background: #f4f1eb;
+  border: 1px solid #e5dfd4;
+  padding: clamp(1rem, 2.2vw, 1.4rem);
+  margin: 0 0 1rem;
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+}
+
+.control-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 220px);
+  gap: 1rem;
+  align-items: end;
+}
+
+.select-wrap {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.select-wrap span {
+  font-size: 0.8rem;
+  color: #5f5b54;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.interval-tool select {
+  width: 100%;
+  border: 1px solid #d9d2c5;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #111111;
+  padding: 0.9rem 1rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.interval-display {
+  display: grid;
+  place-items: center;
+  min-height: 108px;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px dashed #d9d2c5;
+  border-radius: 22px;
+  background: #ffffff;
+  font-size: clamp(1.1rem, 2vw, 1.8rem);
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.primary-controls,
+.secondary-controls,
+.bottom-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.primary-controls {
+  margin-bottom: 0.75rem;
+}
+
+.secondary-controls {
+  margin-bottom: 0.9rem;
+}
+
+.primary-controls button,
+.bottom-controls > button,
+.level-grid button,
+.answer-grid button {
+  min-height: 56px;
+  padding: 0.95rem 1.05rem;
+  border-radius: 16px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+}
+
+#play-interval-btn {
+  flex: 1 1 220px;
+  color: #ffffff;
+}
+
+#listen-again-btn {
+  flex: 1 1 180px;
+  background: #d8f1fb;
+  color: #111111;
+}
+
+.root-note-wrap {
+  width: min(100%, 240px);
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.answer-grid button {
+  width: 100%;
+  background: #111111;
+  color: #ffffff;
+}
+
+.feedback-line {
+  margin-top: 0.85rem;
+  min-height: 1.6rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.correct {
+  color: #1e8f4d;
+}
+
+.incorrect {
+  color: #c33a31;
+}
+
+.score-panel h2 {
+  margin-top: 0.55rem;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.score-card {
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e3dccf;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.score-card strong {
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  line-height: 1;
+}
+
+.score-card-wide {
+  grid-column: 1 / -1;
+}
+
+.score-label {
+  color: #69655e;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  flex: 1 1 100%;
+}
+
+.new-game-button {
+  background: #178f7c;
+  color: #ffffff;
+  flex: 1 1 180px;
+}
+
+.level-beginner {
+  background: #27ae60;
+  color: #ffffff;
+}
+
+.level-intermediate {
+  background: #d4af37;
+  color: #111111;
+}
+
+.level-advanced {
+  background: #c0392b;
+  color: #ffffff;
+}
+
+.level-banner {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+#play-interval-btn.beginner,
+.level-banner.beginner {
+  background: #dbf3e4;
+  color: #13532b;
+}
+
+#play-interval-btn.intermediate,
+.level-banner.intermediate {
+  background: #f3e8b0;
+  color: #654d00;
+}
+
+#play-interval-btn.advanced,
+.level-banner.advanced {
+  background: #f4d0cd;
+  color: #7d2118;
+}
+
+.interval-side-panel {
+  display: grid;
+  gap: 1rem;
+  position: sticky;
+  top: 92px;
+}
+
+.interval-side-panel h3 {
+  font-size: 1.35rem;
+  line-height: 1.05;
+}
+
+.compact-banner {
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 900px) {
+  .interval-side-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    top: 70px;
+    left: 10px;
+  }
+
+  .app-title {
+    font-size: 18px;
+  }
+
+  .back-to-apps {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .control-header,
+  .score-grid,
+  .level-grid,
+  .answer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .primary-controls,
+  .secondary-controls,
+  .bottom-controls {
+    flex-direction: column;
+  }
+
+  .root-note-wrap,
+  #play-interval-btn,
+  #listen-again-btn,
+  .new-game-button {
+    width: 100%;
+    flex: none;
+  }
+
+  .interval-tool {
+    padding: 0.85rem;
+  }
+
+  .interval-display {
+    min-height: 90px;
+    font-size: 1.05rem;
+  }
+}

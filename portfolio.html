@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Portfolio - JAde Wii</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --card-bg: rgba(255,255,255,.78);
+  --card-border: rgba(0,0,0,.08);
+  --muted: rgba(0,0,0,.68);
+  --soft: rgba(0,0,0,.52);
+  --section-gap: 3.1rem;
+}
+
+body{
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,.65), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.12));
+}
+
+a,
+.media-card,
+.video-card,
+.album-card,
+.info-card,
+.brands-strip img,
+.hero img{
+  transition: transform .22s ease, box-shadow .22s ease, opacity .22s ease, border-color .22s ease;
+}
+
+.media-card:hover,
+.video-card:hover,
+.album-card:hover,
+.info-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0,0,0,.07);
+}
+
+.portfolio{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2.75rem 1.25rem 4rem;
+}
+
+.hero{
+  display:grid;
+  grid-template-columns: 196px 1fr;
+  gap: 1.45rem;
+  align-items:start;
+  margin-bottom: 3.1rem;
+}
+
+.hero img{
+  width:196px;
+  height:196px;
+  border-radius:28px;
+  object-fit:cover;
+  border:1px solid var(--card-border);
+  box-shadow: 0 12px 40px rgba(0,0,0,.08);
+  background:#fff;
+}
+
+.hero h1{
+  font-size: clamp(2.3rem, 5vw, 3.3rem);
+  margin:0 0 .35rem;
+  line-height:1;
+}
+
+.hero-role{
+  margin:.15rem 0 1.15rem;
+  color: rgba(0,0,0,.74);
+  font-size: 1.08rem;
+  letter-spacing: .02em;
+  text-transform: none;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.hero-role strong{
+  font-weight:600;
+}
+
+.hero p{
+  color: var(--muted);
+  max-width: 760px;
+  margin:0;
+  line-height:1.55;
+  font-size: 1.03rem;
+}
+
+.section{
+  margin-bottom: var(--section-gap);
+  scroll-margin-top: 88px;
+}
+
+.section:last-of-type{
+  margin-bottom: 0;
+}
+
+
+.music-section{
+  margin-bottom: 3.1rem;
+}
+
+.music-section .music-subsection:last-of-type{
+  margin-bottom: 0;
+}
+
+.section-header{
+  margin-bottom: 1.25rem;
+}
+
+.section-heading-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:1rem;
+  flex-wrap:wrap;
+}
+
+.section h2{
+  font-size: clamp(1.45rem, 2vw, 1.8rem);
+  margin:0 0 .3rem;
+  line-height:1.1;
+}
+
+.section-subtitle{
+  color: var(--muted);
+  margin:0;
+  max-width: 760px;
+  line-height:1.55;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+
+.music-subsection{
+  margin-top: 1.5rem;
+}
+
+.music-subsection:first-of-type{
+  margin-top: 0;
+}
+
+.music-subtitle{
+  font-size: 1rem;
+  margin: 0 0 .8rem;
+  line-height: 1.2;
+}
+
+.music-section-title{
+  font-size: clamp(1.45rem, 2vw, 1.8rem);
+  line-height:1.1;
+  margin: 2rem 0 .9rem;
+}
+
+.music-video-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.music-subsection + .music-section-title{
+  margin-top: var(--section-gap);
+}
+
+.music-section-title + .music-subsection{
+  margin-top: 0;
+}
+
+.art-grid-wrap{
+  position:relative;
+}
+
+.art-viewport{
+  overflow:hidden;
+}
+
+.art-grid{
+  display:flex;
+  gap: 1rem;
+  transition: transform .45s ease;
+  will-change: transform;
+}
+
+.art-tile{
+  display:block;
+  flex:0 0 calc((100% - 2rem) / 3);
+  border-radius: 0;
+  overflow:hidden;
+  border:1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.05);
+}
+
+.art-tile img{
+  display:block;
+  width:100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.art-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid var(--card-border);
+  background:rgba(255,255,255,.88);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.2rem;
+  cursor:pointer;
+  z-index:3;
+}
+
+.art-nav.prev{ left:-.55rem; }
+.art-nav.next{ right:-.55rem; }
+
+.media-card,
+.video-card,
+.info-card{
+  border-radius: 22px;
+  overflow:hidden;
+  border:1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.05);
+}
+
+.media-thumb{
+  aspect-ratio: 16/11;
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.15));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: .9rem;
+}
+
+.website-thumb{
+  height: 132px;
+  aspect-ratio: auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  padding: 0.75rem 0.75rem 0.2rem 0.75rem;
+  overflow:hidden;
+}
+
+.website-thumb img{
+  object-fit: contain;
+  object-position: left top;
+  width: auto;
+  max-width: 62%;
+  height: 108px;
+  margin: 0;
+  display:block;
+  align-self:flex-start;
+}
+
+.website-thumb.jamnutz img{
+  border-radius: 18px;
+}
+
+.website-thumb.plugincorp{
+  align-items:center;
+  padding: 0.55rem 0.75rem 0.55rem 0.75rem;
+}
+
+.website-thumb.plugincorp img{
+  width: auto;
+  max-width: 78%;
+  height: 126px;
+  object-fit: contain;
+  object-position: left center;
+  align-self:center;
+}
+
+.website-thumb.todomai,
+.website-thumb.tokeigarden{
+  align-items:center;
+  padding: 0.55rem 0.75rem 0.55rem 0.75rem;
+}
+
+.website-thumb.todomai img{
+  width: auto;
+  max-width: 82%;
+  height: 138px;
+  object-fit: contain;
+  object-position: left center;
+  align-self:center;
+}
+
+.website-thumb.tokeigarden img{
+  width: auto;
+  max-width: 62%;
+  height: 108px;
+  object-fit: contain;
+  object-position: left center;
+  align-self:center;
+}
+
+.video-thumb-link{
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
+  color:white;
+  text-decoration:none;
+  overflow:hidden;
+  border-radius:16px;
+}
+
+.video-thumb-link img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter:none;
+}
+
+.video-thumb-overlay{
+  display:none;
+}
+
+.media-thumb img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit: contain;
+  object-position:center;
+  border-radius: 14px;
+}
+
+.media-thumb.website-thumb img{
+  width: auto;
+  height: 96px;
+  max-width: 62%;
+  object-fit: contain;
+  object-position: left top;
+  margin: 0;
+}
+
+.media-thumb.website-thumb.plugincorp{
+  padding: 0.35rem 0.55rem 0.2rem 0.55rem;
+}
+
+.media-thumb.website-thumb.plugincorp img{
+  height: 115px;
+  max-width: 92%;
+  object-position: left center;
+}
+
+.media-body{
+  padding: .9rem 1rem 1rem;
+}
+
+.media-title{
+  font-size: .98rem;
+  margin:0 0 .24rem;
+}
+
+.media-note{
+  font-size: .88rem;
+  color: var(--soft);
+  margin:0;
+  line-height:1.45;
+}
+
+.video-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.video-card{
+  border-radius: 22px;
+  overflow:hidden;
+  border:1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.05);
+  padding: .6rem;
+}
+
+.video-frame{
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:14px;
+  overflow:hidden;
+  border:none;
+  background:transparent;
+  box-shadow:none;
+}
+
+.video-frame iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  display:block;
+}
+
+.video-meta{
+  padding: .8rem .15rem .1rem;
+}
+
+.video-meta h3{
+  margin:0 0 .2rem;
+  font-size:.95rem;
+}
+
+.video-meta p{
+  margin:0;
+  font-size:.86rem;
+  color:var(--soft);
+  line-height:1.45;
+}
+
+.websites{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.info-card{
+  padding: 1.1rem 1.05rem 1.15rem;
+}
+
+.ios-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 1.5rem;
+  align-items:flex-start;
+}
+
+.ios-card{
+  width:min(280px, 100%);
+  flex:0 0 280px;
+  border:none;
+  background:transparent;
+  backdrop-filter:none;
+  box-shadow:none;
+  overflow:visible;
+}
+
+.ios-card .media-thumb{
+  aspect-ratio:auto;
+  padding:0;
+  justify-content:flex-start;
+  align-items:flex-start;
+  background:transparent;
+  border:none;
+}
+
+.ios-card .media-thumb img{
+  width:auto;
+  height:108px;
+  object-fit:contain;
+  border-radius: 18px;
+}
+
+.ios-card .media-title{
+  font-size:.98rem;
+}
+
+.ios-card .media-note{
+  font-size:.88rem;
+}
+
+.info-card h3{
+  margin:0 0 .35rem;
+  font-size:1rem;
+}
+
+.info-card p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.55;
+  font-size:.93rem;
+}
+
+.info-link{
+  display:inline-block;
+  margin-top:.7rem;
+  text-decoration:none;
+  font-size:.88rem;
+  opacity:.85;
+}
+
+.music-grid{
+  display:grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: .55rem;
+}
+
+.album-card{
+  border-radius: 0;
+  overflow:hidden;
+  border:1px solid var(--card-border);
+  background: var(--card-bg);
+  box-shadow: 0 8px 18px rgba(0,0,0,.04);
+  aspect-ratio: 1 / 1;
+}
+
+.album-card img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+}
+
+.album-body{
+  display:none;
+}
+
+.brands-strip{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 1rem 1.5rem;
+  align-items:center;
+  opacity:.78;
+}
+
+.brands-strip img{
+  height: 49px;
+  width: auto;
+  object-fit: contain;
+  display:block;
+}
+
+
+.sound-grid-wrap{
+  position:relative;
+}
+
+.sound-viewport{
+  overflow:hidden;
+}
+
+.sound-grid{
+  display:flex;
+  gap: 1rem;
+  transition: transform .45s ease;
+  will-change: transform;
+}
+
+.sound-tile{
+  flex:0 0 calc((100% - 3rem) / 4);
+  text-decoration:none;
+  color:inherit;
+}
+
+.sound-tile-media{
+  display:block;
+  width:100%;
+  border-radius: 0;
+  overflow:hidden;
+  border:1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.05);
+}
+
+.sound-tile img{
+  display:block;
+  width:100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.sound-tile-body{
+  padding: .8rem .15rem 0;
+}
+
+.sound-tile-body h3{
+  margin:0;
+  font-size:.98rem;
+}
+
+.sound-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid var(--card-border);
+  background:rgba(255,255,255,.88);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.2rem;
+  cursor:pointer;
+  z-index:3;
+}
+
+.sound-nav.prev{ left:-.55rem; }
+.sound-nav.next{ right:-.55rem; }
+
+
+@media (max-width: 760px){
+  :root{
+    --section-gap: 3.1rem;
+  }
+
+  .portfolio{
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .hero{
+    grid-template-columns: 1fr;
+    text-align:center;
+    gap:.85rem;
+    margin-bottom: 3.1rem;
+  }
+
+  .hero img{
+    margin:auto;
+    width:196px;
+    height:196px;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+    border:none;
+    object-fit:contain;
+  }
+
+  .section,
+  .music-section{
+    margin-bottom: var(--section-gap);
+  }
+
+  .section-header{
+    margin-bottom: .8rem;
+  }
+
+  .music-subsection{
+    margin-top: .9rem;
+  }
+
+  .music-section-title{
+    margin: 1rem 0 .7rem;
+  }
+
+  .music-subsection + .music-section-title{
+    margin-top: 4rem !important;
+  }
+
+  .hero h1{
+    font-family: "Inter", sans-serif !important;
+  }
+
+  .section-subtitle,
+  .hero p{
+    max-width:none;
+  }
+
+  .hero-role{
+    font-size: .88rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    letter-spacing: 0;
+    margin: .1rem 0 .7rem;
+  }
+
+  .section-subtitle{
+    display:none;
+  }
+
+  .art-section .section-subtitle,
+  .sound-section .section-subtitle,
+  .webapps-section .section-subtitle,
+  .iosapps-section .section-subtitle,
+  .websites-section .section-subtitle{
+    display:block;
+    margin-top:.25rem;
+    font-size:.92rem;
+    line-height:1.45;
+  }
+
+  .grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+  }
+
+  .websites{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+  }
+
+  .video-grid,
+  .music-video-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+  }
+
+  .video-card{
+    padding: .45rem;
+  }
+
+  .video-meta p{
+    display:none;
+  }
+
+  .media-note,
+  .info-card p,
+  .ios-card .media-note,
+  .websites .media-note,
+  .grid .media-note{
+    display:none;
+  }
+
+  .section-heading-row{
+    align-items:flex-end;
+  }
+
+  .section .info-link{
+    font-size:.82rem;
+  }
+
+  .section:first-of-type .grid{
+    grid-template-columns: 1fr;
+  }
+
+  .section:first-of-type .grid article:nth-child(n+2){
+    display:none;
+  }
+
+  .section:first-of-type .media-card{
+    max-width:none;
+  }
+
+  .section:first-of-type .media-thumb{
+    padding:.2rem;
+    background:transparent;
+  }
+
+  .section:first-of-type .media-thumb img{
+    object-fit:contain;
+    border-radius:0;
+  }
+
+  .ios-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+    align-items:start;
+  }
+
+  .ios-card{
+    width:100%;
+    flex:none;
+  }
+
+  .ios-card .media-thumb{
+    justify-content:center;
+  }
+
+  .ios-card .media-thumb img{
+    width:100%;
+    height:auto;
+    max-height:120px;
+    object-fit:contain;
+  }
+
+  .ios-card .media-body{
+    padding: .55rem 0 0;
+    text-align:center;
+  }
+
+  .websites .media-body,
+  .grid .media-body{
+    padding: .7rem .85rem .85rem;
+  }
+
+  .websites .media-title,
+  .grid .media-title,
+  .video-meta h3{
+    font-size:.9rem;
+  }
+
+  .websites .media-card{
+    display:flex;
+    justify-content:center;
+    min-width:0;
+  }
+
+  .websites .media-card > a{
+    width:100%;
+    min-width:0;
+  }
+
+  .websites .media-body{
+    text-align:center;
+  }
+
+  .website-thumb{
+    height: 126px;
+    padding: .6rem;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .website-thumb img{
+    max-width: 100%;
+    width: auto;
+    height: 108px;
+    object-fit: contain;
+    object-position: center;
+    margin: 0 auto;
+  }
+
+  .website-thumb.plugincorp{
+    padding: .6rem;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .website-thumb.plugincorp img,
+  .website-thumb.jamnutz img,
+  .website-thumb.jadewii img{
+    max-width: 100%;
+    width: auto;
+    height: 108px;
+    object-fit: contain;
+    object-position: center;
+    margin: 0 auto;
+  }
+
+  .website-thumb.todomai img{
+    max-width: 100%;
+    width: auto;
+    height: 116px;
+    object-fit: contain;
+    object-position: center;
+    margin: 0 auto;
+  }
+
+  .music-grid{
+    display:grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .55rem;
+    margin-top: 0;
+  }
+
+  .music-grid .album-card{
+    display:block !important;
+  }
+
+  .music-grid .album-card:nth-child(n+25){
+    display:none !important;
+  }
+
+  .section,
+  .music-section{
+    margin-bottom: var(--section-gap);
+  }
+
+  .music-subsection + .music-section-title{
+    margin-top: var(--section-gap);
+  }
+
+  .educational-section .video-card:nth-child(n+5){
+    display:none;
+  }
+
+  .sound-grid-wrap,
+  .art-grid-wrap{
+    position:static;
+  }
+
+  .sound-nav,
+  .art-nav{
+    display:none;
+  }
+
+  .sound-viewport,
+  .art-viewport{
+    overflow:visible;
+  }
+
+  .sound-grid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    transform:none !important;
+  }
+
+  .sound-tile{
+    flex:none;
+  }
+
+  .sound-tile:nth-child(n+7){
+    display:none;
+  }
+
+  .sound-tile-body{
+    display:none;
+  }
+
+  .art-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+    transform:none !important;
+  }
+
+  .art-tile{
+    flex:none;
+  }
+
+  .art-tile:nth-child(n+5){
+    display:none;
+  }
+
+  .brands-strip{
+    display:grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: .8rem .9rem;
+    align-items:center;
+  }
+
+  .brands-strip img{
+    height: 30px;
+    width: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    justify-self:center;
+  }
+}
+
+@media (max-width: 1100px){
+  .music-grid{
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px){
+.music-grid{
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px){
+.music-grid{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .art-nav.prev{ left:.15rem; }
+  .art-nav.next{ right:.15rem; }
+  .sound-nav.prev{ left:.15rem; }
+  .sound-nav.next{ right:.15rem; }
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body data-page="portfolio" data-root="">
+<main class="portfolio">
+<section class="hero">
+<img alt="JAde Wii portrait" src="images/jadewii.webp"/>
+<div>
+<h1>JAde Wii</h1>
+<p class="hero-role"><strong>Product Designer · Creative Tools</strong></p>
+<p>
+        Creating software and audio tools for web and iOS, designing fast, intuitive workflows that turn complex sound design into clear, expressive user experiences.
+      </p>
+</div>
+</section>
+<section class="section webapps-section">
+<div class="section-header">
+<div class="section-heading-row"><h2>Web Apps</h2><a class="info-link" href="https://jamnutz.com/apps" rel="noreferrer" target="_blank">See all apps →</a></div>
+<p class="section-subtitle">
+        UI design, product thinking, interaction design, creative direction, and end-to-end execution across browser-based music tools and playful software systems.
+      </p>
+</div>
+<div class="grid">
+<article class="media-card">
+<div class="media-thumb"><img alt="Nippon" src="images/apps/web/nippon.png"/></div>
+<div class="media-body">
+<h3 class="media-title">Nippon</h3>
+<p class="media-note">Character-led interface system exploring identity-driven UI within structured music creation workflows.</p>
+</div>
+</article>
+<article class="media-card">
+<div class="media-thumb"><img alt="Okinori" src="images/apps/web/okinori.png"/></div>
+<div class="media-body">
+<h3 class="media-title">Okinori</h3>
+<p class="media-note">Expressive music interaction design balancing clarity, tactility, and playful visual hierarchy.</p>
+</div>
+</article>
+<article class="media-card">
+<div class="media-thumb"><img alt="Grid Generator" src="images/apps/web/gridgenerator.png"/></div>
+<div class="media-body">
+<h3 class="media-title">Grid Generator</h3>
+<p class="media-note">Generative pattern tool designed around rhythm logic, modular thinking, and rapid iteration.</p>
+</div>
+</article>
+<article class="media-card">
+<div class="media-thumb"><img alt="Chipboi" src="images/apps/web/chipboi.png"/></div>
+<div class="media-body">
+<h3 class="media-title">Chipboi</h3>
+<p class="media-note">Retro-inspired instrument interface translating nostalgic aesthetics into clear modern interaction patterns.</p>
+</div>
+</article>
+
+</div>
+</section>
+<section class="section iosapps-section">
+<div class="section-header">
+<div class="section-heading-row"><h2>iOS Apps</h2><a class="info-link" href="https://apps.apple.com/us/developer/johanna-quiceno/id1825279663" rel="noreferrer" target="_blank">View on App Store →</a></div>
+<p class="section-subtitle">
+        Mobile-first product design for music creation, creative tools, and touch-driven experiences with clear hierarchy, approachable controls, and strong visual polish.
+      </p>
+</div>
+<div class="ios-grid">
+<article class="media-card ios-card">
+<a href="https://apps.apple.com/us/app/noiseface/id6754266069" rel="noreferrer" style="text-decoration:none;color:inherit;display:block;" target="_blank">
+<div class="media-thumb">
+<img alt="Noiseface" src="images/apps/ios/noiseface.webp"/>
+</div>
+<div class="media-body">
+<h3 class="media-title">Noiseface</h3>
+<p class="media-note">Expressive iOS music app design with a bold character-led visual identity.</p>
+</div>
+</a>
+</article>
+<article class="media-card ios-card">
+<a href="https://apps.apple.com/us/app/waveface/id6754204480" rel="noreferrer" style="text-decoration:none;color:inherit;display:block;" target="_blank">
+<div class="media-thumb">
+<img alt="Waveface" src="images/apps/ios/waveface.webp"/>
+</div>
+<div class="media-body">
+<h3 class="media-title">Waveface</h3>
+<p class="media-note">Touch-friendly interface design shaped around approachable controls and playful sound exploration.</p>
+</div>
+</a>
+</article>
+</div>
+</section> <section class="section websites-section">
+<div class="section-header">
+<div class="section-heading-row"><h2>Websites</h2></div>
+<p class="section-subtitle">
+        Brand ecosystems, landing pages, product showcases, and creator-focused destinations designed to communicate clearly and convert attention into engagement.
+      </p>
+</div>
+<div class="grid">
+<article class="media-card">
+<a href="https://jamnutz.com/" rel="noreferrer" style="text-decoration:none;color:inherit;display:block;height:100%;" target="_blank">
+<div class="media-thumb website-thumb jamnutz"><img alt="Jamnutz website" src="images/websites/jamnutzicon.png"/></div>
+<div class="media-body">
+<h3 class="media-title">jamnutz.com</h3>
+<p class="media-note">Main brand and product ecosystem for music apps, memberships, and interactive tools.</p>
+</div>
+</a>
+</article>
+<article class="media-card">
+<a href="https://plugincorp.org/" rel="noreferrer" style="text-decoration:none;color:inherit;display:block;height:100%;" target="_blank">
+<div class="media-thumb website-thumb plugincorp"><img alt="Plugin Corp website" src="images/websites/plugincorp.png"/></div>
+<div class="media-body">
+<h3 class="media-title">plugincorp.org</h3>
+<p class="media-note">Product-driven website built around music software, identity, and creative positioning.</p>
+</div>
+</a>
+</article>
+<article class="media-card">
+<a href="https://tokeigarden.netlify.app/" rel="noreferrer" style="text-decoration:none;color:inherit;display:block;height:100%;" target="_blank">
+<div class="media-thumb website-thumb todomai"><img alt="Todomai website" src="images/websites/todomai.png"/></div>
+<div class="media-body">
+<h3 class="media-title">todomai.us</h3>
+<p class="media-note">Focused productivity website showcasing the Todomai product and its interface direction.</p>
+</div>
+</a>
+</article>
+<article class="media-card">
+<a href="https://jadewii.com/" rel="noreferrer" style="text-decoration:none;color:inherit;display:block;height:100%;" target="_blank">
+<div class="media-thumb website-thumb jadewii"><img alt="JAde Wii website" src="images/websites/jadewii.gif"/></div>
+<div class="media-body">
+<h3 class="media-title">jadewii.com</h3>
+<p class="media-note">Creator-focused portfolio presence blending product, music, visuals, and personality.</p>
+</div>
+</a>
+</article>
+<article class="media-card">
+<a href="https://tokeigarden.netlify.app/" rel="noreferrer" style="text-decoration:none;color:inherit;display:block;height:100%;" target="_blank">
+<div class="media-thumb website-thumb tokeigarden">
+<img alt="Tokei Garden website" src="images/websites/tokeigarden.png"/>
+</div>
+<div class="media-body">
+<h3 class="media-title">Tokei Garden</h3>
+<p class="media-note">Interactive time-based garden experience focused on calm growth, visual feedback, and ambient progression.</p>
+</div>
+</a>
+</article>
+</div>
+</section>
+<section class="section educational-section" id="educationalVideosSection">
+<div class="section-header">
+<div class="section-heading-row"><h2>Educational Videos</h2><a class="info-link" href="/videos.html">Watch more →</a></div>
+<p class="section-subtitle">
+        Selected educational videos focused on product thinking, communication, interface breakdowns, and the ability to translate creative technology into engaging content.
+      </p>
+</div>
+<div class="video-grid">
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=v4ZeXXpRC0Q" rel="noreferrer" target="_blank"><img alt="Tutorial video one" src="https://img.youtube.com/vi/v4ZeXXpRC0Q/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>How to Sync your Synthesizer Setup using MIDI</h3><p>Hands-on walkthrough content with clear teaching, pacing, and product communication.</p></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=F8U7_9e_Nz4&amp;t=34s" rel="noreferrer" target="_blank"><img alt="Tutorial video two" src="https://img.youtube.com/vi/F8U7_9e_Nz4/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>Arturia MicroBrute - A Great Beginner Synth!</h3><p>Educational breakdown focused on usability, sound exploration, and approachable explanation.</p></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=2Ny6FxaePQo" rel="noreferrer" target="_blank"><img alt="Tutorial video three" src="https://img.youtube.com/vi/2Ny6FxaePQo/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>Korg Monologue - A Great Beginner Synth!</h3><p>Teaching-driven video that shows practical communication and product understanding.</p></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=Dl0QhhtP5_c&amp;t=84s" rel="noreferrer" target="_blank"><img alt="Review video one" src="https://img.youtube.com/vi/Dl0QhhtP5_c/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>Roland SP-404 MkII Overview // The Upgrade We've All Been Dreaming Of</h3><p>Audience-facing review content combining analysis, presentation, and trust-building.</p></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=ebISDI9K5og&amp;t=363s" rel="noreferrer" target="_blank"><img alt="Review video two" src="https://img.youtube.com/vi/ebISDI9K5og/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>Why Everyone Loves Mutable Instruments RINGS</h3><p>Clear product communication through hands-on evaluation and creative perspective.</p></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=7DmlcczM6uE" rel="noreferrer" target="_blank"><img alt="Review video three" src="https://img.youtube.com/vi/7DmlcczM6uE/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>The Moog Grandmother // A Gorgeous Sounding and Looking Semi-Modular Synth</h3><p>Presentation-led review work showing taste, clarity, and strong audience framing.</p></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=zQ12td8JP30" rel="noreferrer" target="_blank"><img alt="Sound demo one" src="https://img.youtube.com/vi/zQ12td8JP30/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>Casio CZ-101 | How Does it Sound?</h3><p>Focused sonic demonstration that highlights sound design and product feel.</p></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=P89P3GjHmmk&amp;t=938s" rel="noreferrer" target="_blank"><img alt="Sound demo two" src="https://img.youtube.com/vi/P89P3GjHmmk/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>Dave Smith Prophet 6 // How Does it Sound? GLORIOUS.</h3><p>Audio-first showcase emphasizing tonal character, playability, and musical utility.</p></div>
+</article>
+</div>
+</section>
+<section class="section sound-section">
+<div class="section-header">
+<div class="section-heading-row"><h2>Sound Design</h2></div>
+<p class="section-subtitle">
+        Patch collections and sound design work built for hardware instruments and creative music workflows.
+      </p>
+</div>
+<div class="sound-grid-wrap">
+<button aria-label="Show previous sound design items" class="sound-nav prev" type="button">&lt;</button>
+<div class="sound-viewport">
+<div class="sound-grid" id="soundGrid">
+<a class="sound-tile" href="https://jadewii.itch.io/arturia-microfreak" rel="noreferrer" target="_blank">
+<div class="sound-tile-media"><img alt="Arturia MicroFreak patches" src="images/patches/microfreak.gif"/></div>
+<div class="sound-tile-body"><h3>MicroFreak</h3></div>
+</a>
+<a class="sound-tile" href="https://jadewii.itch.io/minilogue-xd-patches" rel="noreferrer" target="_blank">
+<div class="sound-tile-media"><img alt="Korg Minilogue XD patches" src="images/patches/minilogue.gif"/></div>
+<div class="sound-tile-body"><h3>Minilogue XD</h3></div>
+</a>
+<a class="sound-tile" href="https://jadewii.itch.io/dave-smith-ob-6-patches" rel="noreferrer" target="_blank">
+<div class="sound-tile-media"><img alt="OB-6 patches" src="images/patches/ob6.gif"/></div>
+<div class="sound-tile-body"><h3>OB-6</h3></div>
+</a>
+<a class="sound-tile" href="https://jadewii.itch.io/op-1-field-vol-1" rel="noreferrer" target="_blank">
+<div class="sound-tile-media"><img alt="OP-1 Field patches" src="images/patches/op1field.gif"/></div>
+<div class="sound-tile-body"><h3>OP-1 Field Vol. 1</h3></div>
+</a>
+<a class="sound-tile" href="https://jadewii.itch.io/op-1-patches-vol-1" rel="noreferrer" target="_blank">
+<div class="sound-tile-media"><img alt="OP-1 patches volume 1" src="images/patches/op1vol1.gif"/></div>
+<div class="sound-tile-body"><h3>OP-1 Patches Vol. 1</h3></div>
+</a>
+<a class="sound-tile" href="https://jadewii.itch.io/op-1-patches-vol-2" rel="noreferrer" target="_blank">
+<div class="sound-tile-media"><img alt="OP-1 patches volume 2" src="images/patches/op1vol2.gif"/></div>
+<div class="sound-tile-body"><h3>OP-1 Patches Vol. 2</h3></div>
+</a>
+</div>
+</div>
+<button aria-label="Show next sound design items" class="sound-nav next" type="button">&gt;</button>
+</div>
+</section>
+<section class="section art-section">
+<div class="section-header">
+<div class="section-heading-row"><h2>Artwork</h2><a class="info-link" href="artwork.html">View artwork →</a></div>
+<p class="section-subtitle">
+        Visual work developed through concept building, art direction, and advanced prompt engineering- using AI as a creative partner to explore style, composition, worldbuilding, and brand-aligned imagery.
+      </p>
+</div>
+<div class="art-grid-wrap">
+<button aria-label="Show previous artwork" class="art-nav prev" type="button">&lt;</button>
+<div class="art-viewport">
+<div class="art-grid" id="artGrid">
+<a class="art-tile" href="artwork.html"><img alt="Artwork one" src="images/art/Imagefx/imagefx-002.webp"/></a>
+<a class="art-tile" href="artwork.html"><img alt="Artwork two" src="images/art/Imagefx/imagefx-071.webp"/></a>
+<a class="art-tile" href="artwork.html"><img alt="Artwork three" src="images/art/Imagefx/imagefx-113.webp"/></a>
+<a class="art-tile" href="artwork.html"><img alt="Artwork four" src="images/art/Imagefx/imagefx-207.webp"/></a>
+<a class="art-tile" href="artwork.html"><img alt="Artwork five" src="images/art/Imagefx/imagefx-227.webp"/></a>
+<a class="art-tile" href="artwork.html"><img alt="Artwork six" src="images/art/Imagefx/imagefx-221.webp"/></a>
+<a class="art-tile" href="artwork.html"><img alt="Artwork seven" src="images/art/Imagefx/imagefx-201.webp"/></a>
+<a class="art-tile" href="artwork.html"><img alt="Artwork eight" src="images/art/Imagefx/imagefx-182.webp"/></a>
+</div>
+</div>
+<button aria-label="Show next artwork" class="art-nav next" type="button">&gt;</button>
+</div>
+</section>
+<section class="section music-section">
+<div class="section-header">
+<div class="section-heading-row"><h2>Music</h2><a class="info-link" href="https://jadewii.bandcamp.com/music" rel="noreferrer" target="_blank">Explore discography →</a></div>
+<p class="section-subtitle">
+        Original compositions, music videos, and live performance work grouped together so the music side feels connected instead of split across separate sections.
+      </p>
+</div>
+<div class="music-subsection">
+<h3 class="music-subtitle">Discography</h3>
+<div class="music-grid">
+<article class="album-card"><a href="https://music.apple.com/us/album/white-lotus-ep/1788555032" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="White Lotus" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/behind-the-sun.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/translucent-dreams-ep/1723501484" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Translucent Dreams" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/translucent-dreams.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/kolossos-ep/1723533481" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Kolossos" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/kolossos.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/a-bit-of-red-in-the-blue-single/1753138696" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="A Bit Of Red In The Blue" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/a-bit-of-red-in-the-blue.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/above-the-quadi-ep/1720517302" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Above The Quadi" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/above-the-quadi.webp"/></a></article>
+<article class="album-card"><img alt="Acid Waves" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/acid-waves.webp"/></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/aphids/1450705868" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Aphids" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/aphids.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/artificially-unfavored/1753123746" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Artificially Unfavorod" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/artificially-unfavored-mod.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/battle-of-wolves/1791807727" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Battle Of Wolves" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/battle-of-wolves.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/behind-the-sun-ep/1723501972" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Behind The Sun" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/behind-the-sun.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/beneath-the-bohdi-ep/1708335326" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Beneath The Bohdi" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/beneath-the-bohdi.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/between-the-redwood-ep/1715388926" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Between The Redwood" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/between-the-redwood.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/birds-of-paradise-ep/1710085212" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Birds Of Paradisod" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/birds-of-paradise-mod.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/blobs-ep/1723439534" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Blobs Mod" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/blobs-mod.webp"/></a></article>
+<article class="album-card"><img alt="Busking In The Universe" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/busking-in-the-universe.webp"/></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/celestial-kunzite-ep/1723482845" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Celestial Kunzite Mod" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/celestial-kunzite-mod.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/charlies-doomed-christmas/1788420737" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Charlies Doomed Christmas" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/charlies-doomed-christmas.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/common-side-effects-single/1788754017" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Common Side Effects" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/common-side-effects.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/confessions-of-a-samurai/1496868801" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Confessions Of A Samurai" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/confessions-of-a-samurai.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/cosmos/1463303101" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Cosmos" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/cosmos.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/creatures-of-the-sea-ep/1723612080" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Creatures Of The Sea" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/creatures-of-the-sea.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/curious-pez-ep/1723658457" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Curious Pez Mod" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/curious-pez-mod.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/dan-da-damned/1788507992" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Dan Da Damned Mix" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/dan-da-damned-mix.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/demodex-ep/1723501638" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Demodex" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/demodex.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/dream-picker/1791468954" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Dream Picker" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/dream-picker.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/drone-sightings-ep/1788621283" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Drone Sightings Mix" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/drone-sightings-mix.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/eidos-ep/1723635117" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Eidos Mod" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/eidos-mod.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/elder-of-agraban-ep/1723652011" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Elder Of Agraban" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/elder-of-agraban.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/end-in-mind-remaster/1723450281" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="End In Mind Remaster" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/end-in-mind-remaster.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/enlighted-ape-single/1753139017" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Enlightened Ape" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/enlightened-ape.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/error-code-ep/1720558598" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Error Code" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/error-code.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/euro-chill/1562800748" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Euro Chill" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/euro-chill.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/fish-out-of-water-ep/1723533423" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Fish Out Of Water Mod" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/fish-out-of-water-mod.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/geisha-dreams/1481374504" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Geisha Dreams" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/geisha-dreams.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/gem-in-eye-ep/1723525952" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Gem In Eye" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/gem-in-eye.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/how-the-grinch-chilled-christmas/1787994532" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Grinch Chilled Mix" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/dream-picker.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/habit-garden/1553379609" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Habit Garden" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/habit-garden.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/honey-single/1788884626" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Honey Mix" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/kamikaze-yokai.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/how-the-grinch-chilled-christmas/1787994532" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="How The Grinch Chilled Cas" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/how-the-grinch-chilled-christmas.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/kame-house-sessions-one-single/1788767283" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Kame House 1" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/kame-house-1.webp"/></a></article>
+<article class="album-card"><a href="https://music.apple.com/us/album/kamikaze-yokai/1789724854" rel="noreferrer" style="display:block;height:100%;" target="_blank"><img alt="Kamikaze Yokai" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://jadewii.com/' + this.getAttribute('src').replace(/^\/?/, '');}else{this.onerror=null;}" src="images/albums/kamikaze-yokai.webp"/></a></article>
+</div>
+</div>
+<h3 class="music-section-title">Music Videos</h3>
+<div class="music-subsection">
+<h3 class="music-subtitle">Official Releases</h3>
+<div class="music-video-grid">
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=4RwMDnE7WB0" rel="noreferrer" target="_blank"><img alt="JAde Wii - Man Made (Official Music Video)" src="https://img.youtube.com/vi/4RwMDnE7WB0/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>JAde Wii - Man Made (Official Music Video)</h3></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=YP_zapIRZrc" rel="noreferrer" target="_blank"><img alt="JAde Wii - Can Never Get Higher (Official Music Video)" src="https://img.youtube.com/vi/YP_zapIRZrc/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>JAde Wii - Can Never Get Higher (Official Music Video)</h3></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=HfvF0OTlI04" rel="noreferrer" target="_blank"><img alt="JAde Wii - A Poet Is Dead (Official Music Video)" src="https://img.youtube.com/vi/HfvF0OTlI04/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>JAde Wii - A Poet Is Dead (Official Music Video)</h3></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=09S3vcUSqKs" rel="noreferrer" target="_blank"><img alt="JAde Wii - Berries (Official Music Video)" src="https://img.youtube.com/vi/09S3vcUSqKs/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>JAde Wii - Berries (Official Music Video)</h3></div>
+</article>
+</div>
+</div>
+<div class="music-subsection">
+<h3 class="music-subtitle">Live Performances</h3>
+<div class="music-video-grid">
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=nuOKdTVg148&amp;list=PLtLPqG7y4unCVLAdGmlmi_V1ZzBvY6d5s&amp;index=19&amp;t=10056s" rel="noreferrer" target="_blank"><img alt="JAde Wii Modular/Eurorack Day [ Electronic, Techno, Ambient ]" src="https://img.youtube.com/vi/nuOKdTVg148/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>JAde Wii Modular/Eurorack Day [ Electronic, Techno, Ambient ]</h3></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=jcv5lws7qbQ&amp;t=3s" rel="noreferrer" target="_blank"><img alt="SP-404 MK2 Performance Masterclass by JAde Wii - 3" src="https://img.youtube.com/vi/jcv5lws7qbQ/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>SP-404 MK2 Performance Masterclass by JAde Wii - 3</h3></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=QGZPPHAlEHo&amp;t=918s" rel="noreferrer" target="_blank"><img alt="JAde Wii SP-404 Mk2 Live Performance - " boss"="" geisha="" hiphop"="" japanese="" lofi="" src="https://img.youtube.com/vi/QGZPPHAlEHo/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>JAde Wii SP-404 Mk2 Live Performance - "GEISHA BOSS" Japanese Lofi HipHop</h3></div>
+</article>
+<article class="video-card">
+<div class="video-frame"><a class="video-thumb-link" href="https://www.youtube.com/watch?v=zcho9qGGIJA&amp;t=1890s" rel="noreferrer" target="_blank"><img alt="Live Performance" src="https://img.youtube.com/vi/zcho9qGGIJA/hqdefault.jpg"/></a></div>
+<div class="video-meta"><h3>Live Performance</h3></div>
+</article>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-header">
+<div class="section-heading-row"><h2>Brands</h2></div>
+<p class="section-subtitle">
+        Trusted by major brand names in the Music Industry for creative work, product demonstration, and audience-facing content.
+      </p>
+</div>
+<div class="brands-strip">
+<img alt="DistroKid" src="images/brands/distrokid.png"/>
+<img alt="zZounds" src="images/brands/zzounds.png"/>
+<img alt="Akai" src="images/brands/akai.png"/>
+<img alt="Arturia" src="images/brands/arturia.png"/>
+<img alt="Dave Smith Sequential" src="images/brands/dave-smith-sequential.png"/>
+<img alt="Elektron" src="images/brands/elektron.png"/>
+<img alt="Erica Synths" src="images/brands/erica-synths.png"/>
+<img alt="Native Instruments" src="images/brands/native-instruments.png"/>
+<img alt="Roland" src="images/brands/roland.png"/>
+<img alt="Strymon" src="images/brands/strymon.png"/>
+<img alt="Teenage Engineering" src="images/brands/teenage-engineering.png"/>
+<img alt="Yamaha" src="images/brands/yamaha.png"/>
+</div>
+</section>
+</main>
+<script>
+(function(){
+  function setupCarousel(gridId, itemSelector, prevSelector, nextSelector, pageSize){
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+
+    const items = Array.from(grid.querySelectorAll(itemSelector));
+    const prev = document.querySelector(prevSelector);
+    const next = document.querySelector(nextSelector);
+    let start = 0;
+
+    function stepWidth(){
+      if (!items.length) return 0;
+      const style = window.getComputedStyle(grid);
+      const gap = parseFloat(style.columnGap || style.gap || 16) || 16;
+      return items[0].getBoundingClientRect().width + gap;
+    }
+
+    function render(){
+      const maxStart = Math.max(0, items.length - pageSize);
+      start = Math.max(0, Math.min(start, maxStart));
+      grid.style.transform = `translateX(-${start * stepWidth()}px)`;
+
+      if (prev){
+        prev.disabled = start === 0;
+        prev.style.opacity = prev.disabled ? '.45' : '1';
+      }
+
+      if (next){
+        next.disabled = start >= maxStart;
+        next.style.opacity = next.disabled ? '.45' : '1';
+      }
+    }
+
+    prev && prev.addEventListener('click', () => { start -= 1; render(); });
+    next && next.addEventListener('click', () => { start += 1; render(); });
+    window.addEventListener('resize', render);
+    render();
+  }
+
+  setupCarousel('artGrid', '.art-tile', '.art-nav.prev', '.art-nav.next', 3);
+  setupCarousel('soundGrid', '.sound-tile', '.sound-nav.prev', '.sound-nav.next', 3);
+
+
+  const educationalSection = document.getElementById("educationalVideosSection");
+  const musicSection = document.querySelector(".music-section");
+  const musicVideosTitle = musicSection ? musicSection.querySelector(".music-section-title") : null;
+  let educationalPlaceholder = null;
+
+  if (educationalSection){
+    educationalPlaceholder = document.createElement("div");
+    educationalPlaceholder.style.display = "none";
+    educationalSection.parentNode.insertBefore(educationalPlaceholder, educationalSection);
+  }
+
+  function syncMobileSectionOrder(){
+    if (!educationalSection || !musicSection || !musicVideosTitle || !educationalPlaceholder) return;
+    const isMobile = window.matchMedia("(max-width: 700px)").matches;
+
+    if (isMobile){
+      if (educationalSection.parentNode !== musicSection || educationalSection.nextElementSibling !== musicVideosTitle){
+        musicSection.insertBefore(educationalSection, musicVideosTitle);
+      }
+    } else if (educationalPlaceholder.parentNode){
+      if (educationalSection.parentNode !== educationalPlaceholder.parentNode || educationalSection.previousElementSibling !== educationalPlaceholder){
+        educationalPlaceholder.parentNode.insertBefore(educationalSection, educationalPlaceholder.nextSibling);
+      }
+    }
+  }
+
+  syncMobileSectionOrder();
+  window.addEventListener("resize", syncMobileSectionOrder);
+})();
+</script>
+<script src="assets/site.js"></script>
+</body>
+</html>

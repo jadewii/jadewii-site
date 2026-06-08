@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>harmonic melodizer — JAde Wii</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap");
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #111;
+      font-family: "Space Mono", monospace;
+      overflow: hidden;
+    }
+
+    .app-shell {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background: #fff;
+    }
+
+    .app-topbar {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid #ebebeb;
+      background: #fff;
+    }
+
+    .app-title {
+      margin: 0;
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 25px;
+      line-height: 1;
+      letter-spacing: 3px;
+      color: #111;
+    }
+
+    .app-link {
+      display: inline-block;
+      margin-top: 8px;
+      text-decoration: none;
+      color: #777;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .app-link:hover { color: #111; }
+
+    .app-main {
+      min-height: 0;
+      padding: 12px 14px 14px;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .harmonicmelodizer-container {
+      width: min(100%, 1820px);
+      height: 100%;
+      display: grid;
+      grid-template-columns: 270px minmax(980px, 1fr) 270px;
+      gap: 14px;
+      align-items: stretch;
+      min-height: 0;
+      font-family: "Fredoka One", cursive;
+      color: #9c27b0;
+    }
+
+
+    .controls-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+      justify-content: stretch;
+      border-radius: 32px;
+      padding: 14px;
+      border: 1px solid rgba(0,0,0,0.05);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.05);
+    }
+
+    .left-panel {
+      background: linear-gradient(180deg, rgba(255,236,241,0.96) 0%, rgba(255,244,228,0.92) 100%);
+    }
+
+    .right-panel {
+      background: linear-gradient(180deg, rgba(234,247,255,0.96) 0%, rgba(236,255,248,0.92) 100%);
+    }
+
+    .control-group {
+      background: rgba(255,255,255,0.58);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.86), 0 10px 24px rgba(0,0,0,0.04);
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .warm-group {
+      background: linear-gradient(180deg, rgba(255,220,232,0.8), rgba(255,239,228,0.72));
+    }
+
+    .sunset-group {
+      background: linear-gradient(180deg, rgba(255,233,209,0.78), rgba(255,246,227,0.72));
+    }
+
+    .cool-group {
+      background: linear-gradient(180deg, rgba(226,241,255,0.82), rgba(235,246,255,0.72));
+    }
+
+    .mint-group {
+      background: linear-gradient(180deg, rgba(227,255,246,0.82), rgba(237,252,255,0.72));
+    }
+
+    .control-group h4 {
+      margin: 0 0 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #9c27b0;
+      opacity: 0.76;
+    }
+
+    button {
+      width: 100%;
+      margin: 4px 0;
+      border: none;
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: linear-gradient(180deg, #b13ec2 0%, #8d2cb1 100%);
+      color: #fff;
+      font-family: "Fredoka One", cursive;
+      font-size: 10px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #5f1985;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .left-panel button:nth-of-type(1) { background: linear-gradient(180deg, #ff7fb0 0%, #ff5d93 100%); box-shadow: 0 4px 0 #d94378; }
+    .left-panel button:nth-of-type(2) { background: linear-gradient(180deg, #ff9e7a 0%, #ff7a64 100%); box-shadow: 0 4px 0 #d75d48; }
+    .left-panel button:nth-of-type(3) { background: linear-gradient(180deg, #ffb86f 0%, #ff9f43 100%); box-shadow: 0 4px 0 #db7f27; }
+    .left-panel button:nth-of-type(4) { background: linear-gradient(180deg, #ffd05f 0%, #f2b931 100%); box-shadow: 0 4px 0 #cb9720; color:#6d4200; }
+    .right-panel .cool-group button { background: linear-gradient(180deg, #5db8ff 0%, #3b93f1 100%); box-shadow: 0 4px 0 #296cb8; }
+    .right-panel .mint-group button:nth-of-type(1) { background: linear-gradient(180deg, #4fd6c4 0%, #25b9a7 100%); box-shadow: 0 4px 0 #1d8d80; }
+    .right-panel .mint-group button:nth-of-type(2) { background: linear-gradient(180deg, #72d8ff 0%, #4baef1 100%); box-shadow: 0 4px 0 #317fb3; }
+    .right-panel .mint-group button:nth-of-type(3) { background: linear-gradient(180deg, #b789ff 0%, #9a64f0 100%); box-shadow: 0 4px 0 #7043be; }
+
+    button:hover { filter: brightness(1.04); transform: translateY(-1px); }
+    button:active { transform: translateY(1px); box-shadow: 0 2px 0 rgba(0,0,0,0.22); }
+
+    .slider-container { margin: 8px 0; }
+    .slider-container label {
+      display: block;
+      font-size: 9px;
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.78);
+      outline: none;
+      opacity: 0.96;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    .slider:hover { opacity: 1; }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #9c27b0;
+      border: 3px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    }
+    .slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #9c27b0;
+      border: 3px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    }
+
+    .slider-warm { background: linear-gradient(90deg, rgba(255,154,158,0.85), rgba(255,214,165,0.85)); }
+    .slider-sunset { background: linear-gradient(90deg, rgba(255,190,118,0.85), rgba(255,221,89,0.85)); }
+    .slider-melody { background: linear-gradient(90deg, rgba(255,137,175,0.85), rgba(255,110,164,0.85)); }
+    .slider-harmony { background: linear-gradient(90deg, rgba(125,220,122,0.85), rgba(89,197,154,0.85)); }
+    .slider-rhythm { background: linear-gradient(90deg, rgba(118,182,255,0.85), rgba(101,224,233,0.85)); }
+    .slider-cool { background: linear-gradient(90deg, rgba(114,216,255,0.85), rgba(91,168,255,0.85)); }
+    .slider-mint { background: linear-gradient(90deg, rgba(79,214,196,0.85), rgba(125,234,180,0.85)); }
+    .slider-lavender { background: linear-gradient(90deg, rgba(183,137,255,0.85), rgba(220,150,255,0.85)); }
+
+    .info-label {
+      font-size: 10px;
+      text-align: center;
+      margin: 6px 0 0;
+      min-height: 16px;
+      font-weight: 600;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+      margin-right: 10px;
+    }
+
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      background: #ce93d8;
+      transition: 0.4s;
+      border-radius: 26px;
+    }
+    .toggle-slider:before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    input:checked + .toggle-slider { background: #9c27b0; }
+    input:checked + .toggle-slider:before { transform: translateX(22px); }
+    .toggle-label {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    #device-container {
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    #kawaii-display {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(252, 247, 255, 0.98) 48%, rgba(247, 253, 255, 0.98) 100%);
+      border: 16px solid rgba(206, 147, 216, 0.9);
+      border-radius: 42px;
+      box-shadow: 0 0 34px rgba(156, 39, 176, 0.18);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .display-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid rgba(206, 147, 216, 0.28);
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(8px);
+    }
+
+    .display-title {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9c27b0;
+      opacity: 0.9;
+    }
+
+    .display-subtitle {
+      font-size: 9px;
+      color: #b06cbc;
+      opacity: 0.9;
+      text-transform: uppercase;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9px;
+      text-transform: uppercase;
+      color: #9c27b0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(206, 147, 216, 0.12);
+      border: 1px solid rgba(206, 147, 216, 0.25);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    #waveform-display {
+      min-height: 0;
+      height: 100%;
+      padding: 12px 14px 14px;
+      display: grid;
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      background:
+        radial-gradient(circle at top right, rgba(206,147,216,0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(156,39,176,0.06), transparent 30%);
+    }
+
+    .track-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 8px;
+      padding: 12px 14px 14px;
+      border-radius: 24px;
+      border: 1px solid rgba(206, 147, 216, 0.24);
+      background: rgba(255,255,255,0.72);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .track-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .track-name-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .track-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.95);
+    }
+
+    .track-name {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #8e24aa;
+      letter-spacing: 0.06em;
+    }
+
+    .track-meta {
+      font-size: 9px;
+      color: #b06cbc;
+      text-transform: uppercase;
+      text-align: right;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .track-hint {
+      font-size: 9px;
+      color: #b889c3;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .step-grid {
+      min-height: 0;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(16, minmax(0, 1fr));
+      gap: 4px;
+      position: relative;
+    }
+
+    .step-column {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: repeat(8, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border-radius: 16px;
+      background: rgba(206, 147, 216, 0.06);
+      border: 1px solid rgba(206, 147, 216, 0.1);
+      transition: transform 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .step-column.current {
+      background: rgba(206, 147, 216, 0.22);
+      box-shadow: 0 0 0 2px rgba(156,39,176,0.14) inset;
+      transform: translateY(-1px);
+    }
+
+    .grid-cell {
+      min-height: 0;
+      border-radius: 999px;
+      background: rgba(206, 147, 216, 0.12);
+      border: 1px solid rgba(206, 147, 216, 0.14);
+      transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      opacity: 0.68;
+    }
+
+    .grid-cell:hover {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+
+    .grid-cell.active {
+      opacity: 1;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+      transform: scale(1.02);
+    }
+
+    .grid-cell.muted {
+      opacity: 0.18;
+      background: rgba(206, 147, 216, 0.08) !important;
+      box-shadow: none;
+    }
+
+    #loading-container {
+      width: min(100%, 880px);
+      height: 10px;
+      margin: 0 auto;
+      display: none;
+      border-radius: 999px;
+      background: #ce93d8;
+      overflow: hidden;
+    }
+
+    #loading-bar {
+      width: 0%;
+      height: 100%;
+      background: #9c27b0;
+      transition: width 0.25s ease;
+    }
+
+    @media (max-width: 1480px) {
+      .harmonicmelodizer-container { grid-template-columns: 240px minmax(720px, 1fr) 240px; }
+      .display-header { padding-inline: 14px; }
+      .track-panel { padding: 9px 10px 10px; }
+    }
+
+    @media (max-width: 1120px) {
+      body { overflow: auto; }
+      .app-shell { height: auto; min-height: 100vh; }
+      .app-main { overflow: visible; }
+      .harmonicmelodizer-container {
+        height: auto;
+        grid-template-columns: 1fr;
+      }
+      #kawaii-display { min-height: 720px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <h1 class="app-title">HARMONIC MELODIZER</h1>
+      <a class="app-link" href="../../../apps.html">apps</a>
+    </header>
+
+    <main class="app-main">
+      <div class="harmonicmelodizer-container">
+        <div class="controls-column left-panel">
+          <div class="control-group warm-group">
+            <h4>Main Controls</h4>
+            <button id="play-pause">Play</button>
+            <button id="new-pattern">New Melody</button>
+            <button id="new-pattern-harmony">New Harmony</button>
+            <button id="new-pattern-rhythm">New Rhythm</button>
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="auto-generate-toggle" />
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label">Auto Generate</span>
+            </div>
+          </div>
+
+          <div class="control-group sunset-group">
+            <h4>Volume & Tempo</h4>
+            <div class="slider-container">
+              <label>Volume</label>
+              <input type="range" min="0" max="100" value="50" class="slider" id="volume-slider" class="slider slider-warm" />
+              <div id="volume-label" class="info-label">50%</div>
+            </div>
+            <div class="slider-container">
+              <label>Tempo</label>
+              <input type="range" min="60" max="240" value="120" class="slider" id="tempo-slider" class="slider slider-sunset" />
+              <div id="tempo-label" class="info-label">120 BPM</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="device-container">
+          <div id="kawaii-display">
+            <div class="display-header">
+              <div>
+                <div class="display-title">Live composition map</div>
+                <div class="display-subtitle">Three generated lanes. Click cells to write notes or rests.</div>
+              </div>
+              <div class="legend">
+                <span class="legend-chip"><span class="legend-dot" style="background:#ff89af"></span>melody</span>
+                <span class="legend-chip"><span class="legend-dot" style="background:#7ddc7a"></span>harmony</span>
+                <span class="legend-chip"><span class="legend-dot" style="background:#76b6ff"></span>rhythm</span>
+              </div>
+            </div>
+            <div id="waveform-display"></div>
+          </div>
+          <div id="loading-container"><div id="loading-bar"></div></div>
+        </div>
+
+        <div class="controls-column right-panel">
+          <div class="control-group cool-group">
+            <h4>Octaves</h4>
+            <button id="random-octave">Random Octaves</button>
+            <div class="slider-container">
+              <label>Melody</label>
+              <input type="range" min="0" max="4" value="2" class="slider" id="melody-octave-slider" class="slider slider-melody" />
+              <div id="melody-octave-label" class="info-label">2</div>
+            </div>
+            <div class="slider-container">
+              <label>Harmony</label>
+              <input type="range" min="0" max="4" value="2" class="slider" id="harmony-octave-slider" class="slider slider-harmony" />
+              <div id="harmony-octave-label" class="info-label">2</div>
+            </div>
+            <div class="slider-container">
+              <label>Rhythm</label>
+              <input type="range" min="0" max="4" value="2" class="slider" id="rhythm-octave-slider" class="slider slider-rhythm" />
+              <div id="rhythm-octave-label" class="info-label">2</div>
+            </div>
+          </div>
+
+          <div class="control-group mint-group">
+            <h4>Effects</h4>
+            <button id="random-instrument">Random Instruments</button>
+            <button id="random-decay">Random Decay</button>
+            <button id="random-sustain">Random Sustain</button>
+            <div class="slider-container">
+              <label>Decay</label>
+              <input type="range" min="1" max="1000" value="150" class="slider" id="decay-slider" class="slider slider-cool" />
+              <div id="decay-label" class="info-label">150ms</div>
+            </div>
+            <div class="slider-container">
+              <label>Sustain</label>
+              <input type="range" min="0" max="100" value="50" class="slider" id="sustain-slider" class="slider slider-mint" />
+              <div id="sustain-label" class="info-label">50%</div>
+            </div>
+            <div class="slider-container">
+              <label>Sub Octave</label>
+              <input type="range" min="0" max="100" value="50" class="slider" id="sub-octave-slider" class="slider slider-lavender" />
+              <div id="sub-octave-label" class="info-label">50%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const playPauseBtn = document.getElementById("play-pause");
+    const newPatternBtn = document.getElementById("new-pattern");
+    const newPatternHarmonyBtn = document.getElementById("new-pattern-harmony");
+    const newPatternRhythmBtn = document.getElementById("new-pattern-rhythm");
+    const randomInstrumentBtn = document.getElementById("random-instrument");
+    const randomOctaveBtn = document.getElementById("random-octave");
+    const randomDecayBtn = document.getElementById("random-decay");
+    const randomSustainBtn = document.getElementById("random-sustain");
+    const waveformDisplay = document.getElementById("waveform-display");
+    const volumeSlider = document.getElementById("volume-slider");
+    const volumeLabel = document.getElementById("volume-label");
+    const tempoSlider = document.getElementById("tempo-slider");
+    const tempoLabel = document.getElementById("tempo-label");
+    const melodyOctaveSlider = document.getElementById("melody-octave-slider");
+    const melodyOctaveLabel = document.getElementById("melody-octave-label");
+    const harmonyOctaveSlider = document.getElementById("harmony-octave-slider");
+    const harmonyOctaveLabel = document.getElementById("harmony-octave-label");
+    const rhythmOctaveSlider = document.getElementById("rhythm-octave-slider");
+    const rhythmOctaveLabel = document.getElementById("rhythm-octave-label");
+    const decaySlider = document.getElementById("decay-slider");
+    const decayLabel = document.getElementById("decay-label");
+    const sustainSlider = document.getElementById("sustain-slider");
+    const sustainLabel = document.getElementById("sustain-label");
+    const subOctaveSlider = document.getElementById("sub-octave-slider");
+    const subOctaveLabel = document.getElementById("sub-octave-label");
+    const autoGenerateToggle = document.getElementById("auto-generate-toggle");
+    const loadingBar = document.getElementById("loading-bar");
+    const loadingContainer = document.getElementById("loading-container");
+
+    const TRACKS = ["melody", "harmony", "rhythm"];
+    const STEP_COUNT = 16;
+    const ROW_COUNT = 8;
+    const SCALE = [0, 2, 4, 5, 7, 9, 11, 12];
+    const TRACK_COLORS = {
+      melody: { active: "#ff89af", soft: "rgba(255, 137, 175, 0.20)", dot: "#ff89af" },
+      harmony: { active: "#7ddc7a", soft: "rgba(125, 220, 122, 0.20)", dot: "#7ddc7a" },
+      rhythm: { active: "#76b6ff", soft: "rgba(118, 182, 255, 0.20)", dot: "#76b6ff" }
+    };
+
+    let isPlaying = false;
+    let currentSeed = 713924;
+    let harmonySeed = 987654;
+    let rhythmSeed = 246810;
+    let currentTime = 0;
+    let tempo = 120;
+    let melodyOctave = 2;
+    let harmonyOctave = 2;
+    let rhythmOctave = 2;
+    let decay = 150;
+    let sustain = 0.5;
+    let subOctave = 0.5;
+    let intervalId;
+    let currentInstrument = "sine";
+    let harmonyInstrument = "square";
+    let rhythmInstrument = "sawtooth";
+    let melodyPattern = [];
+    let harmonyPattern = [];
+    let rhythmPattern = [];
+
+    const instruments = [
+      { name: "Sine Wave", type: "sine" },
+      { name: "Square Wave", type: "square" },
+      { name: "Sawtooth Wave", type: "sawtooth" },
+      { name: "Triangle Wave", type: "triangle" },
+    ];
+
+    function generateRandomSeed() {
+      return Math.floor(Math.random() * 1000000) + 1;
+    }
+
+    function mulberry32(seed) {
+      let t = seed;
+      return function() {
+        t += 0x6D2B79F5;
+        let x = Math.imul(t ^ t >>> 15, 1 | t);
+        x ^= x + Math.imul(x ^ x >>> 7, 61 | x);
+        return ((x ^ x >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function generateTrackPattern(seed, trackName) {
+      const rand = mulberry32(seed);
+      const density = trackName === "melody" ? 0.94 : trackName === "harmony" ? 0.68 : 0.58;
+      const maxLeap = trackName === "melody" ? 2 : 1;
+      let row = Math.floor(rand() * ROW_COUNT);
+      const pattern = [];
+
+      for (let step = 0; step < STEP_COUNT; step++) {
+        const shouldPlay = trackName === "melody" ? true : rand() < density;
+        if (!shouldPlay) {
+          pattern.push(null);
+          continue;
+        }
+        const movement = Math.floor(rand() * ((maxLeap * 2) + 1)) - maxLeap;
+        row = Math.max(0, Math.min(ROW_COUNT - 1, row + movement));
+        if (rand() > 0.78) row = Math.floor(rand() * ROW_COUNT);
+        pattern.push(row);
+      }
+      return pattern;
+    }
+
+    function patternForTrack(trackName) {
+      if (trackName === "melody") return melodyPattern;
+      if (trackName === "harmony") return harmonyPattern;
+      return rhythmPattern;
+    }
+
+    function setPatternForTrack(trackName, pattern) {
+      if (trackName === "melody") melodyPattern = pattern;
+      else if (trackName === "harmony") harmonyPattern = pattern;
+      else rhythmPattern = pattern;
+    }
+
+    function seedForTrack(trackName) {
+      if (trackName === "melody") return currentSeed;
+      if (trackName === "harmony") return harmonySeed;
+      return rhythmSeed;
+    }
+
+    function instrumentForTrack(trackName) {
+      if (trackName === "melody") return currentInstrument;
+      if (trackName === "harmony") return harmonyInstrument;
+      return rhythmInstrument;
+    }
+
+    function octaveForTrack(trackName) {
+      if (trackName === "melody") return melodyOctave;
+      if (trackName === "harmony") return harmonyOctave;
+      return rhythmOctave;
+    }
+
+    function createOscillator(freq, instrumentType) {
+      const osc = audioContext.createOscillator();
+      osc.type = instrumentType;
+      osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+
+      const subOsc = audioContext.createOscillator();
+      subOsc.type = instrumentType;
+      subOsc.frequency.setValueAtTime(freq / 2, audioContext.currentTime);
+
+      const gainNode = audioContext.createGain();
+      const subGainNode = audioContext.createGain();
+
+      osc.connect(gainNode);
+      subOsc.connect(subGainNode);
+      gainNode.connect(audioContext.destination);
+      subGainNode.connect(audioContext.destination);
+
+      const volume = volumeSlider.value / 100;
+      gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+      subGainNode.gain.setValueAtTime(volume * subOctave, audioContext.currentTime);
+
+      gainNode.gain.setTargetAtTime(sustain * volume, audioContext.currentTime, decay / 1000);
+      subGainNode.gain.setTargetAtTime(sustain * volume * subOctave, audioContext.currentTime, decay / 1000);
+      gainNode.gain.setTargetAtTime(0, audioContext.currentTime + (60 / tempo) * 0.9, decay / 1000);
+      subGainNode.gain.setTargetAtTime(0, audioContext.currentTime + (60 / tempo) * 0.9, decay / 1000);
+
+      return { oscillator: osc, subOscillator: subOsc };
+    }
+
+    function rowToFrequency(row, octave) {
+      const baseFreq = 110 * Math.pow(2, octave);
+      const scaleIndex = SCALE[ROW_COUNT - 1 - row] || SCALE[0];
+      return baseFreq * Math.pow(2, scaleIndex / 12);
+    }
+
+    function triggerTrack(trackName, step) {
+      const pattern = patternForTrack(trackName);
+      const row = pattern[step % STEP_COUNT];
+      if (row === null || row === undefined) return;
+      const freq = rowToFrequency(row, octaveForTrack(trackName));
+      const { oscillator, subOscillator } = createOscillator(freq, instrumentForTrack(trackName));
+      oscillator.start();
+      subOscillator.start();
+      oscillator.stop(audioContext.currentTime + 60 / tempo);
+      subOscillator.stop(audioContext.currentTime + 60 / tempo);
+    }
+
+    function playInfiniteSong() {
+      function playStep() {
+        if (!isPlaying) return;
+
+        if (currentTime >= STEP_COUNT) {
+          if (autoGenerateToggle.checked) {
+            currentSeed = generateRandomSeed();
+            harmonySeed = generateRandomSeed();
+            rhythmSeed = generateRandomSeed();
+            melodyPattern = generateTrackPattern(currentSeed, "melody");
+            harmonyPattern = generateTrackPattern(harmonySeed, "harmony");
+            rhythmPattern = generateTrackPattern(rhythmSeed, "rhythm");
+          }
+          currentTime = 0;
+        }
+
+        triggerTrack("melody", currentTime);
+        triggerTrack("harmony", currentTime);
+        triggerTrack("rhythm", currentTime);
+        currentTime++;
+        updateWaveformDisplay();
+      }
+
+      clearInterval(intervalId);
+      intervalId = setInterval(playStep, (60 / tempo) * 1000);
+    }
+
+    function buildTrackPanel(trackName, trackLabel, subtitle) {
+      const trackColors = TRACK_COLORS[trackName];
+      const panel = document.createElement("div");
+      panel.className = "track-panel";
+
+      const topline = document.createElement("div");
+      topline.className = "track-topline";
+      const wrap = document.createElement("div");
+      wrap.className = "track-name-wrap";
+      const dot = document.createElement("span");
+      dot.className = "track-dot";
+      dot.style.background = trackColors.dot;
+      const title = document.createElement("span");
+      title.className = "track-name";
+      title.textContent = trackLabel;
+      wrap.append(dot, title);
+
+      const meta = document.createElement("div");
+      meta.className = "track-meta";
+      meta.id = `${trackName}-meta`;
+      topline.append(wrap, meta);
+
+      const hint = document.createElement("div");
+      hint.className = "track-hint";
+      hint.textContent = subtitle;
+
+      const grid = document.createElement("div");
+      grid.className = "step-grid";
+      grid.dataset.track = trackName;
+
+      for (let step = 0; step < STEP_COUNT; step++) {
+        const column = document.createElement("div");
+        column.className = "step-column";
+        column.dataset.step = step;
+
+        for (let row = 0; row < ROW_COUNT; row++) {
+          const cell = document.createElement("div");
+          cell.className = "grid-cell";
+          cell.dataset.track = trackName;
+          cell.dataset.step = step;
+          cell.dataset.row = row;
+          cell.style.background = trackColors.soft;
+          cell.addEventListener("click", () => handleCellClick(trackName, step, row));
+          column.appendChild(cell);
+        }
+        grid.appendChild(column);
+      }
+
+      panel.append(topline, hint, grid);
+      return panel;
+    }
+
+    function updateTrackMeta() {
+      document.getElementById("melody-meta").textContent = `${currentInstrument} • octave ${melodyOctave}`;
+      document.getElementById("harmony-meta").textContent = `${harmonyInstrument} • octave ${harmonyOctave}`;
+      document.getElementById("rhythm-meta").textContent = `${rhythmInstrument} • octave ${rhythmOctave}`;
+    }
+
+    function updateWaveformDisplay() {
+      if (!waveformDisplay.dataset.ready) {
+        waveformDisplay.append(
+          buildTrackPanel("melody", "Melody", "Main line — every step can carry a note"),
+          buildTrackPanel("harmony", "Harmony", "Support line — leave gaps for breathing room"),
+          buildTrackPanel("rhythm", "Rhythm", "Percussive lane — click empty spots for sparse syncopation")
+        );
+        waveformDisplay.dataset.ready = "true";
+      }
+
+      updateTrackMeta();
+
+      TRACKS.forEach((trackName) => {
+        const pattern = patternForTrack(trackName);
+        const trackColors = TRACK_COLORS[trackName];
+        const columns = waveformDisplay.querySelectorAll(`.step-grid[data-track="${trackName}"] .step-column`);
+        columns.forEach((column, step) => {
+          column.classList.toggle("current", isPlaying && step === (currentTime % STEP_COUNT));
+          const cells = column.querySelectorAll(".grid-cell");
+          cells.forEach((cell, row) => {
+            const active = pattern[step] === row;
+            const muted = pattern[step] === null;
+            cell.classList.toggle("active", active);
+            cell.classList.toggle("muted", muted && !active);
+            cell.style.background = active ? trackColors.active : trackColors.soft;
+            cell.style.boxShadow = active ? `0 0 0 2px rgba(255,255,255,0.92) inset, 0 6px 14px ${trackColors.soft}` : "none";
+          });
+        });
+      });
+    }
+
+    function handleCellClick(trackName, step, row) {
+      const pattern = [...patternForTrack(trackName)];
+      pattern[step] = pattern[step] === row ? null : row;
+      setPatternForTrack(trackName, pattern);
+      updateWaveformDisplay();
+    }
+
+    function loadPattern() {
+      return new Promise((resolve) => {
+        loadingContainer.style.display = "block";
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 16;
+          loadingBar.style.width = `${Math.min(progress, 100)}%`;
+          if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              loadingContainer.style.display = "none";
+              loadingBar.style.width = "0%";
+              resolve();
+            }, 180);
+          }
+        }, 40);
+      });
+    }
+
+    function randomInstrumentExcluding(...exclude) {
+      const allowed = instruments.filter((instrument) => !exclude.includes(instrument.type));
+      return allowed[Math.floor(Math.random() * allowed.length)].type;
+    }
+
+    function changeInstrument() {
+      currentInstrument = randomInstrumentExcluding();
+    }
+    function changeHarmonyInstrument() {
+      harmonyInstrument = randomInstrumentExcluding(currentInstrument);
+    }
+    function changeRhythmInstrument() {
+      rhythmInstrument = randomInstrumentExcluding(currentInstrument, harmonyInstrument);
+    }
+
+    function changeRandomOctaves() {
+      melodyOctave = Math.floor(Math.random() * 5);
+      harmonyOctave = Math.floor(Math.random() * 5);
+      rhythmOctave = Math.floor(Math.random() * 5);
+      melodyOctaveSlider.value = melodyOctave;
+      harmonyOctaveSlider.value = harmonyOctave;
+      rhythmOctaveSlider.value = rhythmOctave;
+      melodyOctaveLabel.textContent = melodyOctave;
+      harmonyOctaveLabel.textContent = harmonyOctave;
+      rhythmOctaveLabel.textContent = rhythmOctave;
+      updateTrackMeta();
+    }
+
+    function changeRandomDecay() {
+      decay = Math.floor(Math.random() * 1000) + 1;
+      decaySlider.value = decay;
+      decayLabel.textContent = `${decay}ms`;
+    }
+
+    function changeRandomSustain() {
+      sustain = Math.random();
+      sustainSlider.value = Math.floor(sustain * 100);
+      sustainLabel.textContent = `${Math.floor(sustain * 100)}%`;
+    }
+
+    function randomizeTrack(trackName) {
+      const newSeed = generateRandomSeed();
+      if (trackName === "melody") {
+        currentSeed = newSeed;
+        melodyPattern = generateTrackPattern(newSeed, "melody");
+      } else if (trackName === "harmony") {
+        harmonySeed = newSeed;
+        harmonyPattern = generateTrackPattern(newSeed, "harmony");
+        changeHarmonyInstrument();
+      } else {
+        rhythmSeed = newSeed;
+        rhythmPattern = generateTrackPattern(newSeed, "rhythm");
+        changeRhythmInstrument();
+      }
+      updateWaveformDisplay();
+    }
+
+    playPauseBtn.addEventListener("click", () => {
+      if (isPlaying) {
+        isPlaying = false;
+        playPauseBtn.textContent = "Play";
+        clearInterval(intervalId);
+        updateWaveformDisplay();
+      } else {
+        loadPattern().then(() => {
+          isPlaying = true;
+          playPauseBtn.textContent = "Pause";
+          if (audioContext.state === "suspended") audioContext.resume();
+          playInfiniteSong();
+          updateWaveformDisplay();
+        });
+      }
+    });
+
+    newPatternBtn.addEventListener("click", () => {
+      randomizeTrack("melody");
+      if (!isPlaying) updateWaveformDisplay();
+    });
+    newPatternHarmonyBtn.addEventListener("click", () => {
+      randomizeTrack("harmony");
+      if (!isPlaying) updateWaveformDisplay();
+    });
+    newPatternRhythmBtn.addEventListener("click", () => {
+      randomizeTrack("rhythm");
+      if (!isPlaying) updateWaveformDisplay();
+    });
+
+    randomInstrumentBtn.addEventListener("click", () => {
+      changeInstrument();
+      changeHarmonyInstrument();
+      changeRhythmInstrument();
+      updateTrackMeta();
+    });
+
+    randomOctaveBtn.addEventListener("click", changeRandomOctaves);
+    randomDecayBtn.addEventListener("click", changeRandomDecay);
+    randomSustainBtn.addEventListener("click", changeRandomSustain);
+
+    volumeSlider.addEventListener("input", (e) => {
+      volumeLabel.textContent = `${e.target.value}%`;
+    });
+
+    tempoSlider.addEventListener("input", (e) => {
+      tempo = parseInt(e.target.value, 10);
+      tempoLabel.textContent = `${tempo} BPM`;
+      if (isPlaying) playInfiniteSong();
+    });
+
+    melodyOctaveSlider.addEventListener("input", (e) => {
+      melodyOctave = parseInt(e.target.value, 10);
+      melodyOctaveLabel.textContent = melodyOctave;
+      updateTrackMeta();
+    });
+    harmonyOctaveSlider.addEventListener("input", (e) => {
+      harmonyOctave = parseInt(e.target.value, 10);
+      harmonyOctaveLabel.textContent = harmonyOctave;
+      updateTrackMeta();
+    });
+    rhythmOctaveSlider.addEventListener("input", (e) => {
+      rhythmOctave = parseInt(e.target.value, 10);
+      rhythmOctaveLabel.textContent = rhythmOctave;
+      updateTrackMeta();
+    });
+
+    decaySlider.addEventListener("input", (e) => {
+      decay = parseInt(e.target.value, 10);
+      decayLabel.textContent = `${decay}ms`;
+    });
+    sustainSlider.addEventListener("input", (e) => {
+      sustain = parseInt(e.target.value, 10) / 100;
+      sustainLabel.textContent = `${Math.floor(sustain * 100)}%`;
+    });
+    subOctaveSlider.addEventListener("input", (e) => {
+      subOctave = parseInt(e.target.value, 10) / 100;
+      subOctaveLabel.textContent = `${Math.floor(subOctave * 100)}%`;
+    });
+
+    changeInstrument();
+    changeHarmonyInstrument();
+    changeRhythmInstrument();
+    melodyPattern = generateTrackPattern(currentSeed, "melody");
+    harmonyPattern = generateTrackPattern(harmonySeed, "harmony");
+    rhythmPattern = generateTrackPattern(rhythmSeed, "rhythm");
+    updateWaveformDisplay();
+  </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jazz Intervals â JAde Wii</title>
+  <meta name="description" content="Jazz Intervals ear training tool by JAde Wii">
+  <link rel="stylesheet" href="../../../assets/site.css">
+  <link rel="stylesheet" href="../../../assets/jazz-intervals.css">
+</head>
+<body data-page="app-detail" data-root="../../../">
+  <div id="site-header"></div>
+  <main class="page">
+    <div class="container">
+                <div class="app-page-header">
+                    <a href="../../../apps.html">â back to apps</a>
+                </div>
+      <section class="page-hero">
+        <span class="kicker">Music Tool</span>
+        <h1>Jazz Intervals</h1>
+        <p class="tool-copy">A browser-based interval trainer for ear development. Listen to the interval, choose the correct answer, switch waveforms, and move between beginner, intermediate, and advanced levels.</p>
+        <div class="actions">
+          <a class="btn soft" href="../music-tools.html">Back to Music Tools</a>
+        </div>
+      </section>
+
+      <section class="dual interval-layout">
+        <div class="tool-frame interval-tool">
+          <div class="tool-intro-card">
+            <p class="tool-lead">Train your ear by listening for the distance between two notes. Start with a level, hit play, and choose the interval you hear.</p>
+            <div class="status-row">
+              <div class="status-pill">Browser audio</div>
+              <div class="status-pill">Touch friendly</div>
+              <div class="status-pill">3 difficulty levels</div>
+            </div>
+          </div>
+
+          <div id="game-area" class="interval-panel">
+            <div id="current-interval-header" class="control-header">
+              <div>
+                <div class="panel-eyebrow">Current Round</div>
+                <h2>Listen and identify</h2>
+              </div>
+              <label class="select-wrap">
+                <span>Waveform</span>
+                <select id="instrument-select" aria-label="Instrument waveform">
+                  <option value="sine">Sine</option>
+                  <option value="square">Square</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="triangle">Triangle</option>
+                </select>
+              </label>
+            </div>
+
+            <div id="interval-display" class="interval-display">Tap Play Interval to start</div>
+
+            <div class="primary-controls">
+              <button id="play-interval-btn" class="beginner">Play Interval</button>
+              <button id="listen-again-btn" style="display:none;">Listen Again</button>
+            </div>
+
+            <div class="secondary-controls">
+              <label class="select-wrap root-note-wrap">
+                <span>Root note</span>
+                <select id="root-note-select" style="display:none;" aria-label="Root note">
+                  <option value="C">C</option>
+                  <option value="C#">C#</option>
+                  <option value="D">D</option>
+                  <option value="D#">D#</option>
+                  <option value="E">E</option>
+                  <option value="F">F</option>
+                  <option value="F#">F#</option>
+                  <option value="G">G</option>
+                  <option value="G#">G#</option>
+                  <option value="A" selected>A</option>
+                  <option value="A#">A#</option>
+                  <option value="B">B</option>
+                </select>
+              </label>
+            </div>
+
+            <div id="interval-options" class="answer-grid"></div>
+            <div id="feedback" class="feedback-line" aria-live="polite"></div>
+          </div>
+
+          <div id="score-display" class="interval-panel score-panel">
+            <div class="panel-eyebrow">Session Score</div>
+            <h2>Progress</h2>
+            <div class="score-grid">
+              <div class="score-card">
+                <span class="score-label">Correct</span>
+                <strong id="correct-score">0</strong>
+              </div>
+              <div class="score-card">
+                <span class="score-label">Incorrect</span>
+                <strong id="incorrect-score">0</strong>
+              </div>
+              <div class="score-card score-card-wide">
+                <span class="score-label">Intervals Completed</span>
+                <strong id="intervals-completed">0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-controls">
+            <button id="new-game-btn" class="new-game-button">New Game</button>
+            <div id="level-buttons" class="level-grid">
+              <button id="level-beginner" class="level-beginner">Beginner</button>
+              <button id="level-intermediate" class="level-intermediate">Intermediate</button>
+              <button id="level-advanced" class="level-advanced">Advanced</button>
+            </div>
+          </div>
+
+          <div id="level-display" class="beginner level-banner">Current Level: Beginner</div>
+        </div>
+
+        <aside class="soft-panel interval-side-panel">
+          <div class="collection-label">TOOL DETAILS</div>
+          <h3>Why it belongs in the portfolio</h3>
+          <p>This is a strong first app to polish because it shows music theory knowledge, browser audio, interaction design, and a useful training workflow for musicians.</p>
+          <ul class="list">
+            <li>Interactive ear training workflow</li>
+            <li>Multiple difficulty levels</li>
+            <li>Waveform switching</li>
+            <li>Root-note control</li>
+            <li>Pure browser-based audio</li>
+          </ul>
+          <div class="banner compact-banner">
+            <div class="notice">Next move after this page: use the same structure for your other apps so the whole Music Tools section feels consistent.</div>
+          </div>
+        </aside>
+      </section>
+    </div>
+  </main>
+  <div id="site-footer"></div>
+  <script src="../../../assets/site.js"></script>
+  <script src="../../../assets/jazz-intervals.js"></script>
+</body>
+</html>

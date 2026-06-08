@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>rosita — JAde Wii</title>
+        <link rel="stylesheet" href="../../../assets/site.css" />
+        <style>
+            .page.page-app {
+                padding-top: 7.5rem;
+                padding-bottom: 2rem;
+                min-height: 100vh;
+                background-color: #ffffff;
+            }
+
+            .app-frame {
+                width: 100%;
+                height: calc(100vh - 200px);
+                min-height: 600px;
+                border: 0;
+                display: block;
+            }
+
+            @media (max-width: 1024px) {
+                .app-frame {
+                    height: calc(100vh - 180px);
+                    min-height: 500px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .page.page-app {
+                    padding-top: 6rem;
+                }
+
+                .app-frame {
+                    height: calc(100vh - 160px);
+                    min-height: 400px;
+                }
+            }
+
+            .app-page-header {
+                margin-bottom: 24px;
+            }
+
+            .app-page-header a {
+                color: #111;
+                text-decoration: none;
+                font-size: 14px;
+                opacity: 0.6;
+                font-weight: 600;
+            }
+
+            .app-page-header a:hover {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body data-page="app-detail" data-root="../../../">
+        <div id="site-header"></div>
+
+        <main class="page page-app">
+            <div class="container">
+                <div class="app-page-header">
+                    <a href="../../../apps.html">← back to apps</a>
+                </div>
+                <iframe
+                    class="app-frame"
+                    src="app.html"
+                    title="rosita"
+                    loading="eager"
+                    allow="autoplay"
+                ></iframe>
+            </div>
+        </main>
+
+        <div id="site-footer"></div>
+        <script src="../../../assets/site.js"></script>
+    </body>
+</html>
