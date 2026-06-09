@@ -1514,65 +1514,96 @@
                 });
             }
 
-            // Play sound - PURE HTML5 AUDIO (no Web Audio, no effects, just fast playback)
-            function playSound(path, element) {
-                // Get or create audio element
-                let audio = audioCache[path];
+            // ---- Instant playback via preloaded + decoded Web Audio buffers ----
+            let gridCtx = null;
+            const bufferCache = {}; // path -> decoded AudioBuffer
+            let currentBufferSource = null;
 
-                // Stop previous sound ONLY if it's a different sound
+            function getGridCtx() {
+                if (!gridCtx) gridCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (gridCtx.state === "suspended") gridCtx.resume();
+                return gridCtx;
+            }
+
+            // Fetch + decode every grid sound up front (~1.8MB total) so clicks are instant
+            function preloadGridBuffers() {
+                const ctx = getGridCtx();
+                SOUND_FILES.forEach((filename) => {
+                    const path = `potential sounds/${filename}`;
+                    if (bufferCache[path]) return;
+                    fetch(encodeURI(path))
+                        .then((res) => (res.ok ? res.arrayBuffer() : Promise.reject()))
+                        .then((arr) => ctx.decodeAudioData(arr))
+                        .then((buf) => { bufferCache[path] = buf; })
+                        .catch(() => {});
+                });
+            }
+
+            function clearElementVisual(element) {
+                if (!element) return;
+                element.classList.remove("playing");
+                element.style.background = "";
+                element.style.borderColor = "";
+            }
+
+            // Play sound - instant Web Audio buffer (falls back to HTML5 only until decoded)
+            function playSound(path, element) {
+                // Reset previous element visuals if different
+                if (currentPlayingElement && currentPlayingElement !== element) {
+                    clearElementVisual(currentPlayingElement);
+                }
+                currentPlayingElement = element;
+
+                // Visual feedback (instant)
+                if (element) {
+                    const index = parseInt(element.getAttribute("data-index"));
+                    element.classList.add("playing");
+                    element.style.background = circleColors[index];
+                    element.style.borderColor = circleBorderColors[index];
+                }
+
+                const ctx = getGridCtx();
+                const buffer = bufferCache[path];
+
+                if (buffer) {
+                    // Zero-latency, sample-accurate trigger
+                    if (currentBufferSource) { try { currentBufferSource.stop(); } catch (e) {} }
+                    const src = ctx.createBufferSource();
+                    src.buffer = buffer;
+                    src.connect(ctx.destination);
+                    src.onended = () => {
+                        if (currentPlayingElement === element) {
+                            clearElementVisual(element);
+                            currentPlayingElement = null;
+                        }
+                    };
+                    src.start(0);
+                    currentBufferSource = src;
+                    return;
+                }
+
+                // Fallback: HTML5 Audio (only before that sound finishes decoding)
+                let audio = audioCache[path];
                 if (currentPlayingAudio && currentPlayingAudio !== audio) {
                     currentPlayingAudio.pause();
                     currentPlayingAudio.currentTime = 0;
                 }
-
-                // Reset previous element visuals ONLY if it's a different element
-                if (currentPlayingElement && currentPlayingElement !== element) {
-                    currentPlayingElement.classList.remove("playing");
-                    currentPlayingElement.style.background = "";
-                    currentPlayingElement.style.borderColor = "";
-                }
-
                 if (!audio) {
-                    // Create new audio - pure HTML5, ZERO Web Audio processing
                     audio = new Audio(path);
                     audio.preload = "auto";
                     audio.volume = 1.0;
-
-                    // Add ended listener
                     audio.addEventListener("ended", () => {
                         if (currentPlayingElement === element) {
-                            currentPlayingElement.classList.remove("playing");
-                            currentPlayingElement.style.background = "";
-                            currentPlayingElement.style.borderColor = "";
+                            clearElementVisual(element);
                             currentPlayingElement = null;
                             currentPlayingAudio = null;
                         }
                     });
-
-                    // Store in cache
                     audioCache[path] = audio;
                 }
-
-                // Track current playing audio and element
                 currentPlayingAudio = audio;
-                currentPlayingElement = element;
-
-                // Visual feedback
-                if (element) {
-                    const index = parseInt(element.getAttribute("data-index"));
-                    const color = circleColors[index];
-                    const borderColor = circleBorderColors[index];
-
-                    element.classList.add("playing");
-                    element.style.background = color;
-                    element.style.borderColor = borderColor;
-                }
-
-                // Play audio
                 audio.currentTime = 0;
-                audio.play().catch((err) => {
-                    console.error('Play error:', path, err);
-                });
+                audio.play().catch((err) => { console.error('Play error:', path, err); });
             }
 
             // Play knob sound with pitch control
@@ -1981,6 +2012,7 @@
             // Initialize
             document.addEventListener("DOMContentLoaded", () => {
                 createSoundCircles();
+                preloadGridBuffers();
                 setupLightbox();
                 setupKnobs();
             });
