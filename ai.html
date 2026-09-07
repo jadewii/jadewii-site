@@ -2075,7 +2075,12 @@ a,
   const TITLES=['Product Builder','Creative Technology','AI Product Engineer','Technical Product Manager','Product Engineer','Solutions Engineer','AI Product Specialist','Innovation Engineer','Technical Creative','Creative Technologist','Design Engineer','Forward Deployed Engineer','Applied AI Engineer','Developer Advocate','Prototyping Engineer','Audio Software Engineer'];
   r.max=TITLES.length-1; const q=new URLSearchParams(location.search).get('tape'); if(q!==null&&!isNaN(+q)) r.value=+q; /* QA: ?tape=index */
   function set(){ out.textContent=TITLES[Math.min(TITLES.length-1,Math.max(0,+r.value))]; }
-  r.addEventListener('input',set); set(); })();
+  r.addEventListener('input',set); set();
+  /* every rack names the title it fits best (patch.js, title:); on a project change the slider slews there one notch at a time. Dragging still works until the next change. */
+  let slew=null;
+  document.addEventListener('patch:project',e=>{ const k=TITLES.indexOf(e.detail&&e.detail.title); if(k<0) return; clearInterval(slew);
+    slew=setInterval(()=>{ const v=+r.value; if(v===k){ clearInterval(slew); slew=null; return; } r.value=v+(k>v?1:-1); set(); },45); });
+  })();
 </script>
 <script src="assets/site.js?v=1788748971"></script>
 <script src="assets/patch.js?v=1788748971"></script>
