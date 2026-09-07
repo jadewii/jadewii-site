@@ -1280,6 +1280,10 @@ a,
 .pillar .proof:hover .proof-src{color:inherit}
 .websites-section .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:700px){.websites-section .grid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}}
+/* external cards: the same ↗ as the OPEN button, boxed small in the top right corner, no word (Jade, 2026-09-07) */
+.media-card{position:relative}
+.media-card>a[target="_blank"]::after,.media-card>a[href^="http"]::after{content:"↗";position:absolute;top:10px;right:10px;width:26px;height:26px;border:1px solid var(--text,#111);background:var(--card-bg,#fff);color:var(--text,#111);font:600 13px/24px Inter,system-ui,sans-serif;text-align:center;border-radius:0;z-index:2}
+.media-card:hover>a::after{background:var(--text,#111);color:var(--bg,#fff)}
 /* dark themes for the sections below AI Work (theme.css remaps the site vars; these are the hard-coded leftovers) */
 .themed:not([data-theme="light"]) .media-thumb{background:linear-gradient(180deg,var(--t-stage),var(--t-bg))}
 .themed:not([data-theme="light"]) .portfolio-sound-circle{background:var(--t-stage);border-color:var(--t-line)}
