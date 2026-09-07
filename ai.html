@@ -2091,19 +2091,18 @@ a,
   const TITLES=['Product Building','Creative Technology','AI Product Engineering','Technical Product Management','Product Engineering','Solutions Engineering','AI Product Specialist','Innovation Engineering','Technical Creative','Creative Technologist','Design Engineering','Forward Deployed Engineering','Applied AI Engineering','Developer Advocacy','Prototyping Engineering','Audio Software Engineering'];
   r.max=TITLES.length-1; const q=new URLSearchParams(location.search).get('tape'); if(q!==null&&!isNaN(+q)) r.value=+q; /* QA: ?tape=index */
   const title=()=>TITLES[Math.min(TITLES.length-1,Math.max(0,+r.value))];
-  /* the words do not jump from one title to the next: every letter scrambles at once through plain letters for half a second,
-     then the whole new title lands in one frame (Jade, 2026-09-07: "dont spell it out, change all letters at once"). */
+  /* the words do not jump from one title to the next: every letter scrambles at once through plain letters, then the whole title lands in one frame.
+     The line runs on its own clock, not the rack's (Jade, 2026-09-07: "faster and not connected to the modules"): next title every 3 s, the slider slews to match. */
   const GLYPHS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; const REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let decodeT=null, shown=title();
   function decode(target){ clearInterval(decodeT); if(REDUCED||target===shown){ shown=target; out.textContent=target; return; }
-    let f=0; const FRAMES=8;
+    let f=0; const FRAMES=6;
     decodeT=setInterval(()=>{ f++; if(f>FRAMES){ clearInterval(decodeT); decodeT=null; shown=target; out.textContent=target; return; }
-      let s=''; for(let i=0;i<target.length;i++) s+=target[i]===' '?' ':GLYPHS[Math.floor(Math.random()*26)]; out.textContent=s; },60); }
-  r.addEventListener('input',()=>decode(title())); out.textContent=shown;
-  /* every rack names the title it fits best (patch.js, title:); on a project change the slider slews there one notch at a time while the words decode once, to the final title. Dragging still works until the next change. */
-  let slew=null;
-  document.addEventListener('patch:project',e=>{ const k=TITLES.indexOf(e.detail&&e.detail.title); if(k<0) return; clearInterval(slew); decode(TITLES[k]);
-    slew=setInterval(()=>{ const v=+r.value; if(v===k){ clearInterval(slew); slew=null; return; } r.value=v+(k>v?1:-1); },45); });
+      let s=''; for(let i=0;i<target.length;i++) s+=target[i]===' '?' ':GLYPHS[Math.floor(Math.random()*26)]; out.textContent=s; },35); }
+  let slew=null, tick=null;
+  function goTo(k){ clearInterval(slew); decode(TITLES[k]); slew=setInterval(()=>{ const v=+r.value; if(v===k){ clearInterval(slew); slew=null; return; } r.value=v+(k>v?1:-1); },30); }
+  function arm(){ clearInterval(tick); if(REDUCED) return; tick=setInterval(()=>{ if(document.hidden) return; goTo((+r.value+1)%TITLES.length); },3000); }
+  r.addEventListener('input',()=>{ decode(title()); arm(); }); out.textContent=shown; arm();
   })();
 </script>
 <script src="assets/site.js?v=1788748971"></script>
