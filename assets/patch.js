@@ -332,7 +332,7 @@
     knobState=mods.map((mEl,i)=>{ const M=pr.mods[i]; const ov=M[6]; const type=ov?ov.split(':')[0]:vizFor(M[0],M[2],M[3]); /* m[6] = explicit viz when the keyword pick is wrong (Law 3) */ const cv=mEl.querySelector('canvas.mod-ctl'); if(type==='none'){ if(cv) cv.remove(); return {type:'none'}; } const r=cv.getBoundingClientRect(); const DPRk=Math.min(2,window.devicePixelRatio||1); cv.width=Math.max(40,Math.round(r.width))*DPRk; cv.height=58*DPRk; const g=cv.getContext('2d'); g.setTransform(DPRk,0,0,DPRk,0,0); return mkViz(type, r.width, M[3], ov); });
   }
   const termEl=document.getElementById('termLines'); let termRun=0, termMax=9; /* termMax = the lines that fit the terminal box, set in fitElement */
-  const termTrim=()=>{ while(termEl.children.length>termMax) termEl.removeChild(termEl.firstChild); };
+  const termTrim=()=>{ while(termEl.children.length>1&&(termEl.children.length>termMax||termEl.scrollHeight>termEl.clientHeight+1)) termEl.removeChild(termEl.firstChild); }; /* by count and by height: wrapped lines never push the newest line out of the box */
   const ftHead=feature.querySelector('.ft-head'), ftMount=feature.querySelector('.ft-mount'), ftStyle=document.getElementById('ftStyle');
   const ftTerm=feature.querySelector('.ft-term'); if(ftTerm) ftMount.appendChild(ftTerm); /* the terminal lives in the mount grid, under the element */
   /* ===== THE WORK, inline. Each project's page (demo-*.html) is fetched once and mounted INTO this page: no iframe, no window.
@@ -386,7 +386,7 @@
     const run=++termRun; const T=pr.term||[]; termEl.innerHTML=''; let i=0;
     function line(){ if(run!==termRun) return; if(i>=T.length){ setTimeout(()=>{ if(run!==termRun) return; i=0; line(); },5200); return; } /* loops without clearing: once full, the terminal stays full and scrolls */
       const [k,txt]=T[i++]; const el=document.createElement('div'); el.className=k;
-      if(k==='c'){ let c=0; el.innerHTML='<span class="cur"></span>'; termEl.appendChild(el); termTrim(); const tick=()=>{ if(run!==termRun) return; c++; el.innerHTML=esc(txt.slice(0,c))+'<span class="cur"></span>'; if(c<txt.length) setTimeout(tick,22); else { el.innerHTML=esc(txt); setTimeout(line,260); } }; tick(); }
+      if(k==='c'){ let c=0; el.innerHTML='<span class="cur"></span>'; termEl.appendChild(el); termTrim(); const tick=()=>{ if(run!==termRun) return; c++; el.innerHTML=esc(txt.slice(0,c))+'<span class="cur"></span>'; termTrim(); if(c<txt.length) setTimeout(tick,22); else { el.innerHTML=esc(txt); setTimeout(line,260); } }; tick(); }
       else { el.textContent=txt; termEl.appendChild(el); termTrim(); setTimeout(line,k==='hi'?900:110); } }
     line(); }
   let mods=[]; const J=id=>rack.querySelector('.jack[data-j="'+id+'"]');
