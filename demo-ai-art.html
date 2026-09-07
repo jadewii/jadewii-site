@@ -16,15 +16,17 @@ h1{font-size:1.5rem;margin:.2rem 0}
 .studio{--paper:var(--t-bg,#fff);--ink:var(--t-fg,#111);--bd:1.5px solid var(--t-fg,#111);--dim:var(--t-muted,#888);--sans:Inter,system-ui,sans-serif;--speed:.12s;--shadow:3px 3px 0 var(--t-fg,#111);
   grid-template-columns:minmax(0,1fr);display:grid;gap:8px;border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:10px}
 .bar{display:flex;gap:6px;align-items:center;height:28px;min-width:0}
-.bar2{display:flex;gap:4px;align-items:center;height:28px;min-width:0;overflow-x:auto;overflow-y:hidden}
-#pcolbar button{padding:0 6px;font-size:.54rem;letter-spacing:.04em}
+.bar2{display:flex;gap:3px;align-items:center;height:28px;min-width:0;overflow-x:auto;overflow-y:hidden}
+#pcolbar button{padding:0 5px;font-size:.54rem;letter-spacing:.03em}
+#pcolbar .n{margin-left:3px}
+#pcolbar.tight .n{display:none}
 .bar input{flex:1;min-width:0;height:28px;border:1px solid var(--t-line,#ccc);border-radius:6px;background:var(--t-bg,#fff);color:var(--t-fg,#111);font:inherit;font-size:.7rem;padding:0 8px}
 .bar button,#pcolbar button{height:28px;border:1.5px solid var(--t-line,#ccc);border-radius:6px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.58rem;letter-spacing:.06em;font-weight:600;cursor:pointer;padding:0 8px;white-space:nowrap}
 #pcolbar{display:flex;gap:4px;overflow:hidden;min-width:0}
 #pcolbar button[aria-pressed="true"]{background:var(--t-fg,#111);color:var(--t-bg,#fff);border-color:var(--t-fg,#111)}
 #pcolbar .n{opacity:.6;margin-left:4px}
 #pcount{font:.58rem/1 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);white-space:nowrap}
-.shelf{height:180px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-stage,#f6f6f6);padding:8px}
+.pshelf{height:180px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-stage,#f6f6f6);padding:8px}
 /* index.html:185-201, verbatim */
 #pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;
   max-width:1600px;padding:3px 3px 3px 3px}
@@ -68,7 +70,7 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
 <div class="studio" id="studio">
   <div class="bar"><input id="pqfilter" placeholder="search the library" aria-label="Search prompts"/><span id="pcount"></span><button id="prandom">RANDOM</button></div>
   <div class="bar2" id="pcolbar"></div>
-  <div class="shelf"><div id="pcards"></div></div>
+  <div class="pshelf"><div id="pcards"></div></div>
   <div class="req"><pre id="reqout"></pre><div class="gen" id="gen"></div></div>
 </div>
 <p class="lede">The studio is a Python server over InvokeAI with one screen: type a sentence, pick a base model and a stack of LoRA styles, get art. The shelf above is its real prompt library, six of my own GPT chats cleaned into 1,317 cards. Pick a card: the panel under it shows the exact request the server would build, and the picture that card produced when it has one.</p>
@@ -99,6 +101,7 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
     $('pcolbar').innerHTML=COL_ORDER.filter(c=>counts[c]).map(c=>`<button aria-pressed="${c===PCOL}" data-col="${c}"><span>${COL_GLYPH[c]}</span> ${c} <span class="n">${counts[c]}</span></button>`).join('');
     let vis=PROMPTS; if(PCOL) vis=vis.filter(p=>p.collection===PCOL);
     if(q) vis=vis.filter(p=>(p.title+' '+p.prompt+' '+(p.tags||[]).join(' ')+' '+(p.collection||'')).toLowerCase().includes(q));
+    const bar=$('pcolbar'); bar.classList.remove('tight'); if(bar.scrollWidth>bar.clientWidth) bar.classList.add('tight'); /* narrow mount: drop the counts so every collection stays visible */
     $('pcount').textContent=`${vis.length} of ${PROMPTS.length}`; VIS=vis; const CAP=200;
     $('pcards').innerHTML=vis.slice(0,CAP).map(p=>{ const i=PROMPTS.indexOf(p); const th=THUMBS[i]; return `<div class="pcard${p===USED?' on':''}" data-i="${i}">
       <h3><span class="g">${COL_GLYPH[p.collection]||'□'}</span><span class="t">${esc(p.title)||'Untitled'}</span><span class="mk">${((p.suggest||{}).base||'').toUpperCase()}</span></h3>
