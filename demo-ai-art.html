@@ -1,0 +1,133 @@
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AI Art Studio</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
+<!-- sources (all ~/ai-art/studio unless noted): index.html:181-201 (the card CSS, verbatim, the studio's --paper/--ink/--bd mapped to the page theme), :1088-1089 (COL_GLYPH), :1095-1117 (renderPrompts: the filter, the 200 cap, the card markup), :1124-1146 (usePrompt, the click and RANDOM);
+     server.py:1050-1058 (the request the studio builds: user prompt first, then each style's trigger and suffix; steps 8, cfg 1), :147-165 (chain_loras, one lora-loader node per style), :106-110 (one activation token for character LoRAs), :118-144 (weights clamped 0-2), :440-446 (MIDNIGHT GOLD, copper as art), inkcheck.py:2-19 (coverage, polys, survival, tone);
+     styles.json (44 styles, embedded verbatim), prompts.json (1,317 cards, copied verbatim to assets/ai-art-prompts.json), the four cards with thumbs (idx 406, 581, 897, 997) and their real generations from invoke/root/outputs/images, converted to webp in images/art/studio/.
+     numbers run 2026-09-07: python3 -c len(prompts) = 1317; len(styles.json) = 44; ls models/loras | wc -l = 96; ls invoke/root/outputs/images/*.png | wc -l = 71; wc -l server.py index.html inkcheck.py = 1099 1191 126; git rev-list --count HEAD = 18. HANDOFF.md:110 (the six GPT chats, cleaned). -->
+<style>
+body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:var(--t-bg,#fff)}
+.wrap{max-width:820px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+.back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
+h1{font-size:1.5rem;margin:.2rem 0}
+.sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
+.studio{--paper:var(--t-bg,#fff);--ink:var(--t-fg,#111);--bd:1.5px solid var(--t-fg,#111);--dim:var(--t-muted,#888);--sans:Inter,system-ui,sans-serif;--speed:.12s;--shadow:3px 3px 0 var(--t-fg,#111);
+  grid-template-columns:minmax(0,1fr);display:grid;gap:8px;border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:10px}
+.bar{display:flex;gap:6px;align-items:center;height:28px;min-width:0}
+.bar2{display:flex;gap:4px;align-items:center;height:28px;min-width:0;overflow-x:auto;overflow-y:hidden}
+#pcolbar button{padding:0 6px;font-size:.54rem;letter-spacing:.04em}
+.bar input{flex:1;min-width:0;height:28px;border:1px solid var(--t-line,#ccc);border-radius:6px;background:var(--t-bg,#fff);color:var(--t-fg,#111);font:inherit;font-size:.7rem;padding:0 8px}
+.bar button,#pcolbar button{height:28px;border:1.5px solid var(--t-line,#ccc);border-radius:6px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.58rem;letter-spacing:.06em;font-weight:600;cursor:pointer;padding:0 8px;white-space:nowrap}
+#pcolbar{display:flex;gap:4px;overflow:hidden;min-width:0}
+#pcolbar button[aria-pressed="true"]{background:var(--t-fg,#111);color:var(--t-bg,#fff);border-color:var(--t-fg,#111)}
+#pcolbar .n{opacity:.6;margin-left:4px}
+#pcount{font:.58rem/1 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);white-space:nowrap}
+.shelf{height:180px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-stage,#f6f6f6);padding:8px}
+/* index.html:185-201, verbatim */
+#pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;
+  max-width:1600px;padding:3px 3px 3px 3px}
+.pcard{background:var(--paper);border:var(--bd);padding:0;display:flex;flex-direction:column;
+  gap:9px;cursor:pointer;transition:transform var(--speed),box-shadow var(--speed)}
+.pcard:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow)}
+.pcard h3{margin:0;font:700 13px/1.35 var(--sans);letter-spacing:.02em;text-transform:none;
+  background:var(--ink);color:var(--paper);padding:8px 12px;
+  display:flex;align-items:baseline;gap:9px;
+  overflow-wrap:break-word}
+.pcard h3 .g{flex:none;font-size:11px}
+.pcard h3 .t{flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard h3 .mk{flex:none;font:700 9px/1 var(--sans);letter-spacing:.14em;opacity:.65;align-self:center}
+.pcard p{margin:0 12px;font:12.5px/1.6 var(--sans);color:var(--ink);
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .brow{display:flex;gap:10px;margin:0 12px;align-items:flex-start}
+.pcard .brow p{margin:0;flex:1;min-width:0}
+.pcard .pthumb{flex:none;width:64px;height:64px;object-fit:cover;border:1px solid var(--ink)}
+.pcard .tags{display:flex;justify-content:space-between;margin:0 12px 9px;font:10px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.pcard.on{box-shadow:var(--shadow);transform:translate(-2px,-2px)}
+/* the request the studio would send, server.py:1050-1058, and the LoRA chain, server.py:147-165 */
+.req{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:8px;height:150px}
+.req pre{margin:0;height:150px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);padding:8px 10px;font:.6rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111);white-space:pre-wrap;word-break:break-word}
+.req pre .k{color:var(--t-muted,#888)}.req pre .u{color:var(--t-acc,#ff7a00)}
+.req .gen{height:150px;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden;display:flex;align-items:center;justify-content:center;font:.56rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);text-align:center;padding:6px}
+.req .gen img{width:100%;height:100%;object-fit:cover;display:block}
+.lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
+.facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
+.facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 12px;background:var(--t-stage,#f6f6f6);min-width:0}
+.facts .n{font-size:1.5rem;font-weight:700;color:var(--t-acc,#ff7a00);line-height:1;font-variant-numeric:tabular-nums}
+.facts .l{font-size:.64rem;letter-spacing:.09em;font-weight:600;color:var(--t-muted,#888);margin-top:4px;text-transform:uppercase}
+.facts .s{font:.58rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+p.more{font-size:.9rem;line-height:1.6;color:var(--t-fg,#111);margin:1rem 0 0}
+p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;color:var(--t-muted,#888)}
+@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}#pcards{grid-template-columns:1fr}.req{grid-template-columns:1fr;height:auto}.req .gen{height:120px}}
+</style>
+<div class="wrap">
+<a class="back" href="ai.html">← Back</a>
+<h1>AI Art Studio, a prompt library and the request it builds</h1>
+<p class="sub">Python over InvokeAI · 1,317 prompt cards · 96 LoRAs · the studio's own card shelf, pick one and read the exact request it would send</p>
+<div class="studio" id="studio">
+  <div class="bar"><input id="pqfilter" placeholder="search the library" aria-label="Search prompts"/><span id="pcount"></span><button id="prandom">RANDOM</button></div>
+  <div class="bar2" id="pcolbar"></div>
+  <div class="shelf"><div id="pcards"></div></div>
+  <div class="req"><pre id="reqout"></pre><div class="gen" id="gen"></div></div>
+</div>
+<p class="lede">The studio is a Python server over InvokeAI with one screen: type a sentence, pick a base model and a stack of LoRA styles, get art. The shelf above is its real prompt library, six of my own GPT chats cleaned into 1,317 cards. Pick a card: the panel under it shows the exact request the server would build, and the picture that card produced when it has one.</p>
+<div class="facts">
+  <div class="f"><div class="n">1,317</div><div class="l">prompt cards</div><div class="s">len(prompts.json["prompts"])</div></div>
+  <div class="f"><div class="n">96</div><div class="l">LoRA files, 44 curated styles</div><div class="s">ls models/loras | wc -l · styles.json</div></div>
+  <div class="f"><div class="n">71</div><div class="l">generations on disk</div><div class="s">ls invoke/root/outputs/images/*.png | wc -l</div></div>
+  <div class="f"><div class="n">1,099</div><div class="l">lines, server.py</div><div class="s">wc -l server.py · 18 commits</div></div>
+</div>
+<p class="more">The prompt engineering is three rules written in the code, not a trick. The user's sentence goes first so the styles' tokens never bury it, and each picked style appends only its trigger word and its suffix. Character LoRAs publish forty or more trained words, so the server keeps just the activation token and drops the descriptive list. The LoRAs are chained one loader node per style, in the order picked.</p>
+<p class="more">The same studio is the front half of the Eurorack panel pipeline. A generation becomes a 2, 3 or 4 tone layer map, and each tone becomes something on the board: silkscreen, exposed copper, a window in the mask. The MIDNIGHT GOLD preset puts the dark half of the picture on exposed copper under ENIG so it reads as gold. An ink checker scores a setting the way a fab does: coverage, polygon count, what survives the minimum feature, and whether it still looks like the picture.</p>
+</div>
+<script src="assets/theme.js"></script>
+<script>
+(function(){
+  /* styles.json, verbatim */
+  const ALL=[{"id": "none", "name": "No Style", "sub": "raw model", "lora": null, "weight": 0.85, "trigger": "", "suffix": ""}, {"id": "lineart", "name": "Panel Line Art", "sub": "traces to SVG", "lora": "Coloring_Book_Z_Image_Turbo_v1_renderartist_2000.safetensors", "weight": 0.9, "trigger": "c0l0ringb00k", "suffix": "clean black and white line drawing, bold uniform stroke, no shading, white background", "ink": {"mode": "solid", "ink": 35, "detail": 2.0, "pitch": 1.0}}, {"id": "lineflat", "name": "Line + Flat Color", "sub": "lineart", "lora": "line_art_zit.safetensors", "weight": 0.85, "trigger": "lineart", "suffix": "clean linework, flat colour fills"}, {"id": "hatch", "name": "Ink Hatching", "sub": "engraved", "lora": "1NK_H4TCH1NG_zimage_1024.safetensors", "weight": 0.85, "trigger": "1NK_H4TCH1NG", "suffix": "fine ink hatching, engraving", "ink": {"mode": "halftone", "ink": 40, "detail": 1.0, "pitch": 1.0}}, {"id": "etch", "name": "Spectra Etch", "sub": "etched plate", "lora": "Spectra-Etch.safetensors", "weight": 0.85, "trigger": "", "suffix": "etched line engraving", "ink": {"mode": "halftone", "ink": 50, "detail": 1.0, "pitch": 1.0}}, {"id": "pencil", "name": "Pencil Sketch", "sub": "graphite", "lora": "Zimage_pencil_sketch.safetensors", "weight": 0.85, "trigger": "", "suffix": "pencil sketch"}, {"id": "contour", "name": "Contour Line", "sub": "calm 2d", "lora": "Aeolian_Line-Work.safetensors", "weight": 0.85, "trigger": "", "suffix": "contour line illustration, flat, calm", "ink": {"mode": "solid", "ink": 45, "detail": 0.5, "pitch": 1.0}}, {"id": "linocut", "name": "Linocut", "sub": "carved relief", "lora": "psxLino_v1_ZIT.safetensors", "weight": 0.85, "trigger": "psxlino", "suffix": "linocut relief print, bold carved marks", "ink": {"mode": "solid", "ink": 35, "detail": 2.0, "pitch": 1.0}}, {"id": "woodblock", "name": "Woodblock", "sub": "eldritch", "lora": "Eldritch_Woodblock_Z-Image.safetensors", "weight": 0.85, "trigger": "", "suffix": "woodblock print, heavy carved line", "ink": {"mode": "solid", "ink": 35, "detail": 2.0, "pitch": 1.0}}, {"id": "icons", "name": "Icons", "sub": "panel symbols", "lora": "ZImage_TurboIcons_Redmond.safetensors", "weight": 0.85, "trigger": "ICREDM, ICONS", "suffix": "clean icon, centred, flat", "ink": {"mode": "halftone", "ink": 50, "detail": 1.0, "pitch": 1.0}}, {"id": "logo", "name": "Logo", "sub": "marks", "lora": "ZImage_TurboLogo_Redmond.safetensors", "weight": 0.85, "trigger": "Logo", "suffix": "logo mark, minimal, vector"}, {"id": "flatvec", "name": "Flat Vector", "sub": "hard edges", "lora": "Flat_Vector_ZIT.safetensors", "weight": 0.85, "trigger": "Flat Vector", "suffix": "flat vector illustration"}, {"id": "vecshapes", "name": "Vector Shapes", "sub": "modern", "lora": "Flat vector shapes_000003000.safetensors", "weight": 0.85, "trigger": "", "suffix": "flat vector shapes, modern illustration"}, {"id": "blueprint", "name": "Blueprint", "sub": "panel drafting", "lora": null, "weight": 0.85, "trigger": "", "suffix": "technical blueprint drawing, thin white lines on deep prussian blue, orthographic, dimension annotations", "ink": {"mode": "halftone", "ink": 40, "detail": 1.0, "pitch": 1.0}}, {"id": "riso", "name": "Risograph", "sub": "2-colour print", "lora": null, "weight": 0.85, "trigger": "", "suffix": "risograph print, two spot colours, halftone grain, slight misregistration"}, {"id": "pixel", "name": "Pixel Art", "sub": "Game Boy / SNES", "lora": "pixel_art_style_z_image_turbo.safetensors", "weight": 0.9, "trigger": "Pixel art style.", "suffix": "limited palette, crisp pixels"}, {"id": "pixelrd", "name": "Pixel Redmond", "sub": "alt pixel", "lora": "ZImage_TurboPixelArt_Redmond.safetensors", "weight": 0.85, "trigger": "PixArFK, Pixel Art", "suffix": "pixel art"}, {"id": "trippix", "name": "Trippy Pixel", "sub": "psychedelic 8-bit", "lora": "Trippy_pixel_art_zimage_turbo_512.safetensors", "weight": 0.85, "trigger": "Trippy pixel art", "suffix": ""}, {"id": "ghibli", "name": "Ghibli", "sub": "soft anime", "lora": "ghibli_zimage_finetune.safetensors", "weight": 0.85, "trigger": "", "suffix": "studio ghibli style, soft painterly background"}, {"id": "anime", "name": "Anime", "sub": "illustration", "lora": "elusarca-anime-style.safetensors", "weight": 0.85, "trigger": "elusarca anime style", "suffix": ""}, {"id": "manga", "name": "Manga", "sub": "sharp lines", "lora": "sk_anime_style_v1.0.safetensors", "weight": 0.85, "trigger": "anime style", "suffix": ""}, {"id": "flatanime", "name": "Flat Anime", "sub": "cel", "lora": "Flat_Colour_Anime_vZ_1_0.safetensors", "weight": 0.85, "trigger": "", "suffix": "flat colour anime, clean cel shading"}, {"id": "adventure", "name": "Adventure Time", "sub": "noodle limbs", "lora": "AdventureTimeStyleZiT.safetensors", "weight": 0.85, "trigger": "", "suffix": ""}, {"id": "saturday", "name": "Saturday Morning", "sub": "retro cartoon", "lora": "Saturday_Morning_Z_Image_Turbo_v1_renderartist_1250.safetensors", "weight": 0.85, "trigger": "", "suffix": ""}, {"id": "scifi90", "name": "90s Sci-Fi Anime", "sub": "Shirow-ish", "lora": "scifi-90s-anime-zit.safetensors", "weight": 0.85, "trigger": "", "suffix": "1990s sci-fi anime, detailed mecha linework"}, {"id": "horror80", "name": "80s Horror", "sub": "VHS dread", "lora": "80s_horror_z_80.safetensors", "weight": 0.85, "trigger": "", "suffix": "1980s horror movie still"}, {"id": "crayon", "name": "Kid Drawing", "sub": "homeschool app", "lora": "z_image_turbo_childrens_drawings.safetensors", "weight": 0.9, "trigger": "", "suffix": "childrens crayon drawing, loose hand drawn"}, {"id": "ukiyoe", "name": "Ukiyo-e", "sub": "V67, sellable", "lora": "YSBYR7FY74BAAT6PYQ54CSFBX0.safetensors", "weight": 0.85, "trigger": "(ukiyo-e:1.4), woodblock print, japanese style", "suffix": "flat colors, ink lines, washi paper, muted palette, edo period"}, {"id": "ukiyoe2", "name": "Ukiyo-e ZIT", "sub": "alt take", "lora": "YN9EVC2KE533ZBPY45TBGV6KF0.safetensors", "weight": 0.85, "trigger": "ukiyo-e", "suffix": ""}, {"id": "ukiyoe3", "name": "Ukiyo-e Trauma", "sub": "alt take", "lora": "D175Z5XR1MPNKGCP92ACDDCZM0.safetensors", "weight": 0.85, "trigger": "traumakom_ukiyo-e", "suffix": ""}, {"id": "nouveau", "name": "Art Nouveau", "sub": "Mucha", "lora": "AN2AM_001_000004000.safetensors", "weight": 0.85, "trigger": "AN2AM", "suffix": "sinuous whiplash linework, decorative floral border", "ink": {"mode": "halftone", "ink": 40, "detail": 1.0, "pitch": 1.0}}, {"id": "glass", "name": "Stained Glass", "sub": "leaded", "lora": "3H2GB99BVK9VKR8G7D1B31MWK0.safetensors", "weight": 0.85, "trigger": "", "suffix": "stained glass window, heavy black leading, luminous"}, {"id": "painting", "name": "Painting", "sub": "classical", "lora": "Classic_Painting_Z_Image_Turbo_v1_renderartist_1750.safetensors", "weight": 0.85, "trigger": "class1cpa1nt", "suffix": "rich brushwork"}, {"id": "gond", "name": "Gond", "sub": "Indian folk", "lora": "gondstyle_v1_000000800.safetensors", "weight": 0.85, "trigger": "", "suffix": "gond painting, dense pattern fill, bold outline"}, {"id": "madhubani", "name": "Madhubani", "sub": "Mithila folk", "lora": null, "weight": 0.85, "trigger": "", "suffix": "Madhubani Mithila folk painting, dense geometric linework, flat symbolic figures, natural dyes, patterned border"}, {"id": "mughal", "name": "Mughal Miniature", "sub": "gold, fine brush", "lora": null, "weight": 0.85, "trigger": "", "suffix": "Mughal miniature painting, fine brushwork, gold leaf, flattened perspective, ornate border"}, {"id": "tarot", "name": "Tarot", "sub": "occult plate", "lora": "tarot-z-image.safetensors", "weight": 0.85, "trigger": "", "suffix": "tarot card illustration, symbolic, bordered", "ink": {"mode": "halftone", "ink": 40, "detail": 1.0, "pitch": 1.0}}, {"id": "yarn", "name": "Yarn Art", "sub": "textile", "lora": "yarn-art-style.safetensors", "weight": 0.85, "trigger": "", "suffix": "yarn art, woven texture"}, {"id": "color", "name": "Technicolor", "sub": "saturated", "lora": "Technically_Color_Z_Image_Turbo_v1_renderartist_2000.safetensors", "weight": 0.85, "trigger": "t3chnic4lly", "suffix": "vivid saturated technicolor"}, {"id": "floral", "name": "Floral", "sub": "V67 composition", "lora": "29BT6255N194AEYKY12R39AKW0.safetensors", "weight": 0.85, "trigger": "(Floral composition:1.1), ikebana", "suffix": "botanical composition, bloom arrangement, petal design"}, {"id": "plants", "name": "Plantaris", "sub": "plant forms", "lora": "PLANTARIS BY STX_V2.safetensors", "weight": 0.85, "trigger": "plntrs_stx", "suffix": ""}, {"id": "psyflat", "name": "Psych Flat", "sub": "flat trippy", "lora": "Psychedelic_Flat_Art_zimage_512.safetensors", "weight": 0.85, "trigger": "Psychedelic Flat Art", "suffix": ""}, {"id": "psysurreal", "name": "Psych Surreal", "sub": "glowing", "lora": "Psychedelic_Surrealism.safetensors", "weight": 0.85, "trigger": "", "suffix": "psychedelic surrealism, glowing light"}, {"id": "psycomic", "name": "Psych Comic", "sub": "MSch", "lora": "z_image_turbo_MSch_Psych_01_v2-RH3000.safetensors", "weight": 0.85, "trigger": "", "suffix": "psychedelic surrealist comic art"}];
+  /* index.html:1088-1089 */
+  const COL_GLYPH={"SPACE UKIYO-E":"■","SAMURAI & YOKAI":"▲","SYNTH UKIYO-E":"●","PS1 ANIME":"◆","VINTAGE ANIME":"✦","PANEL TESTED":"✕"};
+  const COL_ORDER=Object.keys(COL_GLYPH);
+  const $=id=>document.getElementById(id); const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const THUMBS={406:'images/art/studio/card-406.webp',581:'images/art/studio/card-581.webp',897:'images/art/studio/card-897.webp',997:'images/art/studio/card-997.webp'};
+  let PROMPTS=[], VIS=[], PCOL='', USED=null;
+  /* index.html:1095-1117, renderPrompts, the studio's own filter and 200 cap; thumbs come from this repo instead of /img/ */
+  function renderPrompts(){
+    const q=($('pqfilter').value||'').toLowerCase(); const counts={};
+    for(const p of PROMPTS) counts[p.collection]=(counts[p.collection]||0)+1;
+    $('pcolbar').innerHTML=COL_ORDER.filter(c=>counts[c]).map(c=>`<button aria-pressed="${c===PCOL}" data-col="${c}"><span>${COL_GLYPH[c]}</span> ${c} <span class="n">${counts[c]}</span></button>`).join('');
+    let vis=PROMPTS; if(PCOL) vis=vis.filter(p=>p.collection===PCOL);
+    if(q) vis=vis.filter(p=>(p.title+' '+p.prompt+' '+(p.tags||[]).join(' ')+' '+(p.collection||'')).toLowerCase().includes(q));
+    $('pcount').textContent=`${vis.length} of ${PROMPTS.length}`; VIS=vis; const CAP=200;
+    $('pcards').innerHTML=vis.slice(0,CAP).map(p=>{ const i=PROMPTS.indexOf(p); const th=THUMBS[i]; return `<div class="pcard${p===USED?' on':''}" data-i="${i}">
+      <h3><span class="g">${COL_GLYPH[p.collection]||'□'}</span><span class="t">${esc(p.title)||'Untitled'}</span><span class="mk">${((p.suggest||{}).base||'').toUpperCase()}</span></h3>
+      ${th?`<div class="brow"><img class="pthumb" src="${th}" width="64" height="64" loading="lazy" alt=""><p>${esc(p.prompt||'')}</p></div>`:`<p>${esc(p.prompt||'')}</p>`}
+      <span class="tags"><span>${(p.tags||[]).map(esc).join(' · ')}</span><span class="usehint">USE →</span></span></div>`; }).join('')+(vis.length>CAP?`<p style="color:var(--dim);font:11px var(--sans);text-transform:uppercase">+ ${vis.length-CAP} more, refine the search or pick a collection</p>`:'')||'<p style="color:var(--dim);font:12px var(--sans)">NOTHING MATCHES</p>'; }
+  /* server.py:1050-1058 (the request) and :147-165 (chain_loras), ported; styles resolved from styles.json like resolve_styles (weights clamped 0-2) */
+  function buildRequest(pr){ const sg=pr.suggest||{}; const picked=(sg.styles||[]).map(id=>ALL.find(x=>x.id===id)||{id,name:id.replace('auto:',''),lora:id.replace('auto:',''),weight:0.85,trigger:'',suffix:'',auto:true});
+    const styles=picked.map(st=>({...st,weight:Math.max(0,Math.min(2,st.weight??0.85))}));
+    const bits=[(pr.prompt||'').trim()]; for(const st of styles) bits.push(st.trigger||'',st.suffix||'');
+    const clean=bits.filter(b=>b); const [w,h]=(sg.size||'1024x1024').split('x').map(Number);
+    const p={prompt:clean.join(', '),negative:pr.negative||'',width:w,height:h,steps:8,cfg:1,seed:'int(time.time() * 1000) % 2**31'};
+    const nodes=[]; styles.filter(s=>s.lora).forEach((st,i)=>nodes.push({id:'lora'+i,lora:st.lora,weight:st.weight}));
+    return {base:sg.base||'z-image',p,styles,nodes}; }
+  function usePrompt(pr){ if(!pr) return; USED=pr; const r=buildRequest(pr); const i=PROMPTS.indexOf(pr);
+    let out='<span class="k"># POST /api/generate, base '+esc(r.base)+' (server.py:1050-1058)</span>\n';
+    out+='<span class="k">bits = [</span><span class="u">'+esc(JSON.stringify((pr.prompt||'').trim()))+'</span>';
+    for(const st of r.styles) out+=',\n        '+esc(JSON.stringify(st.trigger||''))+', '+esc(JSON.stringify(st.suffix||''))+'  <span class="k"># '+esc(st.name)+(st.auto?' (auto LoRA, trigger via lora_names.json)':'')+'</span>';
+    out+='<span class="k">]</span>\n';
+    out+='p = {"prompt": '+esc(JSON.stringify(r.p.prompt))+',\n     "negative": '+esc(JSON.stringify(r.p.negative))+',\n     "width": '+r.p.width+', "height": '+r.p.height+',\n     "steps": 8, "cfg": 1.0, "seed": '+r.p.seed+'}\n';
+    out+='<span class="k"># chain_loras (server.py:147-165): one lora-loader node per style</span>\n';
+    out+=r.nodes.length?r.nodes.map(n=>'nodes["'+n.id+'"] = {"lora": '+esc(JSON.stringify(n.lora))+', "weight": '+n.weight+'}').join('\n'):'<span class="k">no LoRA on this card: the raw base model</span>';
+    $('reqout').innerHTML=out;
+    const th=THUMBS[i]; $('gen').innerHTML=th?'<img src="'+th+'" alt="">':'no generation saved for this card yet<br>(cards get a thumb on their first run, server.py:935-956)';
+    [...document.querySelectorAll('.pcard')].forEach(c=>c.classList.toggle('on',+c.dataset.i===i)); }
+  /* index.html:1139-1146 */
+  $('pcards').onclick=e=>{ const card=e.target.closest('.pcard'); if(!card) return; usePrompt(PROMPTS[+card.dataset.i]); };
+  $('prandom').onclick=()=>{ const pool=VIS.length?VIS:PROMPTS; usePrompt(pool[Math.floor(Math.random()*pool.length)]); };
+  $('pqfilter').oninput=renderPrompts;
+  $('pcolbar').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; PCOL=(PCOL===b.dataset.col)?'':b.dataset.col; renderPrompts(); };
+  fetch('assets/ai-art-prompts.json').then(r=>r.json()).then(j=>{ PROMPTS=j.prompts||[]; PCOL='PANEL TESTED'; renderPrompts(); usePrompt(PROMPTS[406]); /* opens on the two cards that made it to a board; the collection buttons open the rest */ }).catch(()=>{ $('pcount').textContent='library failed to load'; });
+})();
+</script>
