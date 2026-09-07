@@ -130,7 +130,7 @@
 .ft-doc h1{font-size:1.5rem;margin:.2rem 0 .3rem}
 .ft-term{border:1.5px solid var(--t-fg,#111);background:var(--t-stage,#f4f4f4);height:160px;position:relative;overflow:hidden;padding:10px 14px}
 .ft-term .ft-cap{position:absolute;left:14px;top:10px}
-.ft-term .lines{position:absolute;left:14px;right:14px;bottom:10px;font:11px/1.55 ui-monospace,Menlo,monospace;color:var(--t-fg,#111);white-space:pre-wrap;word-break:break-word}
+.ft-term .lines{position:absolute;left:14px;right:14px;top:30px;bottom:10px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;font:11px/1.55 ui-monospace,Menlo,monospace;color:var(--t-fg,#111);white-space:pre-wrap;word-break:break-word}
 .ft-term .c:before{content:"$ ";color:var(--t-acc,#ff7a00)}
 .ft-term .o{color:var(--t-muted,#8a8a8a)}.ft-term .ok{color:#3ecf8e}.ft-term .bad{color:#ff5d8f}.ft-term .hi{color:var(--t-acc,#ff7a00)}
 .ft-term .cur{display:inline-block;width:7px;height:12px;background:var(--t-fg,#111);vertical-align:-2px;animation:blink 1s steps(2) infinite}

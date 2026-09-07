@@ -477,6 +477,8 @@
   const prevB=document.getElementById('patchPrev'), nextB=document.getElementById('patchNext');
   if(prevB) prevB.addEventListener('click',()=>{ clearTimeout(cyc.idleT); cyc.idleT=null; cyc.on=true; loadProject(pi-1,false); });
   if(nextB) nextB.addEventListener('click',()=>{ clearTimeout(cyc.idleT); cyc.idleT=null; cyc.on=true; loadProject(pi+1,false); });
+  /* the TOOLS cards under AI Work point at a bank slot, not a page: load it and scroll up to the rack */
+  document.querySelectorAll('[data-jump]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); clearTimeout(cyc.idleT); cyc.idleT=null; cyc.on=true; loadProject(+a.dataset.jump,false); rack.scrollIntoView({behavior:'smooth',block:'start'}); }));
   /* attention: the cycle only advances while someone can see it and is not reading it */
   const REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches; if(REDUCED) cyc.on=false;
   let seen=true, hovering=false, lastNow=0;
@@ -487,7 +489,13 @@
   /* the work holds an interactive demo (knobs, a keyboard, a card); while the pointer is inside it, never cycle away */
   feature.addEventListener('pointerenter',()=>{ hovering=true; clearTimeout(hoverT); });
   feature.addEventListener('pointerleave',()=>{ hovering=false; });
-  const paused=()=>document.hidden||!seen||hovering;
+  /* phones have no hover: while THE WORK is on screen and the reader scrolled or touched in the last 8 s, they are reading it; hold */
+  let ftSeen=false, lastTouch=-1e9;
+  if('IntersectionObserver' in window) new IntersectionObserver(es=>{ es.forEach(e=>{ ftSeen=e.isIntersecting; }); },{threshold:0.05}).observe(feature);
+  const touched=()=>{ lastTouch=performance.now(); };
+  window.addEventListener('scroll',touched,{passive:true}); window.addEventListener('touchstart',touched,{passive:true}); window.addEventListener('touchmove',touched,{passive:true});
+  const reading=()=>ftSeen&&(performance.now()-lastTouch)<8000;
+  const paused=()=>document.hidden||!seen||hovering||reading();
   const lit=()=>bank&&bank.querySelector('.bk.on');
   function cycle(now){ const dt=lastNow?now-lastNow:0; lastNow=now; if(!cyc.on) return; if(paused()){ cyc.t0+=dt; return; } const t=(now-cyc.t0)/1000;
     if(cyc.phase==='run'){ const lap=plan.hops.length*HOP+REST; const dwell=lap*RUN_LAPS; const b=lit(); if(b) b.style.setProperty('--p',Math.min(1,t/dwell).toFixed(3));
