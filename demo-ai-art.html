@@ -26,7 +26,7 @@ h1{font-size:1.5rem;margin:.2rem 0}
 #pcolbar button[aria-pressed="true"]{background:var(--t-fg,#111);color:var(--t-bg,#fff);border-color:var(--t-fg,#111)}
 #pcolbar .n{opacity:.6;margin-left:4px}
 #pcount{font:.58rem/1 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);white-space:nowrap}
-.pshelf{height:180px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-stage,#f6f6f6);padding:8px}
+.pshelf{height:150px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-stage,#f6f6f6);padding:8px}
 /* index.html:185-201, verbatim */
 #pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;
   max-width:1600px;padding:3px 3px 3px 3px}
@@ -48,10 +48,10 @@ h1{font-size:1.5rem;margin:.2rem 0}
 .pcard .tags{display:flex;justify-content:space-between;margin:0 12px 9px;font:10px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .pcard.on{box-shadow:var(--shadow);transform:translate(-2px,-2px)}
 /* the request the studio would send, server.py:1050-1058, and the LoRA chain, server.py:147-165 */
-.req{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:8px;height:150px}
-.req pre{margin:0;height:150px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);padding:8px 10px;font:.6rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111);white-space:pre-wrap;word-break:break-word}
+.req{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:8px;height:180px}
+.req pre{margin:0;height:180px;overflow:auto;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);padding:8px 10px;font:.6rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111);white-space:pre-wrap;word-break:break-word}
 .req pre .k{color:var(--t-muted,#888)}.req pre .u{color:var(--t-acc,#ff7a00)}
-.req .gen{height:150px;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden;display:flex;align-items:center;justify-content:center;font:.56rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);text-align:center;padding:6px}
+.req .gen{height:180px;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden;display:flex;align-items:center;justify-content:center;font:.56rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);text-align:center;padding:6px}
 .req .gen img{width:100%;height:100%;object-fit:cover;display:block}
 .lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
 .facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
@@ -73,15 +73,16 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
   <div class="pshelf"><div id="pcards"></div></div>
   <div class="req"><pre id="reqout"></pre><div class="gen" id="gen"></div></div>
 </div>
-<p class="lede">The studio is a Python server over InvokeAI with one screen: type a sentence, pick a base model and a stack of LoRA styles, get art. The shelf above is its real prompt library, six of my own GPT chats cleaned into 1,317 cards. Pick a card: the panel under it shows the exact request the server would build, and the picture that card produced when it has one.</p>
+<p class="lede">The studio is a Python server over InvokeAI: type a sentence, pick a base model and a stack of LoRA styles, get art. The prompts are mine, six GPT chats cleaned into a 1,317-card library, and they are the input, not the point. The point is the pipeline around them: the request is assembled by a written rule, styles are validated before they load, and the output is gated before it reaches a model file or a circuit board. Pick a card and read the exact request the server would send.</p>
 <div class="facts">
-  <div class="f"><div class="n">1,317</div><div class="l">prompt cards</div><div class="s">len(prompts.json["prompts"])</div></div>
+  <div class="f"><div class="n">1,317</div><div class="l">prompt cards, my own</div><div class="s">len(prompts.json["prompts"])</div></div>
   <div class="f"><div class="n">96</div><div class="l">LoRA files, 44 curated styles</div><div class="s">ls models/loras | wc -l · styles.json</div></div>
+  <div class="f"><div class="n">123</div><div class="l">bodies start mid-word</div><div class="s">python3 promptcheck.py</div></div>
   <div class="f"><div class="n">71</div><div class="l">generations on disk</div><div class="s">ls invoke/root/outputs/images/*.png | wc -l</div></div>
-  <div class="f"><div class="n">1,099</div><div class="l">lines, server.py</div><div class="s">wc -l server.py · 18 commits</div></div>
 </div>
-<p class="more">The prompt engineering is three rules written in the code, not a trick. The user's sentence goes first so the styles' tokens never bury it, and each picked style appends only its trigger word and its suffix. Character LoRAs publish forty or more trained words, so the server keeps just the activation token and drops the descriptive list. The LoRAs are chained one loader node per style, in the order picked.</p>
-<p class="more">The same studio is the front half of the Eurorack panel pipeline. A generation becomes a 2, 3 or 4 tone layer map, and each tone becomes something on the board: silkscreen, exposed copper, a window in the mask. The MIDNIGHT GOLD preset puts the dark half of the picture on exposed copper under ENIG so it reads as gold. An ink checker scores a setting the way a fab does: coverage, polygon count, what survives the minimum feature, and whether it still looks like the picture.</p>
+</div>
+<p class="more">Three rules in the code do the prompt engineering. The user's sentence goes first so the styles' tokens never bury it, and each picked style appends only its trigger word and its suffix. Character LoRAs publish forty or more trained words, so the server keeps the activation token and drops the list. A style is refused if its LoRA was trained for another base, weights are clamped to 0 to 2, and the LoRAs are chained one loader node per style in the order picked.</p>
+<p class="more">Reviewing the library for this page found a bug the cleaning pass left behind: 123 of 1,317 bodies start mid-word ("Ng a Sacred Garden", "Rystals and Ethereal Light") because the step that stripped repeated titles cut a fixed number of characters instead of matching the title. A 30-line check against the system dictionary, promptcheck.py, finds them; it did not exist when the library shipped, and the fix is to re-pull the six chats and run the cleaner with a real prefix match. It is on this page because that is the job: the corpus, the rule, the gate, and the eval you wish you had written first.</p>
 </div>
 <script src="assets/theme.js"></script>
 <script>
@@ -99,10 +100,10 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
     const q=($('pqfilter').value||'').toLowerCase(); const counts={};
     for(const p of PROMPTS) counts[p.collection]=(counts[p.collection]||0)+1;
     $('pcolbar').innerHTML=COL_ORDER.filter(c=>counts[c]).map(c=>`<button aria-pressed="${c===PCOL}" data-col="${c}"><span>${COL_GLYPH[c]}</span> ${c} <span class="n">${counts[c]}</span></button>`).join('');
-    let vis=PROMPTS; if(PCOL) vis=vis.filter(p=>p.collection===PCOL);
+    const SHOWN=new Set([0,406,581,897,997]); let vis=q?PROMPTS:PROMPTS.filter((p,i)=>SHOWN.has(i)); if(PCOL) vis=vis.filter(p=>p.collection===PCOL);
     if(q) vis=vis.filter(p=>(p.title+' '+p.prompt+' '+(p.tags||[]).join(' ')+' '+(p.collection||'')).toLowerCase().includes(q));
     const bar=$('pcolbar'); bar.classList.remove('tight'); if(bar.scrollWidth>bar.clientWidth) bar.classList.add('tight'); /* narrow mount: drop the counts so every collection stays visible */
-    $('pcount').textContent=`${vis.length} of ${PROMPTS.length}`; VIS=vis; const CAP=200;
+    $('pcount').textContent=`${vis.length} of ${PROMPTS.length}`+(q||PCOL?'':' · search or RANDOM for the rest'); VIS=vis; const CAP=200;
     $('pcards').innerHTML=vis.slice(0,CAP).map(p=>{ const i=PROMPTS.indexOf(p); const th=THUMBS[i]; return `<div class="pcard${p===USED?' on':''}" data-i="${i}">
       <h3><span class="g">${COL_GLYPH[p.collection]||'□'}</span><span class="t">${esc(p.title)||'Untitled'}</span><span class="mk">${((p.suggest||{}).base||'').toUpperCase()}</span></h3>
       ${th?`<div class="brow"><img class="pthumb" src="${th}" width="64" height="64" loading="lazy" alt=""><p>${esc(p.prompt||'')}</p></div>`:`<p>${esc(p.prompt||'')}</p>`}
@@ -131,6 +132,6 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
   $('prandom').onclick=()=>{ const pool=VIS.length?VIS:PROMPTS; usePrompt(pool[Math.floor(Math.random()*pool.length)]); };
   $('pqfilter').oninput=renderPrompts;
   $('pcolbar').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; PCOL=(PCOL===b.dataset.col)?'':b.dataset.col; renderPrompts(); };
-  fetch('assets/ai-art-prompts.json').then(r=>r.json()).then(j=>{ PROMPTS=j.prompts||[]; PCOL='PANEL TESTED'; renderPrompts(); usePrompt(PROMPTS[406]); /* opens on the two cards that made it to a board; the collection buttons open the rest */ }).catch(()=>{ $('pcount').textContent='library failed to load'; });
+  fetch('assets/ai-art-prompts.json').then(r=>r.json()).then(j=>{ PROMPTS=j.prompts||[]; renderPrompts(); usePrompt(PROMPTS[406]); /* the shelf shows the six cards that went somewhere (PANEL TESTED, and the four with a picture); RANDOM draws from all 1,317 */ }).catch(()=>{ $('pcount').textContent='library failed to load'; });
 })();
 </script>
