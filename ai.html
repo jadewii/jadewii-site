@@ -2072,7 +2072,7 @@ a,
 <script>
 /* the title slider: the mono line shows one of the titles I answer to; each notch is the next one */
 (function(){ const r=document.getElementById('roleRange'), out=document.getElementById('heroTape'); if(!r||!out) return;
-  const TITLES=['Product Builder','Creative Technology','AI Product Engineer','Technical Product Manager','Product Engineer','Solutions Engineer','AI Product Specialist','Innovation Engineer','Technical Creative','Creative Technologist','Design Engineer','Forward Deployed Engineer','Applied AI Engineer','Developer Advocate','Prototyping Engineer','Audio Software Engineer'];
+  const TITLES=['Product Building','Creative Technology','AI Product Engineering','Technical Product Management','Product Engineering','Solutions Engineering','AI Product Specialist','Innovation Engineering','Technical Creative','Creative Technologist','Design Engineering','Forward Deployed Engineering','Applied AI Engineering','Developer Advocacy','Prototyping Engineering','Audio Software Engineering'];
   r.max=TITLES.length-1; const q=new URLSearchParams(location.search).get('tape'); if(q!==null&&!isNaN(+q)) r.value=+q; /* QA: ?tape=index */
   function set(){ out.textContent=TITLES[Math.min(TITLES.length-1,Math.max(0,+r.value))]; }
   r.addEventListener('input',set); set();
