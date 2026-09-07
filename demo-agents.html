@@ -1,0 +1,43 @@
+<meta charset="utf-8"/>
+<title>How I run the agents</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
+<style>
+body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:var(--t-bg,#fff)}
+.wrap{max-width:760px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+.back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
+h1{font-size:1.5rem;margin:.2rem 0}
+.lede{color:var(--t-muted,#777);font-size:.96rem;line-height:1.55;max-width:60ch;margin:.4rem 0 1.3rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{border:1.5px solid var(--t-line,#ccc);border-radius:12px;padding:14px 16px;background:var(--t-stage,#f6f6f6)}
+.card .n{font-size:1.9rem;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--t-acc,#ff7a00);font-variant-numeric:tabular-nums}
+.card .l{font-size:.72rem;letter-spacing:.1em;font-weight:600;color:var(--t-muted,#888);margin-top:5px;text-transform:uppercase}
+.card p{margin:.5rem 0 0;font-size:.82rem;line-height:1.5;color:var(--t-fg,#111)}
+.card code{font-family:"Space Mono",ui-monospace,monospace;font-size:.72rem;color:var(--t-muted,#888)}
+.wide{grid-column:1 / -1}
+.wide pre{margin:.4rem 0 0;font-family:"Space Mono",ui-monospace,monospace;font-size:.74rem;line-height:1.55;white-space:pre-wrap;color:var(--t-fg,#111)}
+.role{margin-top:1.3rem;font-size:.82rem;color:var(--t-muted,#888);line-height:1.55;border-left:2px solid var(--t-acc,#ff7a00);padding-left:12px}
+.role b{color:var(--t-fg,#111);font-weight:600}
+</style>
+<div class="wrap">
+<a class="back" href="ai.html">← Back</a>
+<h1>How I run the agents that build with me</h1>
+<p class="lede">Most of the work on this page was built with AI in the loop, every day, on a written system. This is that system, in real numbers from my machine.</p>
+<div class="grid">
+  <div class="card"><div class="n">3&times;/day</div><div class="l">Unattended runs</div><p>A headless <code>claude -p</code> curriculum factory runs under launchd at 3am, 11am, 7pm and authors lessons on its own.</p></div>
+  <div class="card"><div class="n">237</div><div class="l">In the review queue</div><p>Everything the agent writes lands in <code>factory/pending/</code>. A human promotes it. The robot never writes to the live app.</p></div>
+  <div class="card"><div class="n">53</div><div class="l">Handoff documents</div><p>Every project has a HANDOFF / CLAUDE / PROJECT doc so a fresh agent window can pick it up cold.</p></div>
+  <div class="card"><div class="n">111</div><div class="l">Memory notes</div><p>A curated, file-based memory of laws, decisions and project state, maintained daily.</p></div>
+  <div class="card"><div class="n">3</div><div class="l">Custom agent skills</div><p><code>module-design</code>, <code>module-ship</code>, <code>watch</code> — packaged multi-step workflows the agent invokes.</p></div>
+  <div class="card"><div class="n">1</div><div class="l">Command to say no</div><p>One-command gates (<code>check.py</code>, <code>deploy.sh</code> + tests) let the agent move fast because the gate refuses bad work.</p></div>
+  <div class="card wide"><div class="l">The nightly factory, verbatim</div><pre>$ sed -n 14p factory/run-nightly.sh
+"$CLAUDE_BIN" -p "$(cat factory/NIGHTLY-PROMPT.md)" \
+  --permission-mode acceptEdits --add-dir ~/homeschool
+
+# NIGHTLY-PROMPT.md:9
+3. Author the item IN FULL into factory/pending/ —
+   NEVER write into app/src/ or curriculum/ directly.</pre></div>
+</div>
+<p class="role"><b>Why this is the job:</b> an AI Solutions Engineer does not just call a model — they build the loop around it: a written brief, a staging area, a human gate, and checks that refuse bad output. That is what shipped this page.</p>
+</div>
+<script src="assets/theme.js"></script>
