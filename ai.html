@@ -1271,9 +1271,21 @@ a,
 }
 
 .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
-.pillar{border:1px solid rgba(0,0,0,.14);border-radius:14px;padding:1.1rem 1.15rem;background:#fff}
+.pillar{border:1px solid var(--card-border,rgba(0,0,0,.14));border-radius:14px;padding:1.1rem 1.15rem;background:var(--card-bg,#fff);color:var(--text,#111)}
 .pillar h3{margin:0 0 .4rem;font-size:1.02rem}
 .pillar p{margin:0;color:var(--muted);line-height:1.5;font-size:.97rem}
+.pillar .proof{display:block;margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--card-border,rgba(0,0,0,.1));color:inherit;text-decoration:none}
+.pillar .proof-src{display:block;font:.66rem/1.4 ui-monospace,Menlo,monospace;letter-spacing:.04em;color:var(--muted);margin-bottom:.3rem}
+.pillar .proof code{display:block;font:.72rem/1.45 ui-monospace,Menlo,monospace;color:inherit;white-space:pre-wrap;word-break:break-word}
+.pillar .proof:hover .proof-src{color:inherit}
+.websites-section .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:700px){.websites-section .grid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}}
+/* dark themes for the sections below AI Work (theme.css remaps the site vars; these are the hard-coded leftovers) */
+.themed:not([data-theme="light"]) .media-thumb{background:linear-gradient(180deg,var(--t-stage),var(--t-bg))}
+.themed:not([data-theme="light"]) .portfolio-sound-circle{background:var(--t-stage);border-color:var(--t-line)}
+.themed:not([data-theme="light"]) .portfolio-sound-circle.playing{background:var(--t-acc);border-color:var(--t-acc)}
+.themed:not([data-theme="light"]) .portfolio-play-button{background:var(--t-stage);border-color:var(--t-fg);box-shadow:none}
+.themed:not([data-theme="light"]) section .brands-strip img{filter:brightness(0) invert(1);opacity:.85}
 .divider-note{margin:0 0 2.2rem;color:var(--muted);max-width:760px;line-height:1.55}
 .tagline{margin:.4rem 0 0;font-size:.92rem;color:var(--muted);letter-spacing:.02em}
 /* contact row: the two links that are real today. LinkedIn and a résumé link are holds. */
@@ -1413,9 +1425,9 @@ a,
       </p>
 </div>
 <div class="pillars">
-<div class="pillar"><h3>AI Implementation</h3><p>Getting AI into a real workflow and keeping it there. Picking the tool, wiring it in, checking the output, writing down the rules.</p></div>
-<div class="pillar"><h3>AI Risk</h3><p>What can go wrong before it does. Where a model came from, who owns what it makes, what happens if the vendor disappears.</p></div>
-<div class="pillar"><h3>Human Oversight</h3><p>Someone has to stay responsible. Review steps, telling people when AI was involved, and a clear line on what it does not get to decide.</p></div>
+<div class="pillar"><h3>AI Implementation</h3><p>Getting AI into a real workflow and keeping it there. Picking the tool, wiring it in, checking the output, writing down the rules.</p><a class="proof" href="#workflowPatch" data-jump="0"><span class="proof-src">tutor-worker/src/index.js:77</span><code>output_config: { effort: "low" },   // short factual answers; keeps it fast and cheap</code></a></div>
+<div class="pillar"><h3>AI Risk</h3><p>What can go wrong before it does. Where a model came from, who owns what it makes, what happens if the vendor disappears.</p><a class="proof" href="#workflowPatch" data-jump="4"><span class="proof-src">ai-use-case-screener/screen.py:65</span><code>high: the system influences decisions about people's money, health, employment, housing, legal status, or safety, or errors are hard to reverse.</code></a></div>
+<div class="pillar"><h3>Human Oversight</h3><p>Someone has to stay responsible. Review steps, telling people when AI was involved, and a clear line on what it does not get to decide.</p><a class="proof" href="#workflowPatch" data-jump="1"><span class="proof-src">factory/NIGHTLY-PROMPT.md:9 · 237 items in factory/pending/</span><code>Author the item IN FULL into factory/pending/, NEVER write into app/src/ or curriculum/ directly, pending only.</code></a></div>
 </div>
 </section>
 
