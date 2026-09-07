@@ -2090,12 +2090,22 @@ a,
 (function(){ const r=document.getElementById('roleRange'), out=document.getElementById('heroTape'); if(!r||!out) return;
   const TITLES=['Product Building','Creative Technology','AI Product Engineering','Technical Product Management','Product Engineering','Solutions Engineering','AI Product Specialist','Innovation Engineering','Technical Creative','Creative Technologist','Design Engineering','Forward Deployed Engineering','Applied AI Engineering','Developer Advocacy','Prototyping Engineering','Audio Software Engineering'];
   r.max=TITLES.length-1; const q=new URLSearchParams(location.search).get('tape'); if(q!==null&&!isNaN(+q)) r.value=+q; /* QA: ?tape=index */
-  function set(){ out.textContent=TITLES[Math.min(TITLES.length-1,Math.max(0,+r.value))]; }
-  r.addEventListener('input',set); set();
-  /* every rack names the title it fits best (patch.js, title:); on a project change the slider slews there one notch at a time. Dragging still works until the next change. */
+  const title=()=>TITLES[Math.min(TITLES.length-1,Math.max(0,+r.value))];
+  /* the words do not jump from one title to the next: every letter runs through random glyphs and settles into the new word, left to right,
+     so what it is turning into cannot be read until it lands (Jade, 2026-09-07). The line keeps the longer of the two lengths while it runs. */
+  const GLYPHS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$+=/<>'; const REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let decodeT=null, shown=title();
+  function decode(target){ clearInterval(decodeT); if(REDUCED||target===shown){ shown=target; out.textContent=target; return; }
+    const from=shown, n=Math.max(from.length,target.length); let f=0;
+    decodeT=setInterval(()=>{ f++; let s='';
+      for(let i=0;i<n;i++){ const t=target[i]||'', settle=i*1.2+6; /* each column settles a beat after the one before it */
+        if(f>=settle) s+=t; else if(t===' '||(from[i]||'')===' '&&f<3) s+=' '; else s+=GLYPHS[Math.floor(Math.random()*GLYPHS.length)]; }
+      out.textContent=s; if(f>=n*1.2+6){ clearInterval(decodeT); decodeT=null; shown=target; out.textContent=target; } },38); }
+  r.addEventListener('input',()=>decode(title())); out.textContent=shown;
+  /* every rack names the title it fits best (patch.js, title:); on a project change the slider slews there one notch at a time while the words decode once, to the final title. Dragging still works until the next change. */
   let slew=null;
-  document.addEventListener('patch:project',e=>{ const k=TITLES.indexOf(e.detail&&e.detail.title); if(k<0) return; clearInterval(slew);
-    slew=setInterval(()=>{ const v=+r.value; if(v===k){ clearInterval(slew); slew=null; return; } r.value=v+(k>v?1:-1); set(); },45); });
+  document.addEventListener('patch:project',e=>{ const k=TITLES.indexOf(e.detail&&e.detail.title); if(k<0) return; clearInterval(slew); decode(TITLES[k]);
+    slew=setInterval(()=>{ const v=+r.value; if(v===k){ clearInterval(slew); slew=null; return; } r.value=v+(k>v?1:-1); },45); });
   })();
 </script>
 <script src="assets/site.js?v=1788748971"></script>
