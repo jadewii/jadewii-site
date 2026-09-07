@@ -331,7 +331,8 @@
     mods=Array.from(rack.querySelectorAll('.mod')); posCache={}; W_=null;
     knobState=mods.map((mEl,i)=>{ const M=pr.mods[i]; const ov=M[6]; const type=ov?ov.split(':')[0]:vizFor(M[0],M[2],M[3]); /* m[6] = explicit viz when the keyword pick is wrong (Law 3) */ const cv=mEl.querySelector('canvas.mod-ctl'); if(type==='none'){ if(cv) cv.remove(); return {type:'none'}; } const r=cv.getBoundingClientRect(); const DPRk=Math.min(2,window.devicePixelRatio||1); cv.width=Math.max(40,Math.round(r.width))*DPRk; cv.height=58*DPRk; const g=cv.getContext('2d'); g.setTransform(DPRk,0,0,DPRk,0,0); return mkViz(type, r.width, M[3], ov); });
   }
-  const termEl=document.getElementById('termLines'); let termRun=0;
+  const termEl=document.getElementById('termLines'); let termRun=0, termMax=9; /* termMax = the lines that fit the terminal box, set in fitElement */
+  const termTrim=()=>{ while(termEl.children.length>termMax) termEl.removeChild(termEl.firstChild); };
   const ftHead=feature.querySelector('.ft-head'), ftMount=feature.querySelector('.ft-mount'), ftStyle=document.getElementById('ftStyle');
   const ftTerm=feature.querySelector('.ft-term'); if(ftTerm) ftMount.appendChild(ftTerm); /* the terminal lives in the mount grid, under the element */
   /* ===== THE WORK, inline. Each project's page (demo-*.html) is fetched once and mounted INTO this page: no iframe, no window.
@@ -370,18 +371,23 @@
         if(!seen&&(text||c.tagName==='P')){ seen=true; return; } if(text){ const sp=document.createElement('span'); sp.className='ft-cut'; c.parentNode.insertBefore(sp,c); sp.appendChild(c); } else c.classList.add('ft-cut'); }); return; }
     if(seen) n.classList.add('ft-cut'); else seen=true; }); }
   /* an element taller than its 460px box is zoomed down so the whole thing shows; nothing scrolls, nothing clips */
-  function fitElement(){ const el=ftMount.querySelector('.ft-el'), fit=el&&el.querySelector('.ft-fit'); if(!fit) return; if(window.innerWidth<=1100){ fit.style.zoom=''; fit.style.width=''; return; }
-    fit.style.zoom='1'; fit.style.width='100%'; const have=el.clientHeight-24, need=fit.scrollHeight; if(need>have){ const k=Math.max(0.5,have/need); fit.style.zoom=k.toFixed(3); fit.style.width=(100/k).toFixed(2)+'%'; } }
+  function fitElement(){ const el=ftMount.querySelector('.ft-el'), fit=el&&el.querySelector('.ft-fit'); if(!fit) return; if(window.innerWidth<=1100){ fit.style.zoom=''; fit.style.width=''; ftMount.style.gridTemplateRows=''; el.style.height=''; termEl.style.font=''; termMax=9; return; }
+    const TOTAL=636, GAP=16, TERM_MIN=160, EL_MAX=TOTAL-GAP-TERM_MIN; /* 460: the tallest the element box gets; below that the terminal takes the rest */
+    fit.style.zoom='1'; fit.style.width='100%'; const need=fit.scrollHeight+24; const elH=Math.min(EL_MAX,Math.max(200,need));
+    const termH=TOTAL-GAP-elH; ftMount.style.gridTemplateRows=elH+'px '+termH+'px'; el.style.height=elH+'px';
+    /* a taller terminal holds more lines in a slightly larger type, so the column stays full while it types */
+    const fs=termH>300?12:11, lh=termH>300?1.6:1.55; termEl.style.font=fs+'px/'+lh+' ui-monospace,Menlo,monospace'; termMax=Math.max(9,Math.floor((termH-42)/(fs*lh))); termTrim();
+    const have=elH-24; if(need-24>have){ const k=Math.max(0.5,have/(need-24)); fit.style.zoom=k.toFixed(3); fit.style.width=(100/k).toFixed(2)+'%'; } }
   window.addEventListener('resize',()=>fitElement());
   function loadStage(pr){ const L=pr.load;
-    ftHead.innerHTML='<span class="ft-cap">OUT · THE WORK</span><span class="ft-name">'+esc(pr.name)+'</span>'+(pr.r?'<span class="st-result">'+esc(pr.r)+'</span>':'')+(L.href?'<a class="ft-open" href="'+esc(L.href)+'" target="_blank" rel="noreferrer">OPEN ↗</a>':'');
+    ftHead.innerHTML='<span class="ft-cap">OUT · THE WORK</span><span class="ft-name">'+esc(pr.name)+'</span>'+(pr.r?'<span class="st-result">'+esc(pr.r)+'</span>':'')+'<span class="ft-nav"><button class="ft-arrow" data-nav="-1" aria-label="Previous project">&#9664;</button><span class="ft-count">'+String(pi+1).padStart(2,'0')+' / '+P.length+'</span><button class="ft-arrow" data-nav="1" aria-label="Next project">&#9654;</button></span>'+(L.href?'<a class="ft-open" href="'+esc(L.href)+'" target="_blank" rel="noreferrer">OPEN ↗</a>':'<span class="ft-open ft-open-blank"></span>');
     mountDemo(pr);
     /* the terminal: real commands typed, real output printed, scrolling up, looping */
     const run=++termRun; const T=pr.term||[]; termEl.innerHTML=''; let i=0;
-    function line(){ if(run!==termRun) return; if(i>=T.length){ setTimeout(()=>{ if(run!==termRun) return; termEl.innerHTML=''; i=0; line(); },5200); return; }
+    function line(){ if(run!==termRun) return; if(i>=T.length){ setTimeout(()=>{ if(run!==termRun) return; i=0; line(); },5200); return; } /* loops without clearing: once full, the terminal stays full and scrolls */
       const [k,txt]=T[i++]; const el=document.createElement('div'); el.className=k;
-      if(k==='c'){ let c=0; el.innerHTML='<span class="cur"></span>'; termEl.appendChild(el); const tick=()=>{ if(run!==termRun) return; c++; el.innerHTML=esc(txt.slice(0,c))+'<span class="cur"></span>'; if(c<txt.length) setTimeout(tick,22); else { el.innerHTML=esc(txt); setTimeout(line,260); } }; tick(); }
-      else { el.textContent=txt; termEl.appendChild(el); while(termEl.children.length>9) termEl.removeChild(termEl.firstChild); setTimeout(line,k==='hi'?900:110); } }
+      if(k==='c'){ let c=0; el.innerHTML='<span class="cur"></span>'; termEl.appendChild(el); termTrim(); const tick=()=>{ if(run!==termRun) return; c++; el.innerHTML=esc(txt.slice(0,c))+'<span class="cur"></span>'; if(c<txt.length) setTimeout(tick,22); else { el.innerHTML=esc(txt); setTimeout(line,260); } }; tick(); }
+      else { el.textContent=txt; termEl.appendChild(el); termTrim(); setTimeout(line,k==='hi'?900:110); } }
     line(); }
   let mods=[]; const J=id=>rack.querySelector('.jack[data-j="'+id+'"]');
   rack.innerHTML='<canvas class="cables" id="pCables" aria-hidden="true"></canvas>';
@@ -503,6 +509,7 @@
   if(prevB) prevB.addEventListener('click',()=>{ clearTimeout(cyc.idleT); cyc.idleT=null; cyc.on=true; loadProject(pi-1,false); });
   if(nextB) nextB.addEventListener('click',()=>{ clearTimeout(cyc.idleT); cyc.idleT=null; cyc.on=true; loadProject(pi+1,false); });
   /* the TOOLS cards under AI Work point at a bank slot, not a page: load it and scroll up to the rack */
+  feature.addEventListener('click',e=>{ const b=e.target.closest('.ft-arrow'); if(!b) return; clearTimeout(cyc.idleT); cyc.idleT=null; cyc.on=true; loadProject(pi+(+b.dataset.nav),false); });
   document.querySelectorAll('[data-jump]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); clearTimeout(cyc.idleT); cyc.idleT=null; cyc.on=true; loadProject(+a.dataset.jump,false); rack.scrollIntoView({behavior:'smooth',block:'start'}); }));
   /* attention: the cycle only advances while someone can see it and is not reading it */
   const REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches; if(REDUCED) cyc.on=false;
