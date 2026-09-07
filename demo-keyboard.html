@@ -9,6 +9,8 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:va
 .back{display:inline-block;margin-bottom:.7rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
 h1{font-size:1.55rem;margin:.2rem 0}
 .lede{color:var(--t-muted,#777);font-size:.95rem;line-height:1.5;max-width:60ch;margin:.3rem 0 1.1rem}
+.about{margin:1rem 0 0;font-size:.88rem;line-height:1.6;color:var(--t-fg,#111);max-width:70ch}
+.about code{font-family:"Space Mono",ui-monospace,monospace;font-size:.76rem;color:var(--t-muted,#888)}
 .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:10px}
 .grp{display:flex;flex-direction:column;gap:4px}
 .grp label{font-size:.6rem;letter-spacing:.12em;font-weight:600;color:var(--t-muted,#888)}
@@ -47,6 +49,8 @@ h1{font-size:1.55rem;margin:.2rem 0}
 </div>
 <div class="stage"><div class="kbd" id="kbd"></div></div>
 <p class="hint">Click or tap the circles. Or use your computer row <b>A S D F G H J K L</b>. Hold for sustain.</p>
+<!-- source: ~/Documents/JAMNUTZ_SAAS/jamnutz_homepage_v2_one_interactive.html (1,416 lines, title "Jamnutz - A new way to make music on the computer"): :471 pitch, :485 triangle voice, :606 key layout -->
+<p class="about">Where it comes from: an early JAMNUTZ homepage, one 1,416-line file called <code>jamnutz_homepage_v2_one_interactive.html</code>, whose title reads "a new way to make music on the computer". The pitch math (line 471), the triangle oscillator with the comment "Okinori's signature sound" (line 485) and the circle layout, each key placed at (slot + 0.5) over the white-key count (line 606), are copied from it unchanged. The in-key lock is the only new code on this page.</p>
 </div>
 <script>
 const KEYS=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];

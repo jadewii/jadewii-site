@@ -1,0 +1,236 @@
+<!--
+SOURCES (verified against the repos on this machine):
+- Enum + colors:      NoiseFace/NoiseFace/AudioEngine.swift:4-35
+- createBuffer:        NoiseFace/NoiseFace/AudioEngine.swift:518-649
+- Voss-McCartney pink: NoiseFace/NoiseFace/AudioEngine.swift:547-571
+- brown leaky integrator (0.02, 0.998, 0.5): NoiseFace/NoiseFace/AudioEngine.swift:573-580
+- duration 5.0 @ 44100, frequency 440.0 default: NoiseFace/NoiseFace/AudioEngine.swift:519-521, 497
+- what it is: NoiseFace/PROJECT_OVERVIEW.md:3-4
+- fixed spacing rule: NoiseFace/PROJECT_OVERVIEW.md:35-40
+- App Store id 6754266069: linked already in ai.html:1583 (apps.apple.com/us/app/noiseface/id6754266069)
+- swift line count: `find . -name "*.swift" -not -path "*/build/*" | xargs wc -l` -> 8497 total (run 2026-09-07)
+- commit count: `git rev-list --count HEAD` -> 56 (run 2026-09-07)
+-->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>NoiseFace</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
+<style>
+body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:var(--t-bg,#fff)}
+.wrap{max-width:820px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+.back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
+h1{font-size:1.5rem;margin:.2rem 0}
+.sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
+.nz{border:1.5px solid var(--t-line,#ccc);border-radius:12px;padding:14px;background:var(--t-stage,#f6f6f6)}
+.nz-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.nz-btn{height:50px;border-radius:8px;border:2px solid transparent;font-weight:700;font-size:.66rem;letter-spacing:.03em;cursor:pointer;font-family:inherit;transition:transform .1s,border-color .15s}
+.nz-btn:active{transform:scale(.96)}
+.nz-btn.on{border-color:var(--t-fg,#111)}
+.nz-bottom{display:flex;gap:8px;margin-top:8px;align-items:center}
+.nz-stop{flex:0 0 auto;height:38px;padding:0 18px;border-radius:8px;border:1.5px solid var(--t-line,#ccc);background:var(--t-bg,#fff);color:var(--t-fg,#111);font:inherit;font-size:.78rem;font-weight:700;letter-spacing:.05em;cursor:pointer}
+.nz-now{flex:1;height:38px;border-radius:8px;background:var(--t-bg,#fff);border:1.5px solid var(--t-line,#ccc);display:flex;align-items:center;overflow:hidden}
+.nz-now canvas{width:100%;height:100%;display:block}
+.lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
+.facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
+.facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 12px;background:var(--t-stage,#f6f6f6)}
+.facts .n{font-size:1.4rem;font-weight:700;color:var(--t-acc,#ff7a00);line-height:1;font-variant-numeric:tabular-nums}
+.facts .l{font-size:.6rem;letter-spacing:.08em;font-weight:600;color:var(--t-muted,#888);margin-top:4px;text-transform:uppercase}
+.facts .s{font-size:.56rem;color:var(--t-muted,#888);margin-top:3px;opacity:.75}
+.proj p{font-size:.92rem;line-height:1.6;margin:.9rem 0 0}
+@media(max-width:400px){.nz-grid{gap:5px}.nz-btn{height:44px;font-size:.6rem}.facts{grid-template-columns:1fr 1fr}}
+</style>
+<div class="wrap">
+<a class="back" href="ai.html">← Back</a>
+<h1>NoiseFace</h1>
+<p class="sub">12 noise colors, real per-sample math, ported from the app · App Store id 6754266069</p>
+
+<div class="nz">
+  <div class="nz-grid" id="nzGrid"></div>
+  <div class="nz-bottom">
+    <button class="nz-stop" id="nzStop">STOP</button>
+    <div class="nz-now"><canvas id="nzScope" width="600" height="76"></canvas></div>
+  </div>
+</div>
+
+<p class="lede">NoiseFace is a 12-color noise generator, iOS built with SwiftUI and AVAudioEngine. Each button here runs the exact per-sample generator from the app: pink is Voss-McCartney, brown is a leaky integrator with the same 0.02 step and 0.998 decay, and the rest match one case at a time out of the same switch statement. Tap a color, tap another to switch, STOP to kill it.</p>
+
+<div class="facts">
+  <div class="f"><div class="n">12</div><div class="l">noise colors</div><div class="s">AudioEngine.swift:4-35</div></div>
+  <div class="f"><div class="n">5s</div><div class="l">loop buffer, 44.1kHz</div><div class="s">AudioEngine.swift:519-521</div></div>
+  <div class="f"><div class="n">8497</div><div class="l">swift lines</div><div class="s">wc -l *.swift</div></div>
+  <div class="f"><div class="n">56</div><div class="l">commits</div><div class="s">git rev-list --count</div></div>
+</div>
+
+<div class="proj">
+<p>The app is a 12-color noise generator with modulation, presets, and real-time control, per its own project overview. The colors aren't a filter over white noise, each one is its own generator: Voss-McCartney pink, a random-walk brown, a differentiated blue, a second-order differentiated violet, an A-weighting approximation for gray, a 500Hz-weighted green, an averaged orange, a Box-Muller gaussian for turquoise, and true silence for black.</p>
+<p>The UI itself follows a fixed 18pt spacing rule between grid buttons, the same discipline as the audio: nothing is eyeballed, the constants are in the code.</p>
+</div>
+</div>
+<script src="assets/theme.js"></script>
+<script>
+(function(){
+  // AudioEngine.swift:4-35 -- enum order (case declarations) + color() computed property
+  const COLORS = [
+    ['whiteNoise','WHITE',[1.0,1.0,1.0]],
+    ['pinkNoise','PINK',[1.0,0.41,0.71]],
+    ['brownNoise','BROWN',[0.55,0.27,0.07]],
+    ['blueNoise','BLUE',[0.0,0.48,1.0]],
+    ['violetNoise','VIOLET',[0.58,0.0,0.83]],
+    ['grayNoise','GRAY',[0.50,0.50,0.50]],
+    ['redNoise','RED',[1.0,0.23,0.19]],
+    ['greenNoise','GREEN',[0.0,0.80,0.33]],
+    ['orangeNoise','ORANGE',[1.0,0.60,0.0]],
+    ['yellowNoise','YELLOW',[1.0,0.84,0.0]],
+    ['turquoiseNoise','TURQUOISE',[0.25,0.88,0.82]],
+    ['blackNoise','BLACK',[0.0,0.0,0.0]]
+  ];
+  function hex(c){ return '#'+c.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join(''); }
+  function textFor(c){ const lum=0.299*c[0]+0.587*c[1]+0.114*c[2]; return lum>0.55?'#000':'#fff'; }
+
+  const grid=document.getElementById('nzGrid');
+  COLORS.forEach(([id,label,rgb])=>{
+    const b=document.createElement('button');
+    b.className='nz-btn'; b.dataset.id=id;
+    b.style.background=hex(rgb); b.style.color=textFor(rgb);
+    b.textContent=label;
+    grid.appendChild(b);
+  });
+
+  let ctx=null, gain=null, src=null, analyser=null, current=null;
+  const bufCache={};
+
+  // AudioEngine.swift:518-649 -- createBuffer(waveform:frequency:), ported 1:1 per case.
+  // duration/sampleRate/frequency: AudioEngine.swift:519-521, 497 (createBuffer called with frequency: 440.0)
+  function genSample(id, frame, phase, st){
+    switch(id){
+      case 'whiteNoise':
+        return (Math.random()*2-1) * 0.3;
+      case 'pinkNoise': { // Voss-McCartney, AudioEngine.swift:547-571
+        let pinkOutput=0.0;
+        if(st.pinkCounter>0){
+          for(let i=0;i<7;i++){
+            const bit=(st.pinkCounter>>i)&1, prevBit=((st.pinkCounter-1)>>i)&1;
+            if(bit!==prevBit) st.pinkState[i]=Math.random()*2-1;
+            pinkOutput+=st.pinkState[i];
+          }
+        } else {
+          for(let i=0;i<7;i++){ st.pinkState[i]=Math.random()*2-1; pinkOutput+=st.pinkState[i]; }
+        }
+        st.pinkCounter=(st.pinkCounter+1)&0x7FFF;
+        return (pinkOutput/7.0)*0.25;
+      }
+      case 'brownNoise': case 'redNoise': { // leaky integrator, AudioEngine.swift:573-580 (0.02, 0.998, 0.5)
+        const white=Math.random()*2-1;
+        st.brown += white*0.02;
+        st.brown *= 0.998;
+        st.brown = Math.max(-1.0, Math.min(1.0, st.brown));
+        return st.brown*0.5;
+      }
+      case 'blueNoise': {
+        const cur=Math.random()*2-1, prev=Math.random()*2-1;
+        return (cur-prev)*0.2;
+      }
+      case 'violetNoise': {
+        const w1=Math.random()*2-1, w2=Math.random()*2-1, w3=Math.random()*2-1;
+        return (w1-2.0*w2+w3)*0.15;
+      }
+      case 'grayNoise': {
+        const white=Math.random()*2-1;
+        const lowCut=white*0.6, midBoost=white*1.3, highCut=white*0.7;
+        return (lowCut+midBoost+highCut)/3.0*0.25;
+      }
+      case 'blackNoise':
+        return 0.0;
+      case 'greenNoise': {
+        const white=Math.random()*2-1;
+        const bandpass500Hz=Math.sin(phase*500.0/44100.0*2.0*Math.PI)*white;
+        return bandpass500Hz*0.3;
+      }
+      case 'orangeNoise': {
+        let sum=0.0; for(let i=0;i<4;i++) sum+=Math.random()*2-1;
+        return (sum/4.0)*0.3;
+      }
+      case 'yellowNoise': {
+        const white=Math.random()*2-1;
+        const smoothed=white*0.7;
+        return smoothed*0.3;
+      }
+      case 'turquoiseNoise': { // Box-Muller, AudioEngine.swift:634-640
+        const u1=0.001+Math.random()*0.998, u2=0.001+Math.random()*0.998;
+        const gaussian=Math.sqrt(-2.0*Math.log(u1))*Math.cos(2.0*Math.PI*u2);
+        return gaussian*0.2;
+      }
+    }
+    return 0;
+  }
+
+  function buildBuffer(id){
+    if(bufCache[id]) return bufCache[id];
+    const sampleRate=44100, duration=5.0, frameCount=Math.floor(sampleRate*duration);
+    const frequency=440.0;
+    const angularFrequency=2.0*Math.PI*frequency/sampleRate;
+    const st={pinkState:[0,0,0,0,0,0,0], pinkCounter:0, brown:0.0};
+    const buf=ctx.createBuffer(1, frameCount, sampleRate);
+    const ch=buf.getChannelData(0);
+    for(let frame=0; frame<frameCount; frame++){
+      const phase=angularFrequency*frame;
+      ch[frame]=genSample(id, frame, phase, st);
+    }
+    bufCache[id]=buf;
+    return buf;
+  }
+
+  function ensureCtx(){
+    if(!ctx){
+      ctx=new (window.AudioContext||window.webkitAudioContext)();
+      gain=ctx.createGain(); gain.gain.value=0.9;
+      analyser=ctx.createAnalyser(); analyser.fftSize=1024;
+      gain.connect(analyser); analyser.connect(ctx.destination);
+      drawScope();
+    }
+    if(ctx.state==='suspended') ctx.resume();
+  }
+
+  function play(id, btn){
+    ensureCtx();
+    if(src){ try{src.stop();}catch(e){} src=null; }
+    const buf=buildBuffer(id);
+    src=ctx.createBufferSource();
+    src.buffer=buf; src.loop=true;
+    src.connect(gain);
+    src.start();
+    current=id;
+    document.querySelectorAll('.nz-btn').forEach(x=>x.classList.toggle('on', x===btn));
+  }
+  function stop(){
+    if(src){ try{src.stop();}catch(e){} src=null; }
+    current=null;
+    document.querySelectorAll('.nz-btn').forEach(x=>x.classList.remove('on'));
+  }
+
+  grid.addEventListener('click', e=>{
+    const b=e.target.closest('.nz-btn'); if(!b) return;
+    play(b.dataset.id, b);
+  });
+  document.getElementById('nzStop').addEventListener('click', stop);
+
+  const scope=document.getElementById('nzScope'), sctx=scope.getContext('2d');
+  function drawScope(){
+    requestAnimationFrame(drawScope);
+    const W=scope.width, H=scope.height;
+    sctx.clearRect(0,0,W,H);
+    const accent=getComputedStyle(document.documentElement).getPropertyValue('--t-acc').trim()||'#ff7a00';
+    if(!current || !analyser){ sctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--t-line').trim()||'#ccc'; sctx.lineWidth=1.5; sctx.beginPath(); sctx.moveTo(0,H/2); sctx.lineTo(W,H/2); sctx.stroke(); return; }
+    const data=new Uint8Array(analyser.fftSize);
+    analyser.getByteTimeDomainData(data);
+    sctx.strokeStyle=accent; sctx.lineWidth=1.5; sctx.beginPath();
+    for(let i=0;i<data.length;i++){
+      const x=i/(data.length-1)*W, y=(data[i]/255)*H;
+      if(i===0) sctx.moveTo(x,y); else sctx.lineTo(x,y);
+    }
+    sctx.stroke();
+  }
+  drawScope();
+})();
+</script>

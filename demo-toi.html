@@ -1,0 +1,286 @@
+<!--
+SOURCES (verbatim, read before writing this page):
+~/modular-lab/case/toi.js:1-6      what TOI semis is, 84HP row, silent-until-live OUT jack
+~/modular-lab/case/toi.js:30-33    knob provenance comment (StyledKnob::Metal, traced 1:1)
+~/modular-lab/case/toi.js:35-73    toimetal() knob draw function, ported verbatim below
+~/modular-lab/case/toi.js:255-315  MODULES.JWCZ definition (title/sections/params/jacks/create)
+~/modular-lab/case/toi.js:267-293  JWCZ params array, 26 entries, ported verbatim
+~/modular-lab/case/toi.js:297-312  JWCZ jacks array, 15 entries, ported verbatim
+~/modular-lab/case/toi.js:266      "ids match the Cmajor endpoints 1:1" comment
+~/modular-lab/scripts/gen-toi.mjs:2-9  the generator, what it does per tribute synth
+Commands run:
+  wc -l case/toi.js                              -> 726
+  ls case/toi-*.gen.js | grep -v defs | wc -l     -> 66
+  (param/jack counts hand-counted from the params/jacks arrays above: 26 / 15)
+-->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>TOI semis</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
+<style>
+body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:var(--t-bg,#fff)}
+.wrap{max-width:820px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+.back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
+h1{font-size:1.5rem;margin:.2rem 0}
+.sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
+.board{border:1.5px solid var(--t-line,#ccc);border-radius:12px;overflow:hidden;background:#26282c;display:block}
+.board canvas{display:block;width:100%;height:auto;cursor:grab;touch-action:none}
+.readout{box-sizing:border-box;border:1.5px solid var(--t-line,#ccc);border-top:none;border-radius:0 0 12px 12px;background:var(--t-stage,#f6f6f6);padding:0 12px;height:34px;display:flex;align-items:center;font-family:"Space Mono",ui-monospace,monospace;font-size:.72rem;line-height:16px;color:var(--t-muted,#888);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.readout b{color:var(--t-fg,#111);font-weight:600}
+.lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:1.1rem 0 0}
+.facts .f{min-width:0;border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:9px 8px;background:var(--t-stage,#f6f6f6)}
+.facts .n{font-size:1.5rem;font-weight:700;color:var(--t-acc,#ff7a00);line-height:1;font-variant-numeric:tabular-nums}
+.facts .l{font-size:.64rem;letter-spacing:.09em;font-weight:600;color:var(--t-muted,#888);margin-top:4px;text-transform:uppercase}
+.facts .s{font-size:.58rem;color:var(--t-muted,#888);opacity:.75;margin-top:2px;font-family:"Space Mono",ui-monospace,monospace;word-break:break-word}
+.proj p{font-size:.92rem;line-height:1.6;margin:.9rem 0 0}
+</style>
+<div class="wrap">
+<a class="back" href="ai.html">← Back</a>
+<h1>TOI semis, one panel per real synth</h1>
+<p class="sub">Cmajor plugin DSP &middot; compiled to WASM audio worklets &middot; JW-CZ panel below</p>
+<div class="board"><canvas id="cz" width="1760" height="300"></canvas></div>
+<div class="readout" id="readout">drag a knob</div>
+<p class="lede">TOI semis is the semimodular row inside Eurorack Grid. Each panel runs a real Cmajor plugin voice compiled to a WASM audio worklet, one long faceplate sized to fill an 84HP row exactly. This is the JW-CZ panel below, its real 26 params and 15 jacks, drawn with the plugin kit's own metal knob traced from the faceplate code. Drag a knob and it only moves the value shown here, no audio is wired up on this page.</p>
+<div class="facts">
+  <div class="f"><div class="n">726</div><div class="l">lines in toi.js</div><div class="s">wc -l case/toi.js</div></div>
+  <div class="f"><div class="n">66</div><div class="l">Cmajor bundles</div><div class="s">ls case/toi-*.gen.js</div></div>
+  <div class="f"><div class="n">26</div><div class="l">JW-CZ params</div><div class="s">toi.js:267-293</div></div>
+  <div class="f"><div class="n">15</div><div class="l">JW-CZ jacks</div><div class="s">toi.js:297-312</div></div>
+</div>
+<div class="proj">
+<p>The panel comes from a generator, not hand art. scripts/gen-toi.mjs runs each tribute patch through Cmajor's own compiler and reads back its real endpoint list, then bundles it into one of 66 separate files under case/toi-*.gen.js. The ids on every knob above match those Cmajor endpoints one to one, so whatever a knob sends goes straight into the running patch once the worklet is live.</p>
+<p>Until that worklet loads, the OUT jack just passes silence through a plain gain node, so patching never has to wait on the DSP. The knob itself is the plugin kit's own StyledKnob::Metal, traced 1:1 from the faceplate code, not a redraw.</p>
+</div>
+</div>
+<script src="assets/theme.js"></script>
+<script>
+(function(){
+  // ---- ported verbatim from ~/modular-lab/case/toi.js:35-73 (window.EXTRA_CANVAS_KNOBS.toimetal) ----
+  function toimetal(g, S, v, acc) {
+    const cx = S / 2, cy = S / 2, r = S / 2 - 8; // room for tick ring + arc outside the body
+    const D2R = Math.PI / 180;
+    const ang = (-135 + 270 * v) * D2R, dx = Math.sin(ang), dy = -Math.cos(ang);
+    const circ = (x, y, R) => { g.beginPath(); g.arc(x, y, R, 0, Math.PI * 2); };
+    // drop shadow
+    g.fillStyle = 'rgba(0,0,0,.45)'; circ(cx, cy + 3, r); g.fill();
+    // metallic body
+    let body = g.createLinearGradient(cx - r * .35, cy - r * .45, cx + r * .4, cy + r * .9);
+    body.addColorStop(0, '#cfd2d7'); body.addColorStop(.5, '#8e939d'); body.addColorStop(1, '#43454c');
+    g.fillStyle = body; circ(cx, cy, r); g.fill();
+    g.strokeStyle = '#20232c'; g.lineWidth = 2; circ(cx, cy, r); g.stroke();
+    // gold tick sunburst just outside
+    g.strokeStyle = 'rgba(216,164,54,.32)'; g.lineWidth = 1;
+    for (let i = 0; i < 24; i++) {
+      const a = (-135 + 270 * i / 23) * D2R, sx = Math.sin(a), sy = -Math.cos(a);
+      g.beginPath();
+      g.moveTo(cx + sx * (r + 2.5), cy + sy * (r + 2.5));
+      g.lineTo(cx + sx * (r + 5), cy + sy * (r + 5));
+      g.stroke();
+    }
+    // recessed inner cap
+    const ir = r * .6;
+    let cap = g.createLinearGradient(cx, cy - ir, cx, cy + ir);
+    cap.addColorStop(0, '#a5adbd'); cap.addColorStop(1, '#5f6470');
+    g.fillStyle = cap; circ(cx, cy, ir); g.fill();
+    g.strokeStyle = 'rgba(32,35,44,.7)'; g.lineWidth = 1; circ(cx, cy, ir); g.stroke();
+    // blue value arc
+    if (v > 0.004) {
+      g.lineCap = 'round'; g.strokeStyle = acc || '#5e78b6'; g.lineWidth = 2.5;
+      g.beginPath(); g.arc(cx, cy, r + 4.5, (-225) * D2R, (-225 + 270 * v) * D2R); g.stroke();
+    }
+    // bright pointer
+    g.strokeStyle = '#e2e6ee'; g.lineWidth = 2.6; g.lineCap = 'round';
+    g.beginPath();
+    g.moveTo(cx + dx * ir * .25, cy + dy * ir * .25);
+    g.lineTo(cx + dx * r * .9, cy + dy * r * .9);
+    g.stroke();
+    // glint
+    g.fillStyle = 'rgba(255,255,255,.16)';
+    g.beginPath(); g.ellipse(cx - r * .2, cy - r * .38, r * .25, r * .17, -0.5, 0, Math.PI * 2); g.fill();
+  }
+
+  // ---- ported verbatim from ~/modular-lab/case/toi.js:253-255, 267-293, 297-312 ----
+  const TOI_CZ_WAVES = ['SAW', 'SQR', 'PLS', 'DBL', 'HLF', 'RS1', 'RS2', 'RS3'];
+  const toiFmtS = v => v < 1 ? Math.round(v * 1000) + 'ms' : v.toFixed(2) + 's';
+  const toiFmtPct = v => Math.round(v * 100) + '%';
+
+  const JWCZ_PARAMS = [
+    { id: 'wave1', label: 'WAVE 1', min: 0, max: 7, def: 0, step: 1, fmt: v => TOI_CZ_WAVES[Math.round(v)] },
+    { id: 'wave2', label: 'WAVE 2', min: 0, max: 7, def: 1, step: 1, fmt: v => TOI_CZ_WAVES[Math.round(v)] },
+    { id: 'octave', label: 'OCTAVE', min: 0, max: 1, def: 0.5, step: 0.25, fmt: v => { const o = Math.round((v - 0.5) * 4); return (o > 0 ? '+' : '') + o; } },
+    { id: 'detune', label: 'DETUNE', min: 0, max: 1, def: 0.18, fmt: toiFmtPct },
+    { id: 'mix', label: 'MIX', min: 0, max: 1, def: 0.5, fmt: toiFmtPct },
+    { id: 'ring', label: 'RING', min: 0, max: 1, def: 0, fmt: toiFmtPct },
+    { id: 'noise', label: 'NOISE', min: 0, max: 1, def: 0, fmt: toiFmtPct },
+    { id: 'dcw1', label: 'DCW 1', min: 0, max: 1, def: 0.7, fmt: toiFmtPct },
+    { id: 'dcw2', label: 'DCW 2', min: 0, max: 1, def: 0.55, fmt: toiFmtPct },
+    { id: 'resonance', label: 'RESO', min: 0, max: 1, def: 0.4, fmt: toiFmtPct },
+    { id: 'tone', label: 'TONE', min: 0, max: 1, def: 0.75, fmt: toiFmtPct },
+    { id: 'dcwAttack', label: 'DCW A', min: 0.001, max: 2, def: 0.01, fmt: toiFmtS },
+    { id: 'dcwDecay', label: 'DCW D', min: 0.01, max: 8, def: 1.2, fmt: toiFmtS },
+    { id: 'dcwSustain', label: 'DCW S', min: 0, max: 1, def: 0.35, fmt: toiFmtPct },
+    { id: 'dcwKey', label: 'KEY', min: 0, max: 1, def: 0, fmt: toiFmtPct },
+    { id: 'velDcw', label: 'VEL', min: 0, max: 1, def: 0, fmt: toiFmtPct },
+    { id: 'attack', label: 'ATK', min: 0.001, max: 2, def: 0.005, fmt: toiFmtS },
+    { id: 'decay', label: 'DEC', min: 0.01, max: 8, def: 1, fmt: toiFmtS },
+    { id: 'sustain', label: 'SUS', min: 0, max: 1, def: 0.6, fmt: toiFmtPct },
+    { id: 'release', label: 'REL', min: 0.01, max: 4, def: 0.4, fmt: toiFmtS },
+    { id: 'velAmp', label: 'VEL', min: 0, max: 1, def: 0.45, fmt: toiFmtPct },
+    { id: 'vibratoRate', label: 'RATE', min: 0, max: 1, def: 0.45, fmt: toiFmtPct },
+    { id: 'vibratoDepth', label: 'DEPTH', min: 0, max: 1, def: 0, fmt: toiFmtPct },
+    { id: 'vibratoDelay', label: 'DELAY', min: 0, max: 1, def: 0.3, fmt: toiFmtPct },
+    { id: 'vibWave', label: 'SHAPE', min: 0, max: 1, def: 0, step: 1 / 3, fmt: v => ['SIN', 'TRI', 'SQR', 'RMP'][Math.round(v * 3)] },
+    { id: 'glide', label: 'GLIDE', min: 0, max: 1, def: 0, fmt: toiFmtPct },
+  ];
+  const JWCZ_SECTIONS = [
+    ['DCO', ['wave1', 'wave2', 'octave', 'detune', 'mix', 'ring', 'noise']],
+    ['DCW', ['dcw1', 'dcw2', 'resonance', 'tone']],
+    ['DCW ENV', ['dcwAttack', 'dcwDecay', 'dcwSustain', 'dcwKey', 'velDcw']],
+    ['DCA', ['attack', 'decay', 'sustain', 'release', 'velAmp']],
+    ['LFO', ['vibratoRate', 'vibratoDepth', 'vibratoDelay', 'vibWave', 'glide']],
+  ];
+  const JWCZ_JACKS = [
+    { id: 'pitch', dir: 'in', kind: 'pitch', label: 'V/OCT' },
+    { id: 'gate', dir: 'in', kind: 'gate', label: 'GATE' },
+    { id: 'dcv1', dir: 'in', kind: 'cv', label: 'DCW1' },
+    { id: 'dcv2', dir: 'in', kind: 'cv', label: 'DCW2' },
+    { id: 'rcv', dir: 'in', kind: 'cv', label: 'RESO' },
+    { id: 'tcv', dir: 'in', kind: 'cv', label: 'TONE' },
+    { id: 'dtcv', dir: 'in', kind: 'cv', label: 'DET' },
+    { id: 'mcv', dir: 'in', kind: 'cv', label: 'MIX' },
+    { id: 'rgcv', dir: 'in', kind: 'cv', label: 'RING' },
+    { id: 'ncv', dir: 'in', kind: 'cv', label: 'NOISE' },
+    { id: 'vcv', dir: 'in', kind: 'cv', label: 'VIB' },
+    { id: 'vrcv', dir: 'in', kind: 'cv', label: 'RATE' },
+    { id: 'gcv', dir: 'in', kind: 'cv', label: 'GLIDE' },
+    { id: 'out', dir: 'out', kind: 'audio', label: 'OUT' },
+    { id: 'outb', dir: 'out', kind: 'audio', label: 'OUT B' },
+  ];
+
+  const paramById = {};
+  JWCZ_PARAMS.forEach(p => paramById[p.id] = p);
+  const values = {};
+  JWCZ_PARAMS.forEach(p => values[p.id] = p.def);
+
+  const cv = document.getElementById('cz'), g = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const readout = document.getElementById('readout');
+  const ACC = '#5e78b6';
+  const KNOB_S = 52, KNOB_GAP = 62, SEC_GAP = 24;
+  const knobY = 92;
+
+  // lay out one row of knobs, grouped by section with a gap between groups
+  const layout = []; // { id, x, y, section }
+  let x = 30;
+  JWCZ_SECTIONS.forEach(([name, ids]) => {
+    ids.forEach((id, i) => {
+      layout.push({ id, x: x + i * KNOB_GAP, y: knobY, section: name, secStart: i === 0 });
+    });
+    x += ids.length * KNOB_GAP + SEC_GAP;
+  });
+
+  // jack row underneath, spread across the same width
+  const jackY = 236, jackR = 9;
+  const jackLayout = JWCZ_JACKS.map((j, i) => ({
+    j, x: 30 + i * ((W - 60) / (JWCZ_JACKS.length - 1)), y: jackY,
+  }));
+
+  function norm(p, raw) { return (raw - p.min) / (p.max - p.min); }
+  function denorm(p, n) {
+    let raw = p.min + n * (p.max - p.min);
+    if (p.step) raw = Math.round(raw / p.step) * p.step;
+    return Math.min(p.max, Math.max(p.min, raw));
+  }
+
+  function draw() {
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = '#26282c'; g.fillRect(0, 0, W, H);
+    // brushed panel texture, faint
+    g.strokeStyle = 'rgba(255,255,255,.02)'; g.lineWidth = 1;
+    for (let ly = 4; ly < H; ly += 3) { g.beginPath(); g.moveTo(0, ly); g.lineTo(W, ly); g.stroke(); }
+    // title
+    g.fillStyle = '#e2e6ee'; g.font = '700 20px "Space Mono",monospace';
+    g.fillText('JW-CZ', 30, 34);
+    g.fillStyle = 'rgba(226,230,238,.5)'; g.font = '11px "Space Mono",monospace';
+    g.fillText('TOI SEMIS · 84HP', 30, 52);
+
+    // section labels
+    let lastSection = null;
+    layout.forEach(k => {
+      if (k.section !== lastSection) {
+        g.fillStyle = 'rgba(94,120,182,.85)'; g.font = '700 10px "Space Mono",monospace';
+        g.fillText(k.section, k.x - KNOB_S / 2, knobY - KNOB_S / 2 - 10);
+        lastSection = k.section;
+      }
+    });
+
+    // knobs
+    layout.forEach(k => {
+      const p = paramById[k.id];
+      const v = norm(p, values[k.id]);
+      g.save();
+      g.translate(k.x - KNOB_S / 2, k.y - KNOB_S / 2);
+      toimetal(g, KNOB_S, v, ACC);
+      g.restore();
+      g.fillStyle = '#e2e6ee'; g.font = '700 9px "Space Mono",monospace'; g.textAlign = 'center';
+      g.fillText(p.label, k.x, k.y + KNOB_S / 2 + 14);
+      g.fillStyle = 'rgba(226,230,238,.55)'; g.font = '9px "Space Mono",monospace';
+      g.fillText(p.fmt(values[k.id]), k.x, k.y + KNOB_S / 2 + 26);
+      g.textAlign = 'left';
+    });
+
+    // jacks
+    g.fillStyle = 'rgba(226,230,238,.6)'; g.font = '700 10px "Space Mono",monospace'; g.textAlign = 'left';
+    g.fillText('JACKS', 30, jackY - jackR - 16);
+    jackLayout.forEach(jl => {
+      g.beginPath(); g.arc(jl.x, jl.y, jackR, 0, Math.PI * 2);
+      g.fillStyle = jl.j.kind === 'audio' ? '#d8a436' : (jl.j.dir === 'out' ? '#d8a436' : '#5e78b6');
+      g.fill();
+      g.beginPath(); g.arc(jl.x, jl.y, jackR - 4, 0, Math.PI * 2);
+      g.fillStyle = '#1a1c20'; g.fill();
+      g.fillStyle = '#e2e6ee'; g.font = '8px "Space Mono",monospace'; g.textAlign = 'center';
+      g.fillText(jl.j.label, jl.x, jl.y + jackR + 12);
+    });
+    g.textAlign = 'left';
+  }
+  draw();
+
+  // ---- drag: purely visual, no audio ----
+  function canvasPoint(evt) {
+    const r = cv.getBoundingClientRect();
+    return {
+      x: (evt.clientX - r.left) * (W / r.width),
+      y: (evt.clientY - r.top) * (H / r.height),
+    };
+  }
+  let dragging = null; // { id, startY, startV }
+  cv.addEventListener('pointerdown', evt => {
+    const p = canvasPoint(evt);
+    let hit = null, best = 22;
+    layout.forEach(k => {
+      const d = Math.hypot(p.x - k.x, p.y - k.y);
+      if (d < best) { best = d; hit = k; }
+    });
+    if (!hit) return;
+    cv.setPointerCapture(evt.pointerId);
+    const param = paramById[hit.id];
+    dragging = { id: hit.id, startY: p.y, startV: norm(param, values[hit.id]) };
+    cv.style.cursor = 'grabbing';
+  });
+  cv.addEventListener('pointermove', evt => {
+    if (!dragging) return;
+    const p = canvasPoint(evt);
+    const param = paramById[dragging.id];
+    const deltaN = (dragging.startY - p.y) / 160; // drag up = increase
+    const n = Math.min(1, Math.max(0, dragging.startV + deltaN));
+    values[dragging.id] = denorm(param, n);
+    draw();
+    readout.innerHTML = '<b>' + param.label + '</b> ' + param.fmt(values[dragging.id]);
+  });
+  function endDrag() { dragging = null; cv.style.cursor = 'grab'; }
+  cv.addEventListener('pointerup', endDrag);
+  cv.addEventListener('pointercancel', endDrag);
+})();
+</script>

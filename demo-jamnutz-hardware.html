@@ -1,0 +1,204 @@
+<!--
+SOURCES (jamworld repo, ~/Documents/jamworld):
+  src/pages/Hardware.jsx:15-17    channel mapping convention comment
+  src/pages/Hardware.jsx:93-95   CHANNEL_TO_SLOT + comment
+  src/pages/Hardware.jsx:97-116  GM_DRUM_LANE, noteToLane, drum-lane fix note (2026-09-06)
+  src/pages/Hardware.jsx:119-123 AUTO_VOICES
+  src/pages/Hardware.jsx:125-142 CC comment, CC_NAMED, ccToMacro
+  src/pages/Hardware.jsx:1021-1140 ChannelTile component (look ported)
+  src/lib/studio/drumLanes.js:9  DRUM_LANE_IDS
+  src/lib/midi/midiAccess.js:1-16 module header, browser support comment
+  HANDOFF.md:528-531             Web MIDI pill on /standalone
+  git -C ~/Documents/jamworld rev-list --count HEAD  -> 1424 (run 2026-09-07)
+  git -C ~/Documents/jamworld log -1 --format="%h %ad %s" -> bfb6f32 Sun Sep 6 00:57:23 2026 -0400
+  wc -l src/lib/midi/midiAccess.js src/pages/Hardware.jsx -> 107, 1442 (run 2026-09-07)
+-->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>The Hardware MIDI map</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
+<style>
+body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:var(--t-bg,#fff)}
+.wrap{max-width:820px;margin:0 auto;padding:1.6rem 1.2rem 3rem;box-sizing:border-box}
+.back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
+h1{font-size:1.4rem;margin:.2rem 0}
+.sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
+.panel{border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:14px;box-sizing:border-box}
+.panel h2{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted,#888);margin:0 0 8px;font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}
+.tile{box-sizing:border-box;border:1px solid var(--t-line,#ccc);border-radius:6px;background:var(--t-bg,#fff);color:var(--t-fg,#111);cursor:pointer;padding:6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:"Space Mono",ui-monospace,monospace;min-height:64px;transition:background .08s,border-color .08s,color .08s}
+.tile .lab{font-size:.95rem;font-weight:700;line-height:1}
+.tile .voice{font-size:.44rem;letter-spacing:.03em;text-transform:uppercase;opacity:.7;min-height:.6rem;text-align:center}
+.tile .ch{font-size:.42rem;opacity:.55;letter-spacing:.04em}
+.tile.lit{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#000}
+.tile.lit .voice,.tile.lit .ch{opacity:.75;color:#000}
+.ccrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:5px;margin-top:12px}
+.cc{box-sizing:border-box;border:1px solid var(--t-line,#ccc);border-radius:5px;background:var(--t-bg,#fff);color:var(--t-fg,#111);cursor:pointer;padding:5px 2px;font-family:"Space Mono",ui-monospace,monospace;font-size:.66rem;text-align:center}
+.cc.lit{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#000;font-weight:700}
+.drumrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:5px;margin-top:12px}
+.dn{box-sizing:border-box;border:1px solid var(--t-line,#ccc);border-radius:5px;background:var(--t-bg,#fff);color:var(--t-fg,#111);cursor:pointer;padding:6px 4px;font-family:"Space Mono",ui-monospace,monospace;font-size:.62rem;text-align:center}
+.dn.lit{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#000;font-weight:700}
+.lanes{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;margin-top:6px}
+.lane{box-sizing:border-box;border:1px solid var(--t-line,#ccc);border-radius:5px;padding:5px 2px;text-align:center;font-family:"Space Mono",ui-monospace,monospace;font-size:.58rem;color:var(--t-muted,#888);background:var(--t-bg,#fff)}
+.lane.on{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#000;font-weight:700}
+.readout{margin-top:12px;height:38px;box-sizing:border-box;border:1px solid var(--t-line,#ccc);border-radius:6px;background:var(--t-bg,#fff);display:flex;align-items:center;padding:0 10px;font-family:"Space Mono",ui-monospace,monospace;font-size:.72rem;color:var(--t-fg,#111);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
+.facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
+.facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 8px;background:var(--t-stage,#f6f6f6);box-sizing:border-box}
+.facts .n{font-size:1.4rem;font-weight:700;color:var(--t-acc,#ff7a00);line-height:1;font-variant-numeric:tabular-nums}
+.facts .l{font-size:.6rem;letter-spacing:.07em;font-weight:600;color:var(--t-muted,#888);margin-top:4px;text-transform:uppercase}
+.facts .src{font-size:.54rem;color:var(--t-muted,#888);margin-top:3px;opacity:.75}
+.proj p{font-size:.88rem;line-height:1.6;margin:.8rem 0 0}
+@media (max-width:420px){
+  .tile .voice{display:none}
+  .facts{grid-template-columns:1fr 1fr}
+}
+</style>
+<div class="wrap">
+<a class="back" href="ai.html">← Back</a>
+<h1>The Hardware MIDI map</h1>
+<p class="sub">jamnutz.com/hardware · Web MIDI, ten channels, ten synth engines</p>
+
+<div class="panel">
+  <h2>Channel → slot (tap a tile)</h2>
+  <div class="slots" id="slots"></div>
+  <h2 style="margin-top:14px">CC → macro (tap a number)</h2>
+  <div class="ccrow" id="ccrow"></div>
+  <h2 style="margin-top:14px">GM drum note → lane (tap a note)</h2>
+  <div class="drumrow" id="drumrow"></div>
+  <div class="lanes" id="lanes"></div>
+  <div class="readout" id="readout">tap a tile, a CC, or a drum note above</div>
+</div>
+
+<p class="lede">This is the actual routing table from Hardware.jsx, the page at jamnutz.com/hardware that turns a plugged-in box into ten synth engines. Ten MIDI channels come in, one drum channel and nine melodic ones, mapped straight onto ten slots. Tap a channel tile, a CC number, or a drum note above and it runs the real functions from that file.</p>
+
+<div class="facts">
+  <div class="f"><div class="n">1424</div><div class="l">commits</div><div class="src">git rev-list --count HEAD</div></div>
+  <div class="f"><div class="n">10</div><div class="l">channels mapped</div><div class="src">Hardware.jsx:95</div></div>
+  <div class="f"><div class="n">16</div><div class="l">GM notes mapped</div><div class="src">Hardware.jsx:103-112</div></div>
+  <div class="f"><div class="n">1442</div><div class="l">lines, Hardware.jsx</div><div class="src">wc -l</div></div>
+</div>
+
+<div class="proj">
+<p>Before September 6 slot 0 (the drum channel) played every incoming note through the melodic tom voice. Now GM_DRUM_LANE reads the note number and routes it to one of eight canonical lanes, kick, snare, low tom, high tom, clap, cowbell and two hats, with a chromatic fallback from C1 for a controller that isn't sending the GM layout. CCs work the same way: ranges 70-77 and 16-23 both hit the same eight macro knobs so most boxes work without any setup, a handful of named CCs (74 cutoff, 71 resonance, 73 attack, 75 decay, 72 release) grab their specific knob instead of a numbered slot, and CC 7 is always the slot's volume.</p>
+<p>Web MIDI itself needs Chrome, Edge or Opera, Firefox 108 or newer, or Safari 18+ on macOS or iPadOS, over HTTPS. The same map now also shows up as a MIDI pill in the strip on jamnutz.com/standalone, wiring up on its own when the browser already granted permission.</p>
+</div>
+</div>
+<script src="assets/theme.js"></script>
+<script>
+(function(){
+  // ---- ported verbatim from src/pages/Hardware.jsx ----
+
+  // Hardware.jsx:93-95
+  const CHANNEL_TO_SLOT = { 0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 0 };
+
+  // Hardware.jsx:119-123
+  const AUTO_VOICES = [null, 'pluck', 'bell', 'pad', 'fm', 'chip', 'gboy', 'organ', 'pluck', 'bell'];
+
+  // Hardware.jsx:103-112
+  const GM_DRUM_LANE = {
+    35: 0, 36: 0,               // kick
+    37: 1, 38: 1, 40: 1,        // snare (+ side stick)
+    39: 4,                      // clap
+    41: 2, 43: 2, 45: 2,        // low toms
+    47: 3, 48: 3, 50: 3,        // high toms
+    42: 6, 44: 6,               // closed / pedal hat
+    46: 7,                      // open hat
+    56: 5,                      // cowbell
+  };
+  // Hardware.jsx:113-116
+  const noteToLane = (note) => {
+    if (GM_DRUM_LANE[note] !== undefined) return GM_DRUM_LANE[note];
+    return ((note - 36) % 8 + 8) % 8;
+  };
+
+  // drumLanes.js:9
+  const DRUM_LANE_IDS = ['BD', 'SD', 'LT', 'HT', 'CP', 'CB', 'CH', 'OH'];
+
+  // Hardware.jsx:132-142
+  const CC_NAMED = { 74: 'flt', 71: 'q', 73: 'atk', 75: 'dcy', 72: 'rel' };
+  function ccToMacro(cc) {
+    const named = CC_NAMED[cc];
+    if (named) return { label: named.toUpperCase() + ' (named)' };
+    let idx = -1;
+    if (cc >= 70 && cc <= 77) idx = cc - 70;
+    else if (cc >= 16 && cc <= 23) idx = cc - 16;
+    else if (cc === 1) idx = 0;
+    return idx >= 0 ? { label: 'macro slot ' + (idx + 1) } : null;
+  }
+
+  // ---- render ----
+  const slotsEl = document.getElementById('slots');
+  const ccEl = document.getElementById('ccrow');
+  const drumEl = document.getElementById('drumrow');
+  const lanesEl = document.getElementById('lanes');
+  const readout = document.getElementById('readout');
+
+  function clearLit(container){ container.querySelectorAll('.lit,.on').forEach(n=>n.classList.remove('lit','on')); }
+
+  // 10 channel tiles: slot 0 = D (ch10), slots 1-9 = ch1-9 (Hardware.jsx:15-17)
+  for (let slot = 0; slot <= 9; slot++) {
+    const ch = slot === 0 ? 10 : slot;
+    const voice = AUTO_VOICES[slot];
+    const btn = document.createElement('button');
+    btn.className = 'tile';
+    btn.innerHTML = '<div class="lab">' + (slot === 0 ? 'D' : slot) + '</div>'
+      + '<div class="voice">' + (voice ? voice : (slot === 0 ? 'kit' : '+')) + '</div>'
+      + '<div class="ch">CH' + String(ch).padStart(2, '0') + '</div>';
+    btn.addEventListener('click', () => {
+      clearLit(slotsEl);
+      btn.classList.add('lit');
+      readout.textContent = 'CH' + ch + '  →  CHANNEL_TO_SLOT[' + (ch - 1) + '] = slot ' + slot + (slot === 0 ? ' (drum)' : ' (' + (voice || 'empty') + ')');
+    });
+    slotsEl.appendChild(btn);
+  }
+
+  // CC strip: 1, 7, 16-23, 70-77
+  const ccs = [1, 7].concat(
+    Array.from({length:8}, (_,i)=>16+i),
+    Array.from({length:8}, (_,i)=>70+i)
+  );
+  ccs.forEach(cc => {
+    const btn = document.createElement('button');
+    btn.className = 'cc';
+    btn.textContent = cc;
+    btn.addEventListener('click', () => {
+      clearLit(ccEl);
+      btn.classList.add('lit');
+      if (cc === 7) {
+        readout.textContent = 'CC ' + cc + '  →  slot volume';
+      } else {
+        const m = ccToMacro(cc);
+        readout.textContent = m ? ('CC ' + cc + '  →  ' + m.label) : ('CC ' + cc + '  →  not mapped, passes through to the plugin');
+      }
+    });
+    ccEl.appendChild(btn);
+  });
+
+  // 8 canonical lanes (drumLanes.js:9)
+  DRUM_LANE_IDS.forEach(id => {
+    const d = document.createElement('div');
+    d.className = 'lane';
+    d.textContent = id;
+    lanesEl.appendChild(d);
+  });
+
+  // one representative GM note per lane, all real keys from GM_DRUM_LANE
+  const noteButtons = [36, 38, 41, 47, 39, 56, 42, 46];
+  noteButtons.forEach(note => {
+    const btn = document.createElement('button');
+    btn.className = 'dn';
+    btn.textContent = note;
+    btn.addEventListener('click', () => {
+      clearLit(drumEl);
+      btn.classList.add('lit');
+      const li = noteToLane(note);
+      clearLit(lanesEl);
+      lanesEl.children[li].classList.add('on');
+      readout.textContent = 'note ' + note + '  →  noteToLane()  →  lane ' + li + ' (' + DRUM_LANE_IDS[li] + ')';
+    });
+    drumEl.appendChild(btn);
+  });
+})();
+</script>

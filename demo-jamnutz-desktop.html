@@ -1,0 +1,172 @@
+<!--
+SOURCES (hybrid-jammin repo, ~/hybrid-jammin):
+  CLAUDE.md:3                          what the app is
+  README.md:5-8                        CC 70-77/16-23 turn first 8 params, CC7 volume, live inputs, persistence
+  native/Source/Engine.h:144-145       numSlots = 10, drumSlot/samplerSlot comment
+  native/Source/Engine.h:144-151       ccToKnob()
+  native/Source/Engine.h:191-193       blocklist.txt, AKANE crash comment
+  native/Source/Engine.h:1218-1242     beginScan / scanStep / scanProgress
+  native/Source/Engine.h:1232          try/catch around scanner->scanNextFile
+  native/Source/Engine.h:2110-2131     nextScanner(), the "why only AU" comment (2129)
+  ~/Library/Application Support/Hybrid Jammin/plugins.xml   223 PLUGIN entries (name/manufacturer/format extracted verbatim below)
+  ~/Library/Application Support/Hybrid Jammin/recent.txt    8 lines, last sounds loaded
+  git -C ~/hybrid-jammin rev-list --count HEAD  -> 168 (run 2026-09-07, repo is under active concurrent development)
+  wc -l native/Source/Engine.h -> 2164 (run 2026-09-07)
+-->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>The plugin scan</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
+<style>
+body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:var(--t-bg,#fff)}
+.wrap{max-width:820px;margin:0 auto;padding:1.6rem 1.2rem 3rem;box-sizing:border-box}
+.back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
+h1{font-size:1.4rem;margin:.2rem 0}
+.sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
+.panel{border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:14px;box-sizing:border-box}
+.scanhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.scanbtn{box-sizing:border-box;border:1.5px solid var(--t-fg,#111);border-radius:7px;background:var(--t-fg,#111);color:var(--t-bg,#fff);font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;font-weight:700;letter-spacing:.06em;padding:8px 16px;cursor:pointer}
+.scanbtn:disabled{opacity:.5;cursor:default}
+.progwrap{flex:1 1 120px;height:8px;border:1px solid var(--t-line,#ccc);border-radius:4px;overflow:hidden;background:var(--t-bg,#fff);min-width:80px}
+.progbar{height:100%;width:0%;background:var(--t-acc,#ff7a00)}
+.progtxt{font-family:"Space Mono",ui-monospace,monospace;font-size:.66rem;color:var(--t-muted,#888);white-space:nowrap}
+.tablebox{margin-top:12px;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);box-sizing:border-box;overflow:hidden}
+.thead{display:grid;grid-template-columns:2.1fr 1.6fr 1fr;gap:0;padding:6px 8px;font-family:"Space Mono",ui-monospace,monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--t-muted,#888);background:var(--t-stage,#f6f6f6);border-bottom:1px solid var(--t-line,#ccc)}
+.tablewrap{height:210px;overflow-y:auto}
+.row{display:grid;grid-template-columns:2.1fr 1.6fr 1fr;gap:0;padding:4px 8px;border-bottom:1px solid var(--t-line,#ccc);font-family:"Space Mono",ui-monospace,monospace;font-size:.68rem;color:var(--t-fg,#111)}
+.row:last-child{border-bottom:none}
+.row .fmt{opacity:.6}
+.row div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:4px}
+.chip{display:inline-block;margin-left:6px;font-size:.52rem;letter-spacing:.06em;font-weight:700;padding:1px 5px;border-radius:3px;background:var(--t-acc,#ff7a00);color:#000;vertical-align:middle}
+.emptyrow{color:var(--t-muted,#888);opacity:.6;text-align:center;padding:90px 8px;font-family:"Space Mono",ui-monospace,monospace;font-size:.68rem}
+.ccstrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:5px;margin-top:12px}
+.cc{box-sizing:border-box;border:1px solid var(--t-line,#ccc);border-radius:5px;background:var(--t-bg,#fff);color:var(--t-fg,#111);cursor:pointer;padding:5px 2px;font-family:"Space Mono",ui-monospace,monospace;font-size:.66rem;text-align:center}
+.cc.lit{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#000;font-weight:700}
+.readout{margin-top:10px;height:34px;box-sizing:border-box;border:1px solid var(--t-line,#ccc);border-radius:6px;background:var(--t-bg,#fff);display:flex;align-items:center;padding:0 10px;font-family:"Space Mono",ui-monospace,monospace;font-size:.7rem;color:var(--t-fg,#111);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
+.facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
+.facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 8px;background:var(--t-stage,#f6f6f6);box-sizing:border-box}
+.facts .n{font-size:1.4rem;font-weight:700;color:var(--t-acc,#ff7a00);line-height:1;font-variant-numeric:tabular-nums}
+.facts .l{font-size:.6rem;letter-spacing:.07em;font-weight:600;color:var(--t-muted,#888);margin-top:4px;text-transform:uppercase}
+.facts .src{font-size:.54rem;color:var(--t-muted,#888);margin-top:3px;opacity:.75}
+.proj p{font-size:.88rem;line-height:1.6;margin:.8rem 0 0}
+@media (max-width:420px){ .facts{grid-template-columns:1fr 1fr} }
+</style>
+<div class="wrap">
+<a class="back" href="ai.html">← Back</a>
+<h1>The plugin scan</h1>
+<p class="sub">Hybrid Jammin (JAMNUTZ desktop) · ~/hybrid-jammin · Mac JUCE app</p>
+
+<div class="panel">
+  <div class="scanhead">
+    <button class="scanbtn" id="scanBtn">SCAN</button>
+    <div class="progwrap"><div class="progbar" id="progbar"></div></div>
+    <div class="progtxt" id="progtxt">0 / 223</div>
+  </div>
+  <div class="tablebox">
+    <div class="thead"><div>name</div><div>manufacturer</div><div>format</div></div>
+    <div class="tablewrap" id="tablewrap">
+      <div class="emptyrow" id="emptyrow">press SCAN to run beginScan() / scanStep() over the real list</div>
+      <div id="tbody"></div>
+    </div>
+  </div>
+  <h2 style="font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted,#888);margin:14px 0 0;font-weight:600">CC → knob (tap a number)</h2>
+  <div class="ccstrip" id="ccstrip"></div>
+  <div class="readout" id="readout">tap a CC number above</div>
+</div>
+
+<p class="lede">This is the actual plugin scan from Hybrid Jammin, the Mac app that hosts one instrument plugin per MIDI channel. Press scan and it types in the real 223 entries from my machine's plugins.xml, name, manufacturer, format, in scan order. The eight sounds in recent.txt, the app's own memory of what I loaded last, get a RECENT chip as they come up.</p>
+
+<div class="facts">
+  <div class="f"><div class="n">168</div><div class="l">commits</div><div class="src">git rev-list --count HEAD</div></div>
+  <div class="f"><div class="n">2164</div><div class="l">lines, Engine.h</div><div class="src">wc -l</div></div>
+  <div class="f"><div class="n">223</div><div class="l">plugins scanned</div><div class="src">plugins.xml</div></div>
+  <div class="f"><div class="n">10</div><div class="l">MIDI channel slots</div><div class="src">Engine.h:144</div></div>
+</div>
+
+<div class="proj">
+<p>JAMNUTZ is the non-DAW for jammers: a Mac JUCE app, ten tracks of hosted AU instruments, played by a hardware box or the computer keyboard, generative sequencers, no timeline. Slots 1-8 are synths, slot 9 is the drum machine, slot 10 is the sampler. CC 70-77 and CC 16-23 both turn a track's first eight parameters, the same ccToKnob() math as the strip above, and CC 7 is always the channel volume. Every other MIDI input is live, including ones plugged in after launch.</p>
+<p>Only AU gets scanned on a Mac, since every plugin ships one and the VST3 copies just add duplicates plus the odd plugin that throws inside dlopen. Scanning still wraps each file in a try/catch, a plugin that throws during load gets skipped and logged as "a plugin threw during load" instead of taking the scan down with it. AKANE is one of the 223, and it sits on its own blocklist.txt line because it crashes inside its own processBlock when hosted here.</p>
+</div>
+</div>
+<script src="assets/theme.js"></script>
+<script>
+(function(){
+  // plugins.xml, extracted verbatim: [name, manufacturer, format], 223 entries
+  const PLUGINS = [["JAMNUTZ PADS","Jamnutz","Jamnutz"],["JAMNUTZ RING","Jamnutz","Jamnutz"],["JAMNUTZ PLUCK","Jamnutz","Jamnutz"],["JAMNUTZ CRUSH","Jamnutz","Jamnutz"],["JAMNUTZ GRAIN","Jamnutz","Jamnutz"],["JAMNUTZ STACK","Jamnutz","Jamnutz"],["JAMNUTZ PHYS","Jamnutz","Jamnutz"],["JAMNUTZ FM","Jamnutz","Jamnutz"],["JAMNUTZ JUNGLE","Jamnutz","Jamnutz"],["JAMNUTZ NEON","Jamnutz","Jamnutz"],["JAMNUTZ DRY","Jamnutz","Jamnutz"],["JAMNUTZ LATIN","Jamnutz","Jamnutz"],["JAMNUTZ PLATE","Jamnutz","Jamnutz"],["JAMNUTZ SOFT","Jamnutz","Jamnutz"],["JAMNUTZ TIGHT","Jamnutz","Jamnutz"],["JAMNUTZ PUNCH","Jamnutz","Jamnutz"],["JAMNUTZ BOOM","Jamnutz","Jamnutz"],["AUVectorPanner","Apple","AudioUnit"],["AUSphericalHeadPanner","Apple","AudioUnit"],["HRTFPanner","Apple","AudioUnit"],["AUSoundFieldPanner","Apple","AudioUnit"],["AUMixer","Apple","AudioUnit"],["AUMatrixMixer","Apple","AudioUnit"],["AUMultiSplitter","Apple","AudioUnit"],["AUMultiChannelMixer","Apple","AudioUnit"],["AUMixer3D","Apple","AudioUnit"],["AUSpatialMixer","Apple","AudioUnit"],["AUSampler","Apple","AudioUnit"],["AUMIDISynth","Apple","AudioUnit"],["DLSMusicDevice","Apple","AudioUnit"],["AKANE","Wiistruments","AudioUnit"],["Wurli V3","Arturia","AudioUnit"],["VOX Continental V2","Arturia","AudioUnit"],["Vocoder V","Arturia","AudioUnit"],["B-3 V2","Arturia","AudioUnit"],["Acid V","Arturia","AudioUnit"],["Synclavier V","Arturia","AudioUnit"],["Analog","Synthesis","AudioUnit"],["Stage-73 V2","Arturia","AudioUnit"],["Solina V2","Arturia","AudioUnit"],["SM-03","TOI","AudioUnit"],["SM-02","TOI","AudioUnit"],["SM-01","TOI","AudioUnit"],["SQ80 V","Arturia","AudioUnit"],["SP-404MKII","Roland","AudioUnit"],["Synthi V","Arturia","AudioUnit"],["Piano V3","Arturia","AudioUnit"],["plugdata","plugdata","AudioUnit"],["Prophet-VS V","Arturia","AudioUnit"],["Prophet-5 V","Arturia","AudioUnit"],["OP-Xa V","Arturia","AudioUnit"],["SEM V2","Arturia","AudioUnit"],["MiniFreak V","Arturia","AudioUnit"],["Modular Radio Pro","Modular Radio","AudioUnit"],["Matrix-12 V2","Arturia","AudioUnit"],["Modular V3","Arturia","AudioUnit"],["Mellotron V","Arturia","AudioUnit"],["Mini V4","Arturia","AudioUnit"],["KORG MS-20 V","Arturia","AudioUnit"],["JWCS","TOI","AudioUnit"],["JW-WC","TOI","AudioUnit"],["JWWASP","TOI","AudioUnit"],["JWWSA","TOI","AudioUnit"],["JWWRM","TOI","AudioUnit"],["JW-DX","TOI","AudioUnit"],["JW-CZ","TOI","AudioUnit"],["JW-20","TOI","AudioUnit"],["JW-19","TOI","AudioUnit"],["JW-18","TOI","AudioUnit"],["JW-16","TOI","AudioUnit"],["JW-15","TOI","AudioUnit"],["JW-14","TOI","AudioUnit"],["JW-13","TOI","AudioUnit"],["JW-12","TOI","AudioUnit"],["JW-11","TOI","AudioUnit"],["JW-10","TOI","AudioUnit"],["JW-09","TOI","AudioUnit"],["JW-08","TOI","AudioUnit"],["JW-07","TOI","AudioUnit"],["JW-06","TOI","AudioUnit"],["JW-05","TOI","AudioUnit"],["JW-04","TOI","AudioUnit"],["JW-03","TOI","AudioUnit"],["JW-02","TOI","AudioUnit"],["JW-01","TOI","AudioUnit"],["JWVOY","TOI","AudioUnit"],["JWVOX","TOI","AudioUnit"],["JWVIR","TOI","AudioUnit"],["JWVGR","TOI","AudioUnit"],["JW-VCS","TOI","AudioUnit"],["JWVOC2","TOI","AudioUnit"],["Jun-6 V","Arturia","AudioUnit"],["JWTAUR","TOI","AudioUnit"],["JWSX","TOI","AudioUnit"],["JWSYNC","TOI","AudioUnit"],["JWSYG","TOI","AudioUnit"],["JWSYNA","TOI","AudioUnit"],["JWSRC","TOI","AudioUnit"],["JWSQ80","TOI","AudioUnit"],["JWSPR","TOI","AudioUnit"],["JWSON6","TOI","AudioUnit"],["JW-SEM","TOI","AudioUnit"],["JWQUAD","TOI","AudioUnit"],["JW-VS","TOI","AudioUnit"],["JWPVK","TOI","AudioUnit"],["JWPSX","TOI","AudioUnit"],["JW-5P","TOI","AudioUnit"],["JWPROPRO","TOI","AudioUnit"],["JW-PPG","TOI","AudioUnit"],["JWPOL","TOI","AudioUnit"],["JWPENT","TOI","AudioUnit"],["JWPRO1","TOI","AudioUnit"],["JWPMG","TOI","AudioUnit"],["JWPGM","TOI","AudioUnit"],["JW-OSC","TOI","AudioUnit"],["JWOP3","TOI","AudioUnit"],["JW-ODY","TOI","AudioUnit"],["JW-OBI","TOI","AudioUnit"],["JWNRN","TOI","AudioUnit"],["JW-NL","TOI","AudioUnit"],["JWMWXT","TOI","AudioUnit"],["JW-20M","TOI","AudioUnit"],["JWMOD","TOI","AudioUnit"],["JWMNP","TOI","AudioUnit"],["JW-MINI","TOI","AudioUnit"],["JW-MEM","TOI","AudioUnit"],["JW-MEL","TOI","AudioUnit"],["JW-M1","TOI","AudioUnit"],["JW-MX12","TOI","AudioUnit"],["JW-JX","TOI","AudioUnit"],["JW-JUP","TOI","AudioUnit"],["JW-JUN","TOI","AudioUnit"],["JWJP6","TOI","AudioUnit"],["JWJ60","TOI","AudioUnit"],["JWION","TOI","AudioUnit"],["JW-FIZ","TOI","AudioUnit"],["JWEVO","TOI","AudioUnit"],["JWEMU","TOI","AudioUnit"],["JWEML","TOI","AudioUnit"],["JW-D50","TOI","AudioUnit"],["JWCWJ","TOI","AudioUnit"],["JW-CS80","TOI","AudioUnit"],["JWCMI","TOI","AudioUnit"],["JWCAT","TOI","AudioUnit"],["JW-BXLA","TOI","AudioUnit"],["Jup-8 V4","Arturia","AudioUnit"],["JW8000","TOI","AudioUnit"],["JW-2600","TOI","AudioUnit"],["JW101","TOI","AudioUnit"],["GBX","TOI","AudioUnit"],["Farfisa V","Arturia","AudioUnit"],["Emulator II V","Arturia","AudioUnit"],["DX7 V","Arturia","AudioUnit"],["Daytrip","plugin corp","AudioUnit"],["CZ V","Arturia","AudioUnit"],["Clavinet V","Arturia","AudioUnit"],["CS-80 V4","Arturia","AudioUnit"],["CP-70 V","Arturia","AudioUnit"],["CMI V","Arturia","AudioUnit"],["Buchla Easel V","Arturia","AudioUnit"],["Analog Lab V","Arturia","AudioUnit"],["Augmented WOODWINDS","Arturia","AudioUnit"],["Augmented VOICES","Arturia","AudioUnit"],["Augmented STRINGS","Arturia","AudioUnit"],["ARP 2600 V3","Arturia","AudioUnit"],["Augmented GRAND PIANO","Arturia","AudioUnit"],["Augmented BRASS","Arturia","AudioUnit"],["plugdata-midi","plugdata","AudioUnit"],["plugdata-fx","plugdata","AudioUnit"],["Kismet","Ambient Audio","AudioUnit"],["Kudomi","Ambient Audio","AudioUnit"],["CmajPlugin","Cmajor Software Ltd","AudioUnit"],["Auto-Tune Pro","Antares","AudioUnit"],["AUSpeechSynthesis","Apple","AudioUnit"],["AUScheduledSoundPlayer","Apple","AudioUnit"],["AUNetReceive","Apple","AudioUnit"],["AUAudioFilePlayer","Apple","AudioUnit"],["AUSoundIsolation","Apple","AudioUnit"],["AUPitch","Apple","AudioUnit"],["AUSampleDelay","Apple","AudioUnit"],["AUReverb2","Apple","AudioUnit"],["AURogerBeep","Apple","AudioUnit"],["AURoundTripAAC","Apple","AudioUnit"],["AUParametricEQ","Apple","AudioUnit"],["AUNewPitch","Apple","AudioUnit"],["AUNetSend","Apple","AudioUnit"],["AUNBandEQ","Apple","AudioUnit"],["AUMatrixReverb","Apple","AudioUnit"],["AUMultibandCompressor","Apple","AudioUnit"],["AULowShelfFilter","Apple","AudioUnit"],["AULowpass","Apple","AudioUnit"],["AUPeakLimiter","Apple","AudioUnit"],["AUHighShelfFilter","Apple","AudioUnit"],["AUHipass","Apple","AudioUnit"],["AUGraphicEQ","Apple","AudioUnit"],["AUFilter","Apple","AudioUnit"],["AUDistortion","Apple","AudioUnit"],["AUDelay","Apple","AudioUnit"],["AUDynamicsProcessor","Apple","AudioUnit"],["AUBandpass","Apple","AudioUnit"],["Tide","Ambient Audio","AudioUnit"],["Sway","Ambient Audio","AudioUnit"],["Vocodur","Sound Capsule","AudioUnit"],["Tapedeck","Sound Capsule","AudioUnit"],["Spectrur","Sound Capsule","AudioUnit"],["Saturatur","Sound Capsule","AudioUnit"],["Resonatur","Sound Capsule","AudioUnit"],["Pitchur","Sound Capsule","AudioUnit"],["Phazur","Sound Capsule","AudioUnit"],["Limitur","Sound Capsule","AudioUnit"],["Harmonizur","Sound Capsule","AudioUnit"],["Grainfield","Sound Capsule","AudioUnit"],["Glitchur","Sound Capsule","AudioUnit"],["Flangur","Sound Capsule","AudioUnit"],["Filtur","Sound Capsule","AudioUnit"],["Equalizur","Sound Capsule","AudioUnit"],["Distortur","Sound Capsule","AudioUnit"],["ShimmerVerb","Sound Capsule","AudioUnit"],["Convolvur","Sound Capsule","AudioUnit"],["Compressur","Sound Capsule","AudioUnit"],["Choruz","Sound Capsule","AudioUnit"],["EchoDelay","Sound Capsule","AudioUnit"],["DreamVerb","Sound Capsule","AudioUnit"]];
+
+  // recent.txt, 8 lines, last sounds loaded
+  const RECENT = ["JW-16","JW-18","JW-15","JW-14","JW-13","JW-12","JW-10","JW-09"];
+
+  // Engine.h:144-151
+  function ccToKnob(cc) {
+    if (cc >= 70 && cc <= 77) return cc - 70;
+    if (cc >= 16 && cc <= 23) return cc - 16;
+    return -1;
+  }
+
+  const tbody = document.getElementById('tbody');
+  const emptyrow = document.getElementById('emptyrow');
+  const scanBtn = document.getElementById('scanBtn');
+  const progbar = document.getElementById('progbar');
+  const progtxt = document.getElementById('progtxt');
+  const tablewrap = document.getElementById('tablewrap');
+
+  let i = 0, timer = null, started = false;
+
+  // Engine.h:1218-1242 beginScan / scanStep / scanProgress, adapted:
+  // scanStep() types one PLUGIN row per call, scanProgress() = i / total.
+  function scanStep() {
+    if (i >= PLUGINS.length) return false;
+    const [name, manu, fmt] = PLUGINS[i];
+    const row = document.createElement('div');
+    row.className = 'row';
+    const recent = RECENT.indexOf(name) >= 0 ? '<span class="chip">RECENT</span>' : '';
+    row.innerHTML = '<div>' + name + recent + '</div><div>' + manu + '</div><div class="fmt">' + fmt + '</div>';
+    tbody.appendChild(row);
+    i++;
+    tablewrap.scrollTop = tablewrap.scrollHeight;
+    return true;
+  }
+  function scanProgress() { return i / PLUGINS.length; }
+
+  function beginScan() {
+    if (started) return;
+    started = true;
+    scanBtn.disabled = true;
+    scanBtn.textContent = 'SCANNING';
+    emptyrow.hidden = true;
+    tbody.innerHTML = '';
+    i = 0;
+    timer = setInterval(() => {
+      const more = scanStep();
+      const pct = Math.round(scanProgress() * 100);
+      progbar.style.width = pct + '%';
+      progtxt.textContent = i + ' / ' + PLUGINS.length;
+      if (!more) {
+        clearInterval(timer);
+        scanBtn.textContent = 'SCANNED';
+      }
+    }, 16);
+  }
+  scanBtn.addEventListener('click', beginScan);
+
+  // CC strip: 16-23 and 70-77 (Engine.h:144-151)
+  const ccEl = document.getElementById('ccstrip');
+  const readout = document.getElementById('readout');
+  const ccs = Array.from({length:8}, (_,k)=>16+k).concat(Array.from({length:8}, (_,k)=>70+k));
+  ccs.forEach(cc => {
+    const btn = document.createElement('button');
+    btn.className = 'cc';
+    btn.textContent = cc;
+    btn.addEventListener('click', () => {
+      ccEl.querySelectorAll('.lit').forEach(n=>n.classList.remove('lit'));
+      btn.classList.add('lit');
+      const k = ccToKnob(cc);
+      readout.textContent = 'CC ' + cc + '  →  ccToKnob()  →  knob index ' + k;
+    });
+    ccEl.appendChild(btn);
+  });
+})();
+</script>

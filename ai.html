@@ -1231,11 +1231,20 @@ a,
 @media (min-width: 701px){
   .portfolio-sound-circles-grid{
     display: grid;
-    grid-template-columns: repeat(23, 1fr);
+    grid-template-columns: repeat(23, minmax(0, 1fr));
     grid-template-rows: repeat(3, 1fr);
     gap: 10px;
     height: 120px;
     flex: 1;
+    min-width: 0;
+    align-items: center;
+    justify-items: center;
+  }
+  /* tablet widths: the circle follows its column instead of forcing the row height, so the grid never pushes the page wider */
+  .portfolio-sound-circle{
+    width: 100%;
+    max-width: 33px;
+    height: auto;
   }
 
   .portfolio-sound-circles-section .section-subtitle{
@@ -1267,6 +1276,12 @@ a,
 .pillar p{margin:0;color:var(--muted);line-height:1.5;font-size:.97rem}
 .divider-note{margin:0 0 2.2rem;color:var(--muted);max-width:760px;line-height:1.55}
 .tagline{margin:.4rem 0 0;font-size:.92rem;color:var(--muted);letter-spacing:.02em}
+/* contact row: the two links that are real today. LinkedIn and a résumé link are holds. */
+.hero-links{margin:.55rem 0 0;font:.74rem/1.7 "Space Mono",ui-monospace,Menlo,monospace;letter-spacing:.02em;display:flex;flex-wrap:wrap;gap:0 .6rem;align-items:center}
+.hero-links a{color:var(--t-fg,#111);text-decoration:none;border-bottom:1.5px solid var(--t-acc,#ff7a00);padding-bottom:1px}
+.hero-links a:hover{color:var(--t-acc,#ff7a00)}
+.hero-links span{color:var(--muted)}
+@media (max-width:760px){.hero-links{justify-content:center}.hero-links span{display:none}}
 
 .tool-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-bottom:2rem}
 @media (max-width:1000px){.tool-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -1311,6 +1326,7 @@ a,
         I have spent a decade building products in music technology. I design, develop, integrate and ship software, 80+ pieces of it on my own. For the last two years most of that has been built with AI in the loop: coding agents every day, a local image generation pipeline, and small tools that check the models' work. I am now applying that product-building experience to AI-powered solutions. The tools below are the shape of the job I want next.
       </p>
 <p class="tagline">Independent software and AI work · 2016 to now</p>
+<p class="hero-links"><a href="mailto:dawlessjammin@gmail.com">dawlessjammin@gmail.com</a><span>·</span><a href="https://github.com/jadewii" target="_blank" rel="noreferrer">github.com/jadewii</a></p>
 </div>
 </section>
 
@@ -1318,7 +1334,8 @@ a,
 <div class="patch-head"><div class="ph-left"><span class="ph-cap">IN · THE PROBLEM</span><h3 class="ph-q" id="patchTitle"></h3></div><div class="bank" id="patchBank" aria-label="Projects"></div></div>
 <div class="patch" id="workflowPatch"></div>
 <div class="patch-row"><p class="patch-note" id="patchNote"></p><div class="patch-btns"><button class="patch-reset" id="patchPrev" aria-label="Previous project">&#9664;</button><button class="patch-reset" id="patchReset" aria-label="Reset the patch">RESET PATCH</button><button class="patch-reset" id="patchNext" aria-label="Next project">&#9654;</button></div></div>
-<div class="patch-stage" id="patchStage"><div class="st-head"><span class="dots"><i></i><i></i><i></i></span><span class="st-title"></span></div><div class="st-body"><div class="term"><div class="lines" id="termLines"></div></div><div class="view" id="stageView"></div></div></div>
+<div class="thework" id="patchFeature"><div class="ft-head"></div><div class="ft-mount"></div><div class="ft-term"><span class="ft-cap">TERMINAL · every line was run</span><div class="lines" id="termLines"></div></div></div>
+<style id="ftStyle"></style>
 <p class="patch-hint">Every module is a real line from that project, with its file. The rack is live: drag any OUT to any IN and the signal follows. Double-click a jack to pull its cable.</p>
 </section>
 
