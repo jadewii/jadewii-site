@@ -13,21 +13,15 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:va
 .back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
 h1{font-size:1.5rem;margin:.2rem 0}
 .sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
-/* the checker: four real fixture files, each parsed in the browser the way check.py parses them */
-.chk{grid-template-columns:minmax(0,1fr);border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:12px 14px;display:grid;gap:8px}
-.files{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.files button{height:40px;border:1.5px solid var(--t-line,#ccc);border-radius:8px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.62rem;letter-spacing:.06em;font-weight:600;cursor:pointer;padding:0 4px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.files button.on{border-color:var(--t-fg,#111);background:var(--t-fg,#111);color:var(--t-bg,#fff)}
-.bytes{height:128px;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden}
-.bytes canvas{display:block;width:100%;height:128px}
-.steps{display:grid;grid-template-columns:1fr;gap:4px;height:118px;font:.66rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111)}
-.steps div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.steps .k{color:var(--t-muted,#888)}
-.steps .v{color:var(--t-fg,#111)}
-.verdict{display:flex;justify-content:space-between;align-items:center;height:26px;font:.68rem/1 "Space Mono",ui-monospace,monospace;letter-spacing:.06em}
-.verdict b{font-weight:700;padding:5px 9px;border-radius:5px;border:1.5px solid var(--t-fg,#111);color:var(--t-fg,#111);white-space:nowrap}
-.verdict b.bad{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#fff}
-.verdict span{color:var(--t-muted,#888);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-left:10px}
+/* the element: the real source on the left, verbatim with its line numbers; the same function ported to JS running on the right, printing what the Python prints */
+.src{grid-template-columns:minmax(0,1fr) minmax(0,1fr);display:grid;gap:10px;height:420px;border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:10px}
+.pane{min-width:0;height:400px;display:flex;flex-direction:column;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden}
+.pane .cap{flex:none;height:24px;line-height:24px;padding:0 10px;font:.6rem/24px "Space Mono",ui-monospace,monospace;letter-spacing:.1em;color:var(--t-muted,#888);border-bottom:1px solid var(--t-line,#ccc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pane pre{flex:1;margin:0;padding:8px 10px;overflow:auto;font:.62rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111);white-space:pre;tab-size:4}
+.pick{flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px;border-bottom:1px solid var(--t-line,#ccc)}
+.pick button{height:24px;border:1.5px solid var(--t-line,#ccc);border-radius:5px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.54rem;letter-spacing:.03em;font-weight:600;cursor:pointer;padding:0 4px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick button.on{border-color:var(--t-fg,#111);background:var(--t-fg,#111);color:var(--t-bg,#fff)}
+.out .c{color:var(--t-acc,#ff7a00)}.out .ok{color:#3ecf8e}.out .bad{color:#ff5d8f}.out .mu{color:var(--t-muted,#888)}
 .lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
 .facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
 .facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 12px;background:var(--t-stage,#f6f6f6);min-width:0}
@@ -36,17 +30,48 @@ h1{font-size:1.5rem;margin:.2rem 0}
 .facts .s{font:.58rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 p.more{font-size:.9rem;line-height:1.6;color:var(--t-fg,#111);margin:1rem 0 0}
 p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;color:var(--t-muted,#888)}
-@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}.src{grid-template-columns:1fr;height:auto}.pane{height:300px}}
 </style>
 <div class="wrap">
 <a class="back" href="ai.html">← Back</a>
 <h1>safetensors-check, is the file as long as its header says</h1>
-<p class="sub">Python · 104 lines · no dependencies · the four test fixtures, parsed here in the browser</p>
-<div class="chk" id="chk">
-  <div class="files" id="files"></div>
-  <div class="bytes"><canvas id="bytes" width="1580" height="256"></canvas></div>
-  <div class="steps" id="steps"></div>
-  <div class="verdict"><b id="status">ok</b><span id="cmd">python3 check.py fixtures/valid.safetensors</span></div>
+<p class="sub">Python · 104 lines · no dependencies · check.py on the left, the same check running on the four fixtures on the right</p>
+<div class="src">
+  <div class="pane"><div class="cap">~/demos/safetensors-check/check.py:19-52</div><pre> 19  MAX_HEADER = 256 * 1024 * 1024  # anything bigger than 256MB is not a real header
+ 20  
+ 21  
+ 22  def check(path: pathlib.Path) -&gt; dict:
+ 23      out = {&quot;file&quot;: str(path), &quot;size&quot;: path.stat().st_size}
+ 24      try:
+ 25          with open(path, &quot;rb&quot;) as fh:
+ 26              raw = fh.read(8)
+ 27              if len(raw) &lt; 8:
+ 28                  return {**out, &quot;status&quot;: &quot;error&quot;, &quot;reason&quot;: &quot;shorter than 8 bytes&quot;}
+ 29              n = struct.unpack(&quot;&lt;Q&quot;, raw)[0]
+ 30              if n &gt; MAX_HEADER or 8 + n &gt; out[&quot;size&quot;]:
+ 31                  return {**out, &quot;status&quot;: &quot;error&quot;, &quot;reason&quot;: f&quot;header length {n} does not fit in file&quot;}
+ 32              try:
+ 33                  hdr = json.loads(fh.read(n))
+ 34              except ValueError as e:
+ 35                  return {**out, &quot;status&quot;: &quot;error&quot;, &quot;reason&quot;: f&quot;header is not JSON: {e}&quot;}
+ 36      except OSError as e:
+ 37          return {**out, &quot;status&quot;: &quot;error&quot;, &quot;reason&quot;: str(e)}
+ 38  
+ 39      tensors = {k: v for k, v in hdr.items() if k != &quot;__metadata__&quot;}
+ 40      if not tensors:
+ 41          return {**out, &quot;status&quot;: &quot;error&quot;, &quot;reason&quot;: &quot;header lists no tensors&quot;}
+ 42      try:
+ 43          end = max(v[&quot;data_offsets&quot;][1] for v in tensors.values())
+ 44      except (KeyError, TypeError, IndexError):
+ 45          return {**out, &quot;status&quot;: &quot;error&quot;, &quot;reason&quot;: &quot;tensor entry missing data_offsets&quot;}
+ 46  
+ 47      expected = 8 + n + end
+ 48      delta = out[&quot;size&quot;] - expected
+ 49      status = &quot;ok&quot; if delta == 0 else (&quot;truncated&quot; if delta &lt; 0 else &quot;trailing&quot;)
+ 50      dtypes = sorted({v.get(&quot;dtype&quot;, &quot;?&quot;) for v in tensors.values()})
+ 51      return {**out, &quot;status&quot;: status, &quot;expected&quot;: expected, &quot;delta&quot;: delta,
+ 52              &quot;tensors&quot;: len(tensors), &quot;dtypes&quot;: dtypes}</pre></div>
+  <div class="pane"><div class="pick" id="pick"></div><pre class="out" id="out"></pre></div>
 </div>
 <p class="lede">A safetensors file is an 8-byte little-endian header length, a JSON header that lists every tensor with its byte offsets, then the tensor bytes. So the correct file size is fully determined by the header. The tool reads the header, computes the expected length and compares. Delta zero is valid, negative is a truncated download, positive is trailing data the header does not cover.</p>
 <div class="facts">
@@ -63,64 +88,37 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
 (function(){
   /* the four fixtures, verbatim bytes (xxd fixtures/*.safetensors, 2026-09-07) */
   const HDR='{"__metadata__": {"format": "pt"}, "w": {"dtype": "F16", "shape": [4, 4], "data_offsets": [0, 32]}}';
-  const enc=s=>Array.from(new TextEncoder().encode(s));
-  const len8=n=>[n&255,(n>>8)&255,0,0,0,0,0,0];
-  const FIX=[
-    {name:'garbage.safetensors',  bytes:enc('not a model')},
-    {name:'trailing.safetensors', bytes:len8(99).concat(enc(HDR), new Array(32).fill(0), [0xff,0xff,0xff,0xff,0xff,0xff,0xff])},
-    {name:'truncated.safetensors',bytes:len8(99).concat(enc(HDR), new Array(22).fill(0))},
-    {name:'valid.safetensors',    bytes:len8(99).concat(enc(HDR), new Array(32).fill(0))}
-  ];
+  const enc=s=>Array.from(new TextEncoder().encode(s)); const len8=n=>[n&255,(n>>8)&255,0,0,0,0,0,0];
+  const FIX=[{name:'garbage.safetensors',bytes:enc('not a model')},
+    {name:'trailing.safetensors',bytes:len8(99).concat(enc(HDR),new Array(32).fill(0),[0xff,0xff,0xff,0xff,0xff,0xff,0xff])},
+    {name:'truncated.safetensors',bytes:len8(99).concat(enc(HDR),new Array(22).fill(0))},
+    {name:'valid.safetensors',bytes:len8(99).concat(enc(HDR),new Array(32).fill(0))}];
   /* check.py:19-52, ported line for line */
   const MAX_HEADER=256*1024*1024;
   function check(f){ const out={file:f.name,size:f.bytes.length}; const b=f.bytes;
     if(b.length<8) return {...out,status:'error',reason:'shorter than 8 bytes'};
-    let n=0; for(let i=7;i>=0;i--) n=n*256+b[i];                              /* struct.unpack("<Q") */
-    if(n>MAX_HEADER||8+n>out.size) return {...out,status:'error',reason:'header length '+n+' does not fit in file',n};
-    let hdr; try{ hdr=JSON.parse(new TextDecoder().decode(new Uint8Array(b.slice(8,8+n)))); }catch(e){ return {...out,status:'error',reason:'header is not JSON: '+e.message,n}; }
+    let n=0n; for(let i=7;i>=0;i--) n=n*256n+BigInt(b[i]);                       /* struct.unpack("<Q") */
+    if(n>BigInt(MAX_HEADER)||8n+n>BigInt(out.size)) return {...out,status:'error',reason:'header length '+n+' does not fit in file'};
+    n=Number(n); let hdr; try{ hdr=JSON.parse(new TextDecoder().decode(new Uint8Array(b.slice(8,8+n)))); }catch(e){ return {...out,status:'error',reason:'header is not JSON: '+e.message}; }
     const tensors=Object.fromEntries(Object.entries(hdr).filter(([k])=>k!=='__metadata__'));
-    if(!Object.keys(tensors).length) return {...out,status:'error',reason:'header lists no tensors',n};
-    let end; try{ end=Math.max(...Object.values(tensors).map(v=>v.data_offsets[1])); if(!isFinite(end)) throw 0; }catch(e){ return {...out,status:'error',reason:'tensor entry missing data_offsets',n}; }
-    const expected=8+n+end, delta=out.size-expected;
-    const status=delta===0?'ok':(delta<0?'truncated':'trailing');
+    if(!Object.keys(tensors).length) return {...out,status:'error',reason:'header lists no tensors'};
+    let end; try{ end=Math.max(...Object.values(tensors).map(v=>v.data_offsets[1])); if(!isFinite(end)) throw 0; }catch(e){ return {...out,status:'error',reason:'tensor entry missing data_offsets'}; }
+    const expected=8+n+end, delta=out.size-expected; const status=delta===0?'ok':(delta<0?'truncated':'trailing');
     const dtypes=[...new Set(Object.values(tensors).map(v=>v.dtype||'?'))].sort();
-    return {...out,status,expected,delta,tensors:Object.keys(tensors).length,dtypes,n,end,hdr}; }
-  /* not in check.py: the Python for garbage.safetensors reads the 8 bytes "not a mo" as 8029109312199880558; JS doubles lose the low bits, so print the real value */
-  const GARBAGE_N='8029109312199880558';
-
-  const files=document.getElementById('files'), steps=document.getElementById('steps'), statusEl=document.getElementById('status'), cmd=document.getElementById('cmd');
-  const cv=document.getElementById('bytes'), g=cv.getContext('2d'); let W=cv.width, H=cv.height;
-  const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-  let cur=3;
-  function draw(f,r){ const fg=css('--t-fg')||'#111', mu=css('--t-muted')||'#888', acc=css('--t-acc')||'#ff7a00', bg=css('--t-bg')||'#fff', line=css('--t-line')||'#ccc';
-    const cw=cv.clientWidth||790; if(cv.width!==cw*2){ cv.width=cw*2; } W=cv.width; H=cv.height; g.clearRect(0,0,W,H); const pad=cw<500?16:40, x0=pad, x1=W-pad, span=Math.max(f.bytes.length, r.expected||0, 8);
-    const X=b=>x0+(x1-x0)*b/span; const y=96, h=54;
-    /* three regions the header defines: 8 bytes, header JSON, tensor bytes; then whatever the file really has */
-    g.font='500 20px Inter,system-ui,sans-serif'; g.textBaseline='middle';
-    if(r.n!==undefined&&r.expected){ const segs=[[0,8,'8 B length',mu],[8,8+r.n,'header '+r.n+' B',fg],[8+r.n,r.expected,'tensors '+r.end+' B',acc]];
-      let lx=x0; segs.forEach(([a,b,l,c])=>{ g.fillStyle=c; g.globalAlpha=.18; g.fillRect(X(a),y,X(b)-X(a),h); g.globalAlpha=1; g.strokeStyle=c; g.lineWidth=2; g.strokeRect(X(a),y,X(b)-X(a),h); g.fillStyle=c; const tx=Math.max(X(a)+6,lx); g.fillText(l,tx,y-22); lx=tx+g.measureText(l).width+18; });
-      /* the real file, a bar underneath; where it stops is the delta */
-      const yy=y+h+26; g.fillStyle=fg; g.fillRect(x0,yy,X(f.bytes.length)-x0,10);
-      g.textAlign='right';
-      if(r.delta<0){ g.fillStyle=acc; g.fillRect(X(f.bytes.length),yy,X(r.expected)-X(f.bytes.length),10); g.fillText('missing '+(-r.delta)+' B, truncated',x1,yy+30); }
-      else if(r.delta>0){ g.fillStyle=acc; g.fillRect(X(r.expected),yy,X(f.bytes.length)-X(r.expected),10); g.fillText('extra '+r.delta+' B the header does not cover',x1,yy+30); }
-      else { g.fillStyle=mu; g.fillText('ends exactly where the header says',x1,yy+30); }
-      g.textAlign='left'; g.fillStyle=mu; g.fillText('the file, '+f.bytes.length+' B',x0,yy+30); }
-    else { /* no header to draw: show the raw bytes as text */
-      g.fillStyle=mu; g.globalAlpha=.18; g.fillRect(x0,y,X(f.bytes.length)-x0,h); g.globalAlpha=1; g.strokeStyle=mu; g.lineWidth=2; g.strokeRect(x0,y,X(f.bytes.length)-x0,h);
-      g.fillStyle=fg; g.font='500 22px "Space Mono",ui-monospace,monospace'; g.fillText(new TextDecoder().decode(new Uint8Array(f.bytes)),x0+10,y+h/2); g.font='500 20px Inter,system-ui,sans-serif'; g.fillStyle=mu; g.fillText('file '+f.bytes.length+' B, no header to trust',x0,y+h+40); } }
-  function show(i){ cur=i; const f=FIX[i], r=check(f); [...files.children].forEach((b,k)=>b.classList.toggle('on',k===i));
-    const nStr=(i===0&&r.n!==undefined)?GARBAGE_N:String(r.n);
-    const rows=[['read 8 bytes', r.n===undefined?'"'+new TextDecoder().decode(new Uint8Array(f.bytes.slice(0,8)))+'"':'header length '+nStr],
-                ['json.loads(fh.read(n))', r.hdr?JSON.stringify(r.hdr).slice(0,70):(r.reason||'')],
-                ['max(data_offsets end)', r.end!==undefined?String(r.end):''],
-                ['expected = 8 + n + end', r.expected!==undefined?'8 + '+r.n+' + '+r.end+' = '+r.expected:''],
-                ['delta = size - expected', r.delta!==undefined?f.bytes.length+' - '+r.expected+' = '+r.delta:'']];
-    steps.innerHTML=rows.map(([k,v])=>'<div><span class="k">'+k+'</span>  <span class="v">'+v.replace(/</g,'&lt;')+'</span></div>').join('');
-    const bad=r.status!=='ok'; statusEl.textContent=r.status.toUpperCase()+(r.delta!==undefined&&r.status!=='ok'?' delta '+r.delta+'B':'')+(r.status==='ok'?'  ('+r.tensors+' tensors, '+r.dtypes.join(', ')+')':'')+(r.reason?'  '+r.reason.replace(String(r.n),nStr):'');
-    statusEl.classList.toggle('bad',bad); cmd.textContent='python3 check.py fixtures/'+f.name; draw(f,r); }
-  FIX.forEach((f,i)=>{ const b=document.createElement('button'); b.textContent=f.name.replace('.safetensors',''); b.addEventListener('click',()=>show(i)); files.appendChild(b); });
+    return {...out,status,expected,delta,tensors:Object.keys(tensors).length,dtypes}; }
+  /* check.py:66-70 human(), :89-96 the printed line, :97 the summary */
+  function human(n){ for(const u of ['B','KB','MB','GB']){ if(Math.abs(n)<1024||u==='GB') return u==='B'?n+'B':n.toFixed(1)+u; n/=1024; } }
+  function line(r){ const name=r.file; if(r.status==='ok') return '  ok         '+name+'  ('+r.tensors+' tensors, '+r.dtypes.join(', ')+')';
+    if(r.status==='error') return '  ERROR      '+name+'  '+r.reason; return '  '+r.status.toUpperCase().padEnd(10)+' '+name+'  delta '+human(r.delta); }
+  /* xxd, the same layout: offset, 8 groups of 2 bytes, ascii */
+  function xxd(b){ const rows=[]; for(let o=0;o<b.length;o+=16){ const chunk=b.slice(o,o+16); let hex=''; for(let i=0;i<16;i+=2){ hex+=(i<chunk.length?chunk[i].toString(16).padStart(2,'0'):'  ')+(i+1<chunk.length?chunk[i+1].toString(16).padStart(2,'0'):'  ')+' '; }
+      const asc=chunk.map(c=>c>=32&&c<127?String.fromCharCode(c):'.').join(''); rows.push(o.toString(16).padStart(8,'0')+': '+hex+' '+asc); } return rows.join('\n'); }
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const pick=document.getElementById('pick'), out=document.getElementById('out'); let cur=3;
+  function show(i){ cur=i; const f=FIX[i], r=check(f); [...pick.children].forEach((b,k)=>b.classList.toggle('on',k===i));
+    const bad=r.status!=='ok';
+    out.innerHTML='<span class="c">$ </span>python3 check.py fixtures/'+f.name+'\n<span class="'+(bad?'bad':'ok')+'">'+esc(line(r))+'</span>\n\n1 checked, '+(bad?1:0)+' bad\n<span class="c">$ </span>echo $?\n'+(bad?1:0)+'\n<span class="c">$ </span>xxd fixtures/'+f.name+'\n<span class="mu">'+esc(xxd(f.bytes))+'</span>'; }
+  FIX.forEach((f,i)=>{ const b=document.createElement('button'); b.textContent=f.name.replace('.safetensors',''); b.addEventListener('click',()=>show(i)); pick.appendChild(b); });
   show(3);
-  new MutationObserver(()=>show(cur)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class','style']}); window.addEventListener('resize',()=>show(cur));
 })();
 </script>

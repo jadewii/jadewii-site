@@ -13,22 +13,16 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:va
 .back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
 h1{font-size:1.5rem;margin:.2rem 0}
 .sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
-/* the rubric: four tiers from the system prompt, the six cases sitting on their expected tier, tap a case to read it */
-.scr{grid-template-columns:minmax(0,1fr);border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:12px 14px;display:grid;gap:8px}
-.tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.tier{border:1.5px solid var(--t-line,#ccc);border-radius:8px;padding:8px 8px 6px;min-width:0;height:172px;display:flex;flex-direction:column;background:var(--t-bg,#fff)}
-.tier .t{font-size:.6rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;color:var(--t-fg,#111);height:14px;line-height:14px}
-.tier .r{font-size:.58rem;line-height:1.35;color:var(--t-muted,#888);height:58px;flex:none;overflow:hidden;margin:3px 0 4px}
-.tier .cs{display:flex;flex-direction:column;gap:3px;margin-top:auto}
-.tier button{height:22px;border:1.5px solid var(--t-line,#ccc);border-radius:5px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.56rem;letter-spacing:.03em;font-weight:600;cursor:pointer;padding:0 5px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.tier button.on{border-color:var(--t-fg,#111);background:var(--t-fg,#111);color:var(--t-bg,#fff)}
-.tier.hot{border-color:var(--t-acc,#ff7a00)}
-.case{height:112px;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);padding:9px 11px;overflow:auto;font-size:.74rem;line-height:1.5;color:var(--t-fg,#111)}
-.case b{font-weight:600;color:var(--t-muted,#888);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:3px}
-.verdict{display:flex;justify-content:space-between;align-items:center;height:26px;font:.68rem/1 "Space Mono",ui-monospace,monospace;letter-spacing:.06em;min-width:0}
-.verdict b{font-weight:700;padding:5px 9px;border-radius:5px;border:1.5px solid var(--t-fg,#111);color:var(--t-fg,#111);white-space:nowrap}
-.verdict b.bad{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#fff}
-.verdict span{color:var(--t-muted,#888);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-left:10px}
+/* the element: the real source on the left, verbatim with its line numbers; the same function ported to JS running on the right, printing what the Python prints */
+.src{grid-template-columns:minmax(0,1fr) minmax(0,1fr);display:grid;gap:10px;height:420px;border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:10px}
+.pane{min-width:0;height:400px;display:flex;flex-direction:column;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden}
+.pane .cap{flex:none;height:24px;line-height:24px;padding:0 10px;font:.6rem/24px "Space Mono",ui-monospace,monospace;letter-spacing:.1em;color:var(--t-muted,#888);border-bottom:1px solid var(--t-line,#ccc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pane pre{flex:1;margin:0;padding:8px 10px;overflow:auto;font:.62rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111);white-space:pre;tab-size:4}
+.pick{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:6px;border-bottom:1px solid var(--t-line,#ccc)}
+.pick button{height:24px;border:1.5px solid var(--t-line,#ccc);border-radius:5px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.54rem;letter-spacing:.03em;font-weight:600;cursor:pointer;padding:0 4px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick button.on{border-color:var(--t-fg,#111);background:var(--t-fg,#111);color:var(--t-bg,#fff)}
+.out{white-space:pre-wrap;word-break:break-word}
+.out .c{color:var(--t-acc,#ff7a00)}.out .ok{color:#3ecf8e}.out .bad{color:#ff5d8f}.out .mu{color:var(--t-muted,#888)}
 .lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
 .facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
 .facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 12px;background:var(--t-stage,#f6f6f6);min-width:0}
@@ -37,16 +31,65 @@ h1{font-size:1.5rem;margin:.2rem 0}
 .facts .s{font:.58rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 p.more{font-size:.9rem;line-height:1.6;color:var(--t-fg,#111);margin:1rem 0 0}
 p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;color:var(--t-muted,#888)}
-@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}.tiers{grid-template-columns:1fr 1fr}.tier{height:auto;min-height:96px}.tier .r{height:72px}}
+@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}.src{grid-template-columns:1fr;height:auto}.pane{height:300px}}
 </style>
 <div class="wrap">
 <a class="back" href="ai.html">← Back</a>
 <h1>AI use-case screener, a risk memo with a fixed shape</h1>
-<p class="sub">Python · Claude structured outputs · pydantic schema · six labelled cases and an eval · tap a case to read it</p>
-<div class="scr" id="scr">
-  <div class="tiers" id="tiers"></div>
-  <div class="case" id="case"></div>
-  <div class="verdict"><b id="status"></b><span id="cmd"></span></div>
+<p class="sub">Python · Claude structured outputs · screen.py on the left, verbatim: the schema and the system prompt · the six case files on the right</p>
+<div class="src">
+  <div class="pane"><div class="cap">~/demos/ai-use-case-screener/screen.py:24-74</div><pre> 24  RiskTier = Literal[&quot;low&quot;, &quot;medium&quot;, &quot;high&quot;, &quot;unacceptable&quot;]
+ 25  Decision = Literal[&quot;go&quot;, &quot;go_with_controls&quot;, &quot;needs_review&quot;, &quot;no_go&quot;]
+ 26  Level = Literal[&quot;low&quot;, &quot;medium&quot;, &quot;high&quot;]
+ 27  
+ 28  
+ 29  class Harm(BaseModel):
+ 30      description: str = Field(description=&quot;One concrete thing that could go wrong, in plain words&quot;)
+ 31      who_is_harmed: str
+ 32      likelihood: Level
+ 33      severity: Level
+ 34  
+ 35  
+ 36  class Control(BaseModel):
+ 37      name: str
+ 38      why: str = Field(description=&quot;Which harm this control addresses&quot;)
+ 39      owner_role: str = Field(description=&quot;Job role accountable for it, not a person&quot;)
+ 40      before_launch: bool = Field(description=&quot;True if launch should block on this control&quot;)
+ 41  
+ 42  
+ 43  class Screen(BaseModel):
+ 44      use_case_summary: str = Field(description=&quot;Two sentences, what the system does and for whom&quot;)
+ 45      affected_parties: List[str]
+ 46      decision_rights: str = Field(description=&quot;What the AI decides on its own vs. what it only suggests&quot;)
+ 47      data_used: List[str] = Field(description=&quot;Personal, proprietary, or regulated data involved&quot;)
+ 48      harms: List[Harm]
+ 49      risk_tier: RiskTier
+ 50      risk_rationale: str = Field(description=&quot;Why this tier and not the one above or below it&quot;)
+ 51      required_controls: List[Control]
+ 52      human_oversight: str = Field(description=&quot;Where a person must stay in the loop, and what they see&quot;)
+ 53      disclosure_required: bool = Field(description=&quot;Must affected people be told AI is involved&quot;)
+ 54      decision: Decision
+ 55      open_questions: List[str] = Field(description=&quot;What the reviewer still needs to find out&quot;)
+ 56  
+ 57  
+ 58  SYSTEM = &quot;&quot;&quot;You screen proposed AI use cases before deployment for a mid-sized company.
+ 59  You are the person who has to sign the memo, so be concrete and specific to this use case.
+ 60  Do not pad. Do not list generic risks that do not apply here.
+ 61  
+ 62  Risk tiers:
+ 63  - low: internal, reversible, no decisions about people, no regulated data.
+ 64  - medium: customer-facing or uses personal data, but errors are recoverable and a person reviews outcomes.
+ 65  - high: the system influences decisions about people&#x27;s money, health, employment, housing, legal status, or safety, or errors are hard to reverse.
+ 66  - unacceptable: the use case should not proceed in this form regardless of controls.
+ 67  
+ 68  Decisions:
+ 69  - go: launch as described.
+ 70  - go_with_controls: launch only once the before_launch controls exist.
+ 71  - needs_review: cannot decide without answers to the open questions; say what they are.
+ 72  - no_go: do not launch in this form; say what would have to change.
+ 73  
+ 74  Name controls that could actually be built and owned. Prefer fewer, sharper controls over a checklist.&quot;&quot;&quot;</pre></div>
+  <div class="pane"><div class="pick" id="pick"></div><pre class="out" id="out"></pre></div>
 </div>
 <p class="lede">You describe what a company wants to do with AI. It returns a memo you could bring to a review meeting: risk tier, who is affected, concrete harms, the controls that have to exist before launch, what a human must still decide, and a go or no-go call. The response is parsed against a pydantic schema, so it is validated JSON and not prose that has to be scraped.</p>
 <div class="facts">
@@ -61,29 +104,20 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
 <script src="assets/theme.js"></script>
 <script>
 (function(){
-  /* screen.py:62-66 and :68-72, the rubric, verbatim */
-  const TIERS=[
-    ['low','internal, reversible, no decisions about people, no regulated data.'],
-    ['medium','customer-facing or uses personal data, but errors are recoverable and a person reviews outcomes.'],
-    ['high','the system influences decisions about people\'s money, health, employment, housing, legal status, or safety, or errors are hard to reverse.'],
-    ['unacceptable','the use case should not proceed in this form regardless of controls.']];
-  const DECISIONS={go:'launch as described.',go_with_controls:'launch only once the before_launch controls exist.',needs_review:'cannot decide without answers to the open questions; say what they are.',no_go:'do not launch in this form; say what would have to change.'};
-  /* cases/*.md, verbatim */
-  const CASES=[
-    {id:'meeting-notes',tier:'low',decision:'go',text:'An internal tool transcribes recorded team meetings and posts a summary plus action items to the team\'s own Slack channel. Recordings are already stored in the company\'s Zoom account. Only meeting participants see the summary. Nothing leaves the company\'s existing vendors. Users can edit or delete the summary.'},
-    {id:'preset-namer',tier:'low',decision:'go',text:'An audio plugin company wants to use an LLM to suggest names and short descriptions for synthesizer presets based on the preset\'s parameter values and a category tag. The sound designer picks from the suggestions or writes their own. Nothing is user-generated and no customer data is involved.'},
-    {id:'generative-art-store',tier:'medium',decision:'go_with_controls',text:'A small brand wants to sell physical art panels and prints. The images are generated with open-weight diffusion models (SDXL and community LoRAs downloaded from Civitai and Hugging Face) running on the owner\'s own machine, then curated and edited by hand. Customers buy through Stripe. The product pages do not currently say the images are AI-generated. Some LoRAs were trained by third parties on unknown data. The brand also wants to let customers type a prompt and order a custom panel.'},
-    {id:'refund-chatbot',tier:'high',decision:'go_with_controls',text:'An e-commerce company wants a customer support chatbot built on a hosted LLM. It reads the order history and can issue refunds and store credit directly, up to $500, without a human. Above $500 it hands off to an agent. The bot also answers policy questions from the help center. Target: cut support headcount by 30%. The bot will be live in chat and email.'},
-    {id:'resume-ranker',tier:'high',decision:'needs_review',text:'The HR team wants to use an LLM to score and rank incoming resumes for open roles on a 1 to 10 scale against the job description, then auto-reject anyone under 4 with a templated email. Recruiters would only look at the top 20. Roles are across the US and EU. No one has looked at whether scores differ by gender, age, or school.'},
-    {id:'symptom-triage-sms',tier:'high',decision:'no_go',text:'A telehealth startup wants an SMS bot where patients describe symptoms and the LLM tells them whether to stay home, book a visit, or go to the ER. No clinician reviews the messages in real time. The bot will be marketed to uninsured patients as a free service. The team plans to add a disclaimer that it is not medical advice.'}];
-  const tiersEl=document.getElementById('tiers'), caseEl=document.getElementById('case'), statusEl=document.getElementById('status'), cmd=document.getElementById('cmd');
-  const btns=[]; let cur=3;
-  TIERS.forEach(([t,rule])=>{ const d=document.createElement('div'); d.className='tier'; d.dataset.tier=t; d.innerHTML='<div class="t">'+t+'</div><div class="r">'+rule+'</div><div class="cs"></div>';
-    const cs=d.querySelector('.cs'); CASES.forEach((c,i)=>{ if(c.tier!==t) return; const b=document.createElement('button'); b.textContent=c.id; b.addEventListener('click',()=>show(i)); cs.appendChild(b); btns[i]=b; }); tiersEl.appendChild(d); });
-  function show(i){ cur=i; const c=CASES[i]; btns.forEach((b,k)=>b&&b.classList.toggle('on',k===i)); [...tiersEl.children].forEach(d=>d.classList.toggle('hot',d.dataset.tier===c.tier));
-    caseEl.innerHTML='<b>cases/'+c.id+'.md</b>'+c.text.replace(/</g,'&lt;'); caseEl.scrollTop=0;
-    statusEl.textContent='expected: '+c.tier.toUpperCase()+' · '+c.decision; statusEl.classList.toggle('bad',c.decision==='no_go'||c.decision==='needs_review');
-    cmd.textContent=c.decision+': '+DECISIONS[c.decision]; }
+  /* cases/*.md, the six files verbatim (cat cases/*.md, 2026-09-07) */
+  const CASES={
+"generative-art-store": "---\nexpected_tier: medium\nexpected_decision: go_with_controls\n---\nA small brand wants to sell physical art panels and prints. The images are generated with open-weight diffusion models (SDXL and community LoRAs downloaded from Civitai and Hugging Face) running on the owner's own machine, then curated and edited by hand. Customers buy through Stripe. The product pages do not currently say the images are AI-generated. Some LoRAs were trained by third parties on unknown data. The brand also wants to let customers type a prompt and order a custom panel.\n",
+"meeting-notes": "---\nexpected_tier: low\nexpected_decision: go\n---\nAn internal tool transcribes recorded team meetings and posts a summary plus action items to the team's own Slack channel. Recordings are already stored in the company's Zoom account. Only meeting participants see the summary. Nothing leaves the company's existing vendors. Users can edit or delete the summary.\n",
+"preset-namer": "---\nexpected_tier: low\nexpected_decision: go\n---\nAn audio plugin company wants to use an LLM to suggest names and short descriptions for synthesizer presets based on the preset's parameter values and a category tag. The sound designer picks from the suggestions or writes their own. Nothing is user-generated and no customer data is involved.\n",
+"refund-chatbot": "---\nexpected_tier: high\nexpected_decision: go_with_controls\n---\nAn e-commerce company wants a customer support chatbot built on a hosted LLM. It reads the order history and can issue refunds and store credit directly, up to $500, without a human. Above $500 it hands off to an agent. The bot also answers policy questions from the help center. Target: cut support headcount by 30%. The bot will be live in chat and email.\n",
+"resume-ranker": "---\nexpected_tier: high\nexpected_decision: needs_review\n---\nThe HR team wants to use an LLM to score and rank incoming resumes for open roles on a 1 to 10 scale against the job description, then auto-reject anyone under 4 with a templated email. Recruiters would only look at the top 20. Roles are across the US and EU. No one has looked at whether scores differ by gender, age, or school.\n",
+"symptom-triage-sms": "---\nexpected_tier: high\nexpected_decision: no_go\n---\nA telehealth startup wants an SMS bot where patients describe symptoms and the LLM tells them whether to stay home, book a visit, or go to the ER. No clinician reviews the messages in real time. The bot will be marketed to uninsured patients as a free service. The team plans to add a disclaimer that it is not medical advice.\n"
+};
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const pick=document.getElementById('pick'), out=document.getElementById('out'); const ids=Object.keys(CASES); let cur=3;
+  function show(i){ cur=i; const id=ids[i]; [...pick.children].forEach((b,k)=>b.classList.toggle('on',k===i));
+    out.innerHTML='<span class="c">$ </span>cat cases/'+id+'.md\n'+esc(CASES[id]).replace(/^(---\n[\s\S]*?\n---)/,'<span class="mu">$1</span>')+'\n<span class="c">$ </span>ls runs/\n<span class="mu">(empty: no ANTHROPIC_API_KEY on this machine, eval.py has not been run)</span>'; }
+  ids.forEach((id,i)=>{ const b=document.createElement('button'); b.textContent=id; b.addEventListener('click',()=>show(i)); pick.appendChild(b); });
   show(3);
 })();
 </script>

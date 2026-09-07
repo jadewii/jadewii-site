@@ -12,21 +12,16 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:va
 .back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
 h1{font-size:1.5rem;margin:.2rem 0}
 .sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
-/* the validator: the ten test patches, drawn as a small rack, judged by the same rules as validate.py */
-.val{grid-template-columns:minmax(0,1fr);border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:12px 14px;display:grid;gap:8px}
-.cases{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
-.cases button{height:34px;border:1.5px solid var(--t-line,#ccc);border-radius:7px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.58rem;letter-spacing:.04em;font-weight:600;cursor:pointer;padding:0 4px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cases button.on{border-color:var(--t-fg,#111);background:var(--t-fg,#111);color:var(--t-bg,#fff)}
-.rack{height:150px;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden}
-.rack canvas{display:block;width:100%;height:150px}
-.out{height:88px;font:.66rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111);overflow:hidden}
-.out div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.out .e{color:var(--t-acc,#ff7a00)}
-.out .w{color:var(--t-muted,#888)}
-.verdict{display:flex;justify-content:space-between;align-items:center;height:26px;font:.68rem/1 "Space Mono",ui-monospace,monospace;letter-spacing:.06em}
-.verdict b{font-weight:700;padding:5px 9px;border-radius:5px;border:1.5px solid var(--t-fg,#111);color:var(--t-fg,#111);white-space:nowrap}
-.verdict b.bad{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:#fff}
-.verdict span{color:var(--t-muted,#888);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-left:10px}
+/* the element: the real source on the left, verbatim with its line numbers; the same function ported to JS running on the right, printing what the Python prints */
+.src{grid-template-columns:minmax(0,1fr) minmax(0,1fr);display:grid;gap:10px;height:420px;border:1.5px solid var(--t-line,#ccc);border-radius:12px;background:var(--t-stage,#f6f6f6);padding:10px}
+.pane{min-width:0;height:400px;display:flex;flex-direction:column;border:1px solid var(--t-line,#ccc);border-radius:8px;background:var(--t-bg,#fff);overflow:hidden}
+.pane .cap{flex:none;height:24px;line-height:24px;padding:0 10px;font:.6rem/24px "Space Mono",ui-monospace,monospace;letter-spacing:.1em;color:var(--t-muted,#888);border-bottom:1px solid var(--t-line,#ccc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pane pre{flex:1;margin:0;padding:8px 10px;overflow:auto;font:.62rem/1.5 "Space Mono",ui-monospace,monospace;color:var(--t-fg,#111);white-space:pre;tab-size:4}
+.pick{flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:6px;border-bottom:1px solid var(--t-line,#ccc)}
+.pick button{height:24px;border:1.5px solid var(--t-line,#ccc);border-radius:5px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.54rem;letter-spacing:.03em;font-weight:600;cursor:pointer;padding:0 4px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick button.on{border-color:var(--t-fg,#111);background:var(--t-fg,#111);color:var(--t-bg,#fff)}
+.out{white-space:pre-wrap;word-break:break-word}
+.out .c{color:var(--t-acc,#ff7a00)}.out .ok{color:#3ecf8e}.out .bad{color:#ff5d8f}.out .mu{color:var(--t-muted,#888)}
 .lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
 .facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
 .facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 12px;background:var(--t-stage,#f6f6f6);min-width:0}
@@ -35,17 +30,95 @@ h1{font-size:1.5rem;margin:.2rem 0}
 .facts .s{font:.58rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 p.more{font-size:.9rem;line-height:1.6;color:var(--t-fg,#111);margin:1rem 0 0}
 p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;color:var(--t-muted,#888)}
-@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}.cases{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}.src{grid-template-columns:1fr;height:auto}.pane{height:300px}}
 </style>
 <div class="wrap">
 <a class="back" href="ai.html">← Back</a>
 <h1>Patch assistant, the model proposes and a validator disposes</h1>
-<p class="sub">Python · Claude tool use · a deterministic checker · the ten test patches, judged here by the same rules</p>
-<div class="val" id="val">
-  <div class="cases" id="cases"></div>
-  <div class="rack"><canvas id="rack" width="1580" height="300"></canvas></div>
-  <div class="out" id="out"></div>
-  <div class="verdict"><b id="status">valid</b><span id="cmd"></span></div>
+<p class="sub">Python · Claude tool use · validate.py on the left, verbatim · the same checks running on its ten test cases on the right</p>
+<div class="src">
+  <div class="pane"><div class="cap">~/demos/patch-assistant/validate.py:1-81</div><pre>  1  &quot;&quot;&quot;Patch validator for Eurorack Grid archetypes. Pure Python, no API. This is the tool that says no.&quot;&quot;&quot;
+  2  import json, pathlib
+  3  
+  4  CATALOG = json.load(open(pathlib.Path(__file__).with_name(&quot;catalog.json&quot;)))
+  5  ARCH, BRANDS = CATALOG[&quot;archetypes&quot;], set(CATALOG[&quot;brands&quot;])
+  6  
+  7  # what kind of output may feed what kind of input
+  8  COMPAT = {(&quot;audio&quot;, &quot;audio&quot;), (&quot;audio&quot;, &quot;cv&quot;), (&quot;cv&quot;, &quot;cv&quot;), (&quot;cv&quot;, &quot;pitch&quot;), (&quot;cv&quot;, &quot;audio&quot;),
+  9            (&quot;pitch&quot;, &quot;pitch&quot;), (&quot;pitch&quot;, &quot;cv&quot;), (&quot;gate&quot;, &quot;gate&quot;), (&quot;gate&quot;, &quot;cv&quot;)}
+ 10  
+ 11  
+ 12  def validate(patch: dict, hp_limit: int = 104) -&gt; dict:
+ 13      errors, warnings = [], []
+ 14      mods = patch.get(&quot;modules&quot;) or []
+ 15      cables = patch.get(&quot;cables&quot;) or []
+ 16      if not isinstance(mods, list) or not mods:
+ 17          return {&quot;valid&quot;: False, &quot;errors&quot;: [&quot;patch has no modules&quot;], &quot;warnings&quot;: [], &quot;hp_used&quot;: 0}
+ 18  
+ 19      slots = {}
+ 20      for m in mods:
+ 21          slot, arch, brand = m.get(&quot;slot&quot;), m.get(&quot;archetype&quot;), m.get(&quot;brand&quot;)
+ 22          if not slot or not isinstance(slot, str):
+ 23              errors.append(f&quot;module missing a slot name: {m}&quot;); continue
+ 24          if slot in slots:
+ 25              errors.append(f&quot;duplicate slot name &#x27;{slot}&#x27;&quot;); continue
+ 26          if arch not in ARCH:
+ 27              errors.append(f&quot;slot &#x27;{slot}&#x27;: unknown archetype &#x27;{arch}&#x27; (use list_modules)&quot;); continue
+ 28          if arch != &quot;OUT&quot; and brand not in BRANDS:
+ 29              errors.append(f&quot;slot &#x27;{slot}&#x27;: unknown brand &#x27;{brand}&#x27;&quot;)
+ 30          slots[slot] = ARCH[arch]
+ 31  
+ 32      hp_used = sum(a[&quot;hp&quot;] for a in slots.values())
+ 33      if hp_used &gt; hp_limit:
+ 34          errors.append(f&quot;rack is {hp_used}HP, limit is {hp_limit}HP; drop or shrink something&quot;)
+ 35      outs = [s for s, a in slots.items() if a[&quot;role&quot;] == &quot;out&quot;]
+ 36      if len(outs) != 1:
+ 37          errors.append(f&quot;patch needs exactly one OUT module, found {len(outs)}&quot;)
+ 38  
+ 39      def jack(ref):
+ 40          if not isinstance(ref, str) or &quot;.&quot; not in ref:
+ 41              return None, None, f&quot;bad jack reference &#x27;{ref}&#x27;, want slot.jack&quot;
+ 42          slot, jid = ref.split(&quot;.&quot;, 1)
+ 43          if slot not in slots:
+ 44              return None, None, f&quot;&#x27;{ref}&#x27;: no slot named &#x27;{slot}&#x27;&quot;
+ 45          for j in slots[slot][&quot;jacks&quot;]:
+ 46              if j[&quot;id&quot;] == jid:
+ 47                  return slot, j, None
+ 48          have = &quot;, &quot;.join(j[&quot;id&quot;] for j in slots[slot][&quot;jacks&quot;])
+ 49          return slot, None, f&quot;&#x27;{ref}&#x27;: slot &#x27;{slot}&#x27; has no jack &#x27;{jid}&#x27; (has: {have})&quot;
+ 50  
+ 51      fed = {}
+ 52      for c in cables:
+ 53          fs, fj, e1 = jack(c.get(&quot;from&quot;)); ts, tj, e2 = jack(c.get(&quot;to&quot;))
+ 54          if e1: errors.append(e1)
+ 55          if e2: errors.append(e2)
+ 56          if e1 or e2 or fj is None or tj is None:
+ 57              continue
+ 58          if fj[&quot;dir&quot;] != &quot;out&quot;:
+ 59              errors.append(f&quot;{c[&#x27;from&#x27;]} is an input, cables must start at an output&quot;)
+ 60          if tj[&quot;dir&quot;] != &quot;in&quot;:
+ 61              errors.append(f&quot;{c[&#x27;to&#x27;]} is an output, cables must end at an input&quot;)
+ 62          if fj[&quot;dir&quot;] == &quot;out&quot; and tj[&quot;dir&quot;] == &quot;in&quot; and (fj[&quot;kind&quot;], tj[&quot;kind&quot;]) not in COMPAT:
+ 63              errors.append(f&quot;{c[&#x27;from&#x27;]} ({fj[&#x27;kind&#x27;]}) into {c[&#x27;to&#x27;]} ({tj[&#x27;kind&#x27;]}) will not do anything useful&quot;)
+ 64          if c[&quot;to&quot;] in fed:
+ 65              errors.append(f&quot;{c[&#x27;to&#x27;]} already has a cable from {fed[c[&#x27;to&#x27;]]}; one cable per input&quot;)
+ 66          fed[c[&quot;to&quot;]] = c[&quot;from&quot;]
+ 67  
+ 68      if outs:
+ 69          o = outs[0]
+ 70          if not any(k.startswith(o + &quot;.&quot;) for k in fed):
+ 71              errors.append(&quot;nothing is patched into OUT; you will hear silence&quot;)
+ 72      for s, a in slots.items():
+ 73          if a[&quot;role&quot;] in (&quot;osc&quot;, &quot;voice&quot;, &quot;drum&quot;, &quot;noise&quot;, &quot;fx&quot;, &quot;filter&quot;, &quot;vca&quot;, &quot;mix&quot;):
+ 74              has_out = any(j[&quot;dir&quot;] == &quot;out&quot; for j in a[&quot;jacks&quot;])
+ 75              used = any(f.startswith(s + &quot;.&quot;) for f in fed.values())
+ 76              if has_out and not used and a[&quot;role&quot;] != &quot;out&quot;:
+ 77                  warnings.append(f&quot;slot &#x27;{s}&#x27; ({a[&#x27;role&#x27;]}) has no cable leaving it; it is silent&quot;)
+ 78          if a[&quot;role&quot;] in (&quot;voice&quot;, &quot;drum&quot;) and not any(k.startswith(s + &quot;.&quot;) for k in fed):
+ 79              warnings.append(f&quot;slot &#x27;{s}&#x27; ({a[&#x27;role&#x27;]}) has no gate or trigger coming in; it will never fire&quot;)
+ 80  
+ 81      return {&quot;valid&quot;: not errors, &quot;errors&quot;: errors, &quot;warnings&quot;: warnings, &quot;hp_used&quot;: hp_used}</pre></div>
+  <div class="pane"><div class="pick" id="pick"></div><pre class="out" id="out"></pre></div>
 </div>
 <p class="lede">Describe a sound, get back a modular synth patch for Eurorack Grid that has been checked, not just written. The model gets three tools: the catalog by role, the exact jacks on one module, and a validator. The validator is plain Python, the only thing allowed to say valid, and the CLI saves the last patch it accepted, never the model's prose.</p>
 <div class="facts">
@@ -71,7 +144,7 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
   const BRANDS=new Set(['abyss']); /* catalog.json lists 87; the tests only use abyss and one that does not exist */
   /* validate.py:8-9 */
   const COMPAT=new Set(['audio>audio','audio>cv','cv>cv','cv>pitch','cv>audio','pitch>pitch','pitch>cv','gate>gate','gate>cv']);
-  /* validate.py:12-81 */
+  /* validate.py:12-81, line for line */
   function validate(patch,hp_limit=104){ const errors=[],warnings=[]; const mods=patch.modules||[], cables=patch.cables||[];
     if(!Array.isArray(mods)||!mods.length) return {valid:false,errors:['patch has no modules'],warnings:[],hp_used:0};
     const slots={};
@@ -90,22 +163,22 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
       if(!(slot in slots)) return [null,null,"'"+ref+"': no slot named '"+slot+"'"];
       for(const j of slots[slot].jacks) if(j.id===jid) return [slot,j,null];
       const have=slots[slot].jacks.map(j=>j.id).join(', '); return [slot,null,"'"+ref+"': slot '"+slot+"' has no jack '"+jid+"' (has: "+have+")"]; }
-    const fed={}; const badCables=new Set();
-    cables.forEach((c,ci)=>{ const [fs,fj,e1]=jack(c.from), [ts,tj,e2]=jack(c.to); let bad=false;
-      if(e1){ errors.push(e1); bad=true; } if(e2){ errors.push(e2); bad=true; }
-      if(e1||e2||fj==null||tj==null){ badCables.add(ci); return; }
-      if(fj.dir!=='out'){ errors.push(c.from+' is an input, cables must start at an output'); bad=true; }
-      if(tj.dir!=='in'){ errors.push(c.to+' is an output, cables must end at an input'); bad=true; }
-      if(fj.dir==='out'&&tj.dir==='in'&&!COMPAT.has(fj.kind+'>'+tj.kind)){ errors.push(c.from+' ('+fj.kind+') into '+c.to+' ('+tj.kind+') will not do anything useful'); bad=true; }
-      if(c.to in fed){ errors.push(c.to+' already has a cable from '+fed[c.to]+'; one cable per input'); bad=true; }
-      fed[c.to]=c.from; if(bad) badCables.add(ci); });
+    const fed={};
+    for(const c of cables){ const [fs,fj,e1]=jack(c.from), [ts,tj,e2]=jack(c.to);
+      if(e1) errors.push(e1); if(e2) errors.push(e2);
+      if(e1||e2||fj==null||tj==null) continue;
+      if(fj.dir!=='out') errors.push(c.from+' is an input, cables must start at an output');
+      if(tj.dir!=='in') errors.push(c.to+' is an output, cables must end at an input');
+      if(fj.dir==='out'&&tj.dir==='in'&&!COMPAT.has(fj.kind+'>'+tj.kind)) errors.push(c.from+' ('+fj.kind+') into '+c.to+' ('+tj.kind+') will not do anything useful');
+      if(c.to in fed) errors.push(c.to+' already has a cable from '+fed[c.to]+'; one cable per input');
+      fed[c.to]=c.from; }
     if(outs.length){ const o=outs[0]; if(!Object.keys(fed).some(k=>k.startsWith(o+'.'))) errors.push('nothing is patched into OUT; you will hear silence'); }
     for(const [s,a] of Object.entries(slots)){
       if(['osc','voice','drum','noise','fx','filter','vca','mix'].includes(a.role)){ const has_out=a.jacks.some(j=>j.dir==='out'); const used=Object.values(fed).some(f=>f.startsWith(s+'.'));
         if(has_out&&!used&&a.role!=='out') warnings.push("slot '"+s+"' ("+a.role+") has no cable leaving it; it is silent"); }
       if(['voice','drum'].includes(a.role)&&!Object.keys(fed).some(k=>k.startsWith(s+'.'))) warnings.push("slot '"+s+"' ("+a.role+") has no gate or trigger coming in; it will never fire"); }
-    return {valid:!errors.length,errors,warnings,hp_used,badCables,slots}; }
-  /* test_validate.py:7-25, verbatim cases */
+    return {valid:!errors.length,errors,warnings,hp_used}; }
+  /* test_validate.py:4-25, verbatim cases */
   const P=(modules,cables)=>({modules,cables}); const OUT={slot:'out',archetype:'OUT',brand:''};
   const m=(slot,arch,brand='abyss')=>({slot,archetype:arch,brand}); const c=(a,b)=>({from:a,to:b});
   const CASES=[
@@ -119,30 +192,15 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
     ['audio into pitch is useless', P([m('a','osc_classic'),m('b','osc_classic'),OUT],[c('a.out','b.voct'),c('b.out','out.l')]), false, 'will not do anything useful'],
     ['over HP', P(Array.from({length:8},(_,i)=>m('o'+i,'osc_chord')).concat([OUT]),[c('o0.out','out.l')]), false, 'limit is 104HP'],
     ['unknown brand', P([m('v','osc_classic','nosuchbrand'),OUT],[c('v.out','out.l')]), false, 'unknown brand']];
-
-  const casesEl=document.getElementById('cases'), out=document.getElementById('out'), statusEl=document.getElementById('status'), cmd=document.getElementById('cmd');
-  const cv=document.getElementById('rack'), g=cv.getContext('2d'); let W=cv.width, H=cv.height;
-  const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-  let cur=0;
-  function draw(patch,r){ const fg=css('--t-fg')||'#111', mu=css('--t-muted')||'#888', acc=css('--t-acc')||'#ff7a00', line=css('--t-line')||'#ccc';
-    const cw=cv.clientWidth||790; if(cv.width!==cw*2){ cv.width=cw*2; } W=cv.width; H=cv.height; g.clearRect(0,0,W,H); const mods=patch.modules; const hpAll=mods.reduce((s,mm)=>s+((ARCH[mm.archetype]||{hp:12}).hp),0); const pad=24, x0=pad, x1=W-pad, top=34, bot=H-40;
-    const unit=(x1-x0)/Math.max(hpAll,44); let x=x0; const pos={}; g.textBaseline='middle'; g.font='600 18px Inter,system-ui,sans-serif';
-    mods.forEach(mm=>{ const a=ARCH[mm.archetype]; const w=(a?a.hp:12)*unit; const known=!!a && (mm.archetype==='OUT'||BRANDS.has(mm.brand));
-      g.strokeStyle=known?fg:acc; g.lineWidth=2; g.fillStyle=known?'transparent':acc; g.globalAlpha=known?1:.15; g.fillRect(x+2,top,w-4,bot-top); g.globalAlpha=1; g.strokeRect(x+2,top,w-4,bot-top);
-      g.fillStyle=known?fg:acc; g.fillText(mm.slot,x+10,top+18); g.fillStyle=mu; g.font='500 15px "Space Mono",ui-monospace,monospace'; g.fillText(mm.archetype,x+10,top+40); g.font='600 18px Inter,system-ui,sans-serif';
-      const jacks=a?a.jacks:[]; jacks.forEach((j,k)=>{ const jx=x+20+k*Math.min(56,(w-30)/Math.max(1,jacks.length)), jy=bot-44; pos[mm.slot+'.'+j.id]={x:jx,y:jy};
-        g.beginPath(); g.arc(jx,jy,9,0,7); g.strokeStyle=j.dir==='in'?mu:fg; g.lineWidth=2.5; g.stroke(); g.fillStyle=mu; g.font='500 13px "Space Mono",ui-monospace,monospace'; g.textAlign='center'; g.fillText(j.id,jx,jy+24); g.textAlign='left'; g.font='600 18px Inter,system-ui,sans-serif'; });
-      x+=w; });
-    g.fillStyle=mu; g.font='500 13px "Space Mono",ui-monospace,monospace'; g.fillText(r.hp_used+'HP of 104',x0+4,16); g.textAlign='right'; g.fillText(patch.cables.length+' cable'+(patch.cables.length===1?'':'s'),x1-4,16); g.textAlign='left';
-    patch.cables.forEach((cb,i)=>{ const a=pos[cb.from], b=pos[cb.to]; const bad=r.badCables.has(i); g.strokeStyle=bad?acc:fg; g.lineWidth=3;
-      if(a&&b){ g.beginPath(); g.moveTo(a.x,a.y); g.bezierCurveTo(a.x,a.y-130,b.x,b.y-130,b.x,b.y); g.stroke(); }
-      else { const p=a||b; if(p){ g.beginPath(); g.moveTo(p.x,p.y); g.lineTo(p.x+(a?60:-60),p.y-60); g.stroke(); g.fillStyle=acc; g.font='600 13px Inter,system-ui,sans-serif'; g.fillText('?',p.x+(a?64:-74),p.y-64); } } }); }
-  function show(i){ cur=i; const [name,patch,want,msg]=CASES[i]; const r=validate(patch); [...casesEl.children].forEach((b,k)=>b.classList.toggle('on',k===i));
+  /* Python repr of the result dict, the way `print(validate(patch))` shows it */
+  const rep=v=>typeof v==='boolean'?(v?'True':'False'):typeof v==='number'?String(v):typeof v==='string'?"'"+v.replace(/'/g,"\\'")+"'":Array.isArray(v)?'['+v.map(rep).join(', ')+']':'{'+Object.entries(v).map(([k,x])=>"'"+k+"': "+rep(x)).join(', ')+'}';
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const pick=document.getElementById('pick'), out=document.getElementById('out'); let cur=0;
+  function show(i){ cur=i; const [name,patch,want,msg]=CASES[i]; const r=validate(patch); [...pick.children].forEach((b,k)=>b.classList.toggle('on',k===i));
     const ok=r.valid===want&&(msg==null||r.errors.some(e=>e.includes(msg)));
-    out.innerHTML=(r.errors.map(e=>'<div class="e">error  '+e.replace(/</g,'&lt;')+'</div>').concat(r.warnings.map(w=>'<div class="w">warn   '+w.replace(/</g,'&lt;')+'</div>'))).join('')||'<div class="w">no errors, no warnings</div>';
-    statusEl.textContent=(r.valid?'VALID':'REJECTED')+'  '+(ok?'test ok':'TEST FAIL'); statusEl.classList.toggle('bad',!r.valid); cmd.textContent='test_validate.py: '+name; draw(patch,r); }
-  CASES.forEach((cs,i)=>{ const b=document.createElement('button'); b.textContent=cs[0]; b.addEventListener('click',()=>show(i)); casesEl.appendChild(b); });
+    /* test_validate.py:29-32, the line the test prints for this case; then the patch and the dict the validator returned */
+    out.innerHTML='<span class="c">$ </span>python3 test_validate.py\n<span class="'+(ok?'ok':'bad')+'">'+(ok?'ok   ':'FAIL ')+esc(name)+'</span>\n\n<span class="mu">patch = </span>'+esc(JSON.stringify(patch,null,1).replace(/\n\s*(?=[}\]])/g,'').replace(/\n\s+/g,' '))+'\n\n<span class="mu">validate(patch)</span>\n<span class="'+(r.valid?'ok':'bad')+'">'+esc(rep(r))+'</span>'; }
+  CASES.forEach((cs,i)=>{ const b=document.createElement('button'); b.textContent=cs[0]; b.addEventListener('click',()=>show(i)); pick.appendChild(b); });
   show(0);
-  new MutationObserver(()=>show(cur)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class','style']}); window.addEventListener('resize',()=>show(cur));
 })();
 </script>
