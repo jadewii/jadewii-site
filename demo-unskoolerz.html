@@ -53,7 +53,6 @@ h1{font-size:1.5rem;margin:0}
   <div class="bar" id="bar"></div>
 </div>
 <p class="made"><b>How these cards exist:</b> a headless Claude agent runs three times a day, authors each card into a staging folder, and a second pass adversarially fact-checks it before a human promotes it. 1,011 cards across 29 decks, built this way.</p>
-<p class="made" style="border-color:var(--t-muted,#888)"><b>Why it's on an AI engineer's page:</b> an LLM drafts, a hard rule (the answer must be a real word from a fact) and a human gate keep it honest. That is the shape of every AI feature worth shipping.</p>
 </div>
 <script src="assets/avatar/avatar-data.js"></script>
 <script src="assets/avatar/avatar-renderer.js"></script>
@@ -110,8 +109,8 @@ function wire(){
   on("back2card",()=>{quiz=false;fi=0;render();});
   document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
     const i=+b.dataset.i,q=c.q; document.querySelectorAll('.opt').forEach(x=>x.disabled=true);
-    if(i===q.a){b.classList.add('right');(done[dk]=done[dk]||{})[ci]=1;$("#verdict").textContent="✓ correct — collected";$("#verdict").style.color="#1f9d55";}
-    else{b.classList.add('wrong');document.querySelectorAll('.opt')[q.a].classList.add('right');$("#verdict").textContent="not quite — the answer is in the facts";$("#verdict").style.color="#e0302f";}
+    if(i===q.a){b.classList.add('right');(done[dk]=done[dk]||{})[ci]=1;$("#verdict").textContent="✓ correct, collected";$("#verdict").style.color="#1f9d55";}
+    else{b.classList.add('wrong');document.querySelectorAll('.opt')[q.a].classList.add('right');$("#verdict").textContent="not quite, the answer is in the facts";$("#verdict").style.color="#e0302f";}
     $("#count").textContent=Object.keys(done[dk]||{}).length+" / "+d.cards.length+" collected";
   });
 }

@@ -28,16 +28,15 @@ h1{font-size:1.5rem;margin:.2rem 0}
   <div class="card"><div class="n">237</div><div class="l">In the review queue</div><p>Everything the agent writes lands in <code>factory/pending/</code>. A human promotes it. The robot never writes to the live app.</p></div>
   <div class="card"><div class="n">53</div><div class="l">Handoff documents</div><p>Every project has a HANDOFF / CLAUDE / PROJECT doc so a fresh agent window can pick it up cold.</p></div>
   <div class="card"><div class="n">111</div><div class="l">Memory notes</div><p>A curated, file-based memory of laws, decisions and project state, maintained daily.</p></div>
-  <div class="card"><div class="n">3</div><div class="l">Custom agent skills</div><p><code>module-design</code>, <code>module-ship</code>, <code>watch</code> — packaged multi-step workflows the agent invokes.</p></div>
+  <div class="card"><div class="n">3</div><div class="l">Custom agent skills</div><p><code>module-design</code>, <code>module-ship</code>, <code>watch</code>, packaged multi-step workflows the agent invokes.</p></div>
   <div class="card"><div class="n">1</div><div class="l">Command to say no</div><p>One-command gates (<code>check.py</code>, <code>deploy.sh</code> + tests) let the agent move fast because the gate refuses bad work.</p></div>
   <div class="card wide"><div class="l">The nightly factory, verbatim</div><pre>$ sed -n 14p factory/run-nightly.sh
 "$CLAUDE_BIN" -p "$(cat factory/NIGHTLY-PROMPT.md)" \
   --permission-mode acceptEdits --add-dir ~/homeschool
 
 # NIGHTLY-PROMPT.md:9
-3. Author the item IN FULL into factory/pending/ —
+3. Author the item IN FULL into factory/pending/ , 
    NEVER write into app/src/ or curriculum/ directly.</pre></div>
 </div>
-<p class="role"><b>Why this is the job:</b> an AI Solutions Engineer does not just call a model — they build the loop around it: a written brief, a staging area, a human gate, and checks that refuse bad output. That is what shipped this page.</p>
 </div>
 <script src="assets/theme.js"></script>
