@@ -47,14 +47,14 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
   <div class="out" id="out"></div>
   <div class="verdict"><b id="status">valid</b><span id="cmd"></span></div>
 </div>
-<p class="lede">Describe a sound, get back a modular synth patch for Eurorack Grid that has been checked, not just written. The model has three tools: the catalog by role, the exact jacks on one module, and a validator. The validator is plain Python with no API dependency. It is the only thing allowed to say valid, and the CLI saves the last patch it accepted, never the model's prose. The rack above is that validator ported to JavaScript, running on the ten cases from its test file.</p>
+<p class="lede">Describe a sound, get back a modular synth patch for Eurorack Grid that has been checked, not just written. The model gets three tools: the catalog by role, the exact jacks on one module, and a validator. The validator is plain Python, the only thing allowed to say valid, and the CLI saves the last patch it accepted, never the model's prose.</p>
 <div class="facts">
   <div class="f"><div class="n">10 / 10</div><div class="l">tests pass</div><div class="s">python3 test_validate.py</div></div>
   <div class="f"><div class="n">81</div><div class="l">lines, validate.py</div><div class="s">wc -l validate.py</div></div>
   <div class="f"><div class="n">72</div><div class="l">archetypes, 87 brands</div><div class="s">catalog.json</div></div>
   <div class="f"><div class="n">3</div><div class="l">tools the model gets</div><div class="s">list_modules, describe_module, validate_patch</div></div>
 </div>
-<p class="more">A patch is a list of modules and the cables between them, and every jack carries pitch, gate, CV or audio. It is easy for a language model to write a patch that looks right and does nothing: a cable into an input that does not exist, audio into a pitch input, two cables fighting over one jack, nothing reaching the output. Every error message is written to tell the model what to do next, because the model is the one reading it. The Anthropic SDK's tool runner drives the loop until the validator says yes.</p>
+<p class="more">A patch is a list of modules and the cables between them, and every jack carries pitch, gate, CV or audio. It is easy for a model to write a patch that looks right and does nothing: a cable into an input that does not exist, audio into a pitch input, two cables on one jack, nothing reaching the output. Every error message tells the model what to do next, because the model is the one reading it.</p>
 <p class="more">The catalog is a snapshot of the archetype table, not the live app. Nineteen archetypes share jack arrays defined elsewhere in the app, so for those the jacks were filled in by role and the file marks them <code>jacks_inferred</code>. The validator checks wiring, not sound. A valid patch can still be boring.</p>
 </div>
 <script src="assets/theme.js"></script>

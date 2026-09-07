@@ -48,14 +48,14 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
   <div class="case" id="case"></div>
   <div class="verdict"><b id="status"></b><span id="cmd"></span></div>
 </div>
-<p class="lede">You describe what a company wants to do with AI in plain English. It returns a memo you could bring to a review meeting: risk tier, who is affected, concrete harms, the controls that have to exist before launch, what a human must still decide, and a go or no-go call. The response is parsed against a pydantic schema, so it is validated JSON and not prose that has to be scraped. The board above is the tier rubric from the system prompt with the six test cases sitting where I labelled them.</p>
+<p class="lede">You describe what a company wants to do with AI. It returns a memo you could bring to a review meeting: risk tier, who is affected, concrete harms, the controls that have to exist before launch, what a human must still decide, and a go or no-go call. The response is parsed against a pydantic schema, so it is validated JSON and not prose that has to be scraped.</p>
 <div class="facts">
   <div class="f"><div class="n">6</div><div class="l">cases with labels</div><div class="s">ls cases/</div></div>
   <div class="f"><div class="n">12</div><div class="l">fields in the memo</div><div class="s">screen.py:43-55, class Screen</div></div>
   <div class="f"><div class="n">4 × 4</div><div class="l">tiers × decisions</div><div class="s">screen.py:24-25</div></div>
   <div class="f"><div class="n">0</div><div class="l">saved runs here</div><div class="s">ls runs/ (no API key on this machine)</div></div>
 </div>
-<p class="more">The schema follows the NIST AI RMF loop: map the context (who is affected, what the system decides on its own, what data it touches), measure the risks (harms with likelihood and severity, a tier with a rationale), manage them (controls with an owner role and a launch-blocking flag, human oversight, disclosure). The system prompt fixes the tier and decision rubric so two runs on similar cases are comparable, and it says to prefer fewer, sharper controls over a checklist.</p>
+<p class="more">The schema follows the NIST AI RMF loop: map the context (who is affected, what the system decides on its own, what data it touches), measure the risks (harms with likelihood and severity, a tier with a rationale), manage them (controls with an owner role and a launch-blocking flag, human oversight, disclosure). The system prompt fixes the tier and decision rubric so two runs on similar cases are comparable.</p>
 <p class="more">The expected labels are my judgment, not ground truth. The eval exists to catch two failure modes: the model calling something low risk because the description sounded benign, and the model padding every case to high risk so the output stops meaning anything. Tier within one is reported separately from exact match, because a medium against high disagreement is a conversation and a low against high disagreement is a bug. It screens the description it is given, so a misleading description produces a confident, wrong memo. One of the six cases is my own art business.</p>
 </div>
 <script src="assets/theme.js"></script>

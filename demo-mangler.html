@@ -73,14 +73,14 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
   <div class="faders" id="faders"></div>
   <div class="foot"><span id="readout">manglerChain.js · 25 keys</span><button id="bypass">BYPASS</button></div>
 </div>
-<p class="lede">Every knob here writes to a live AudioParam through one function, setParam, with a short ramp so nothing clicks. The chain is a factory: the popup player, the studio and the hardware page each build their own copy on their own AudioContext, because Web Audio nodes cannot cross contexts. What you hear is the same graph paying users get at jamnutz.com, wired to three of my own tracks.</p>
+<p class="lede">Every knob here writes to a live AudioParam through one function, setParam, with a short ramp so nothing clicks. The chain is a factory: the popup player, the studio and the hardware page each build their own copy on their own AudioContext, because Web Audio nodes cannot cross contexts.</p>
 <div class="facts">
   <div class="f"><div class="n">318</div><div class="l">lines, the chain</div><div class="s">wc -l manglerChain.js</div></div>
   <div class="f"><div class="n">25</div><div class="l">param keys</div><div class="s">grep -c "case '" manglerChain.js</div></div>
   <div class="f"><div class="n">1,424</div><div class="l">commits, jamworld</div><div class="s">git rev-list --count HEAD</div></div>
   <div class="f"><div class="n">0</div><div class="l">audio libraries</div><div class="s">createGain, createConvolver, createDelay</div></div>
 </div>
-<p class="more">The details are where the product lives. Hiss sits on a fourth-power curve with a low ceiling, because the comment in the code quotes me: hiss at 100 is too much. Delay time ramps over 400 ms because a hard set clicks on browser DelayNodes. Stop is a 300 ms fade, not a cut, so release tails ring out the way they do in the studio. Free accounts see the panel greyed out, the paid tiers get their hands on it, and the same unit is being ported to an iPhone app that loads as an AUv3 effect in AUM and GarageBand, with the DSP in Cmajor.</p>
+<p class="more">The details are where the product lives. Hiss sits on a fourth-power curve with a low ceiling, because the comment in the code quotes me: hiss at 100 is too much. Delay time ramps over 400 ms because a hard set clicks on browser DelayNodes. Stop is a 300 ms fade, not a cut, so release tails ring out the way they do in the studio. The same unit is being ported to an iPhone app that loads as an AUv3 effect in AUM and GarageBand, with the DSP in Cmajor.</p>
 <p class="more">This is the shape I use whenever a new capability has to land inside a real product, a model included: one place it lives, a named set of inputs with ranges, a gate on who gets it, and rules for how it starts and stops. The mangler taught me those rules on sound first.</p>
 </div>
 <script src="assets/theme.js"></script>

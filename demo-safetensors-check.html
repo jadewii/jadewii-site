@@ -48,7 +48,7 @@ p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;col
   <div class="steps" id="steps"></div>
   <div class="verdict"><b id="status">ok</b><span id="cmd">python3 check.py fixtures/valid.safetensors</span></div>
 </div>
-<p class="lede">A safetensors file is an 8-byte little-endian header length, a JSON header that lists every tensor with its byte offsets, then the tensor bytes. So the correct file size is fully determined by the header. The tool reads the header, computes the expected length and compares. Delta zero is valid, negative is a truncated download, positive is trailing data the header does not cover. The strip above is the same parse, run in JavaScript on the four fixture files the tests use.</p>
+<p class="lede">A safetensors file is an 8-byte little-endian header length, a JSON header that lists every tensor with its byte offsets, then the tensor bytes. So the correct file size is fully determined by the header. The tool reads the header, computes the expected length and compares. Delta zero is valid, negative is a truncated download, positive is trailing data the header does not cover.</p>
 <div class="facts">
   <div class="f"><div class="n">104</div><div class="l">lines, check.py</div><div class="s">wc -l check.py</div></div>
   <div class="f"><div class="n">3 / 4</div><div class="l">fixtures bad, exit 1</div><div class="s">python3 check.py fixtures/</div></div>

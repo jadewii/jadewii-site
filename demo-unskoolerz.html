@@ -89,7 +89,7 @@ h1{font-size:1.5rem;margin:.2rem 0}
   <div class="tapHint" id="tapHint">tap the card, it's locked until it's earned</div>
 </div>
 
-<p class="lede">This is the real trading card component, the frame style, running on the real LION card from the ANIMALS deck. The name, the science name, the deck color and the card's place in the deck (#1 of 125) all come straight out of the code, not placeholders. Every discovery in the app works this way, locked until a kid earns it, then it flips over to the card you see here.</p>
+<p class="lede">This is the real trading card component, the frame style, running on the real LION card from the ANIMALS deck. Every discovery in the app works this way: locked until a kid earns it, then it flips.</p>
 
 <div class="facts">
   <div class="f"><div class="n">29</div><div class="l">decks</div><div class="src">ls app/src/decks/*/cards.js | wc -l</div></div>
@@ -99,7 +99,7 @@ h1{font-size:1.5rem;margin:.2rem 0}
 </div>
 
 <div class="role">
-A kid can ask the tutor anything while they're studying a card. The key for that lives on a Cloudflare Worker, not in the browser, because anything shipped in the app's own JavaScript can be read by whoever opens the page (tutor-worker/src/index.js:3-5). The rule I care about most in that system prompt: never invent a fact.
+A kid can ask the tutor anything while they're studying a card. The key for that lives on a Cloudflare Worker, not in the browser, because anything shipped in the app's own JavaScript can be read by whoever opens the page. The rule I care about most in that system prompt: never invent a fact.
 <pre>HOW TO ANSWER
 - Answer the actual question, directly, in 2 to 5 sentences. No preamble, no "great question", no restating the question back.
 - Plain, concrete language. Short sentences. Real numbers, real names, real places. Never baby-talk, never emoji, never exclamation marks.

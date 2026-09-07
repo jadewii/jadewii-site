@@ -333,6 +333,7 @@
   }
   const termEl=document.getElementById('termLines'); let termRun=0;
   const ftHead=feature.querySelector('.ft-head'), ftMount=feature.querySelector('.ft-mount'), ftStyle=document.getElementById('ftStyle');
+  const ftTerm=feature.querySelector('.ft-term'); if(ftTerm) ftMount.appendChild(ftTerm); /* the terminal lives in the mount grid, under the element */
   /* ===== THE WORK, inline. Each project's page (demo-*.html) is fetched once and mounted INTO this page: no iframe, no window.
      Its <style> is nested under .ft-mount, its inline scripts run in a function scope, and whatever it schedules or plays
      (requestAnimationFrame, timers, AudioContexts, Audio elements) is tagged to the mount so the next project tears it down. ===== */
@@ -344,7 +345,7 @@
   window.setInterval=(cb,ms,...a)=>_si(typeof cb==='function'?gated(cb):cb,ms,...a);
   if(_AC){ const AC=function(...a){ const ac=new _AC(...a); if(tok) tok.acs.push(ac); return ac; }; AC.prototype=_AC.prototype; window.AudioContext=AC; if(window.webkitAudioContext) window.webkitAudioContext=AC; }
   if(_Audio){ const AU=function(...a){ const el=new _Audio(...a); if(tok) tok.media.push(el); return el; }; AU.prototype=_Audio.prototype; window.Audio=AU; }
-  function teardown(){ if(!tok) return; tok.alive=false; tok.acs.forEach(ac=>{ try{ ac.close(); }catch(e){} }); tok.media.forEach(m=>{ try{ m.pause(); }catch(e){} }); ftMount.querySelectorAll('audio,video').forEach(m=>{ try{ m.pause(); }catch(e){} }); ftMount.innerHTML=''; ftStyle.textContent=''; tok=null; }
+  function teardown(){ if(!tok) return; tok.alive=false; tok.acs.forEach(ac=>{ try{ ac.close(); }catch(e){} }); tok.media.forEach(m=>{ try{ m.pause(); }catch(e){} }); ftMount.querySelectorAll('audio,video').forEach(m=>{ try{ m.pause(); }catch(e){} }); [...ftMount.children].forEach(n=>{ if(n!==ftTerm) n.remove(); }); ftStyle.textContent=''; tok=null; }
   const WORDS=n=>/^(H1|H2|H3|H4|P|PRE|BLOCKQUOTE)$/.test(n.tagName)||n.classList.contains('facts')||n.classList.contains('sub')||n.classList.contains('lede')||n.classList.contains('role')||n.classList.contains('proj');
   async function mountDemo(pr){ teardown(); const L=pr.load; const t={alive:true,acs:[],media:[],src:L.src}; tok=t; ftMount.dataset.loading='LOADING '+(L.label||L.src).toUpperCase().slice(0,60);
     let html=demoCache[L.src]; if(html==null){ try{ html=await (await fetch(L.src)).text(); }catch(e){ html=''; } demoCache[L.src]=html; }
@@ -352,13 +353,26 @@
     const doc=new DOMParser().parseFromString(html,'text/html'); const wrap=doc.querySelector('.wrap'); const sec=doc.querySelector('main .section')||doc.querySelector('main')||doc.body;
     let css=[...doc.querySelectorAll('style')].map(x=>x.textContent).join('\n').replace(/(^|\n)\s*(body|html|:root)\s*\{/g,'$1&{');
     if(wrap){ const el=document.createElement('div'); el.className='ft-el'; const words=document.createElement('div'); words.className='ft-words';
-      [...wrap.children].forEach(n=>{ if(n.classList.contains('back')) return; (WORDS(n)?words:el).appendChild(document.adoptNode(n)); });
+      const fit=document.createElement('div'); fit.className='ft-fit'; el.appendChild(fit);
+      [...wrap.children].forEach(n=>{ if(n.classList.contains('back')) return; (WORDS(n)?words:fit).appendChild(document.adoptNode(n)); });
+      cutWords(words);
       ftMount.querySelectorAll('.back').forEach(n=>n.remove());
       if(el.children.length) ftMount.appendChild(el); else words.classList.add('ft-doc'); ftMount.appendChild(words); }
     else { const d=document.createElement('div'); d.className='ft-doc'; [...sec.children].forEach(n=>{ if(n.tagName==='SCRIPT'||n.classList.contains('back')) return; d.appendChild(document.adoptNode(n)); }); ftMount.appendChild(d); d.querySelectorAll('.back').forEach(n=>n.remove()); }
     ftStyle.textContent='.ft-mount{\n'+css+'\n}';
     const scripts=[...doc.querySelectorAll('script:not([src])')].map(x=>x.textContent);
-    curTok=t; scripts.forEach(code=>{ try{ new Function(code)(); }catch(e){ window.__demoErrors.push(L.src+': '+(e&&e.message)); } }); curTok=null; }
+    curTok=t; scripts.forEach(code=>{ try{ new Function(code)(); }catch(e){ window.__demoErrors.push(L.src+': '+(e&&e.message)); } }); curTok=null;
+    fitElement(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ if(tok===t) fitElement(); }); _st(()=>{ if(tok===t) fitElement(); },400); }
+  /* the words column shows the title, sub, lede, facts and ONE paragraph; the rest is cut in the mount only */
+  function cutWords(words){ let seen=false; [...words.children].forEach(n=>{ if(/^(H1|H2|H3|H4)$/.test(n.tagName)||n.classList.contains('sub')||n.classList.contains('lede')||n.classList.contains('facts')) return;
+    if(n.classList.contains('proj')||n.classList.contains('role')){ if(seen){ n.classList.add('ft-cut'); return; }
+      [...n.childNodes].forEach(c=>{ const text=c.nodeType===3&&c.textContent.trim().length>0; if(c.nodeType!==1&&!text) return;
+        if(!seen&&(text||c.tagName==='P')){ seen=true; return; } if(text){ const sp=document.createElement('span'); sp.className='ft-cut'; c.parentNode.insertBefore(sp,c); sp.appendChild(c); } else c.classList.add('ft-cut'); }); return; }
+    if(seen) n.classList.add('ft-cut'); else seen=true; }); }
+  /* an element taller than its 460px box is zoomed down so the whole thing shows; nothing scrolls, nothing clips */
+  function fitElement(){ const el=ftMount.querySelector('.ft-el'), fit=el&&el.querySelector('.ft-fit'); if(!fit) return; if(window.innerWidth<=1100){ fit.style.zoom=''; fit.style.width=''; return; }
+    fit.style.zoom='1'; fit.style.width='100%'; const have=el.clientHeight-24, need=fit.scrollHeight; if(need>have){ const k=Math.max(0.5,have/need); fit.style.zoom=k.toFixed(3); fit.style.width=(100/k).toFixed(2)+'%'; } }
+  window.addEventListener('resize',()=>fitElement());
   function loadStage(pr){ const L=pr.load;
     ftHead.innerHTML='<span class="ft-cap">OUT · THE WORK</span><span class="ft-name">'+esc(pr.name)+'</span>'+(pr.r?'<span class="st-result">'+esc(pr.r)+'</span>':'')+(L.href?'<a class="ft-open" href="'+esc(L.href)+'" target="_blank" rel="noreferrer">OPEN ↗</a>':'');
     mountDemo(pr);

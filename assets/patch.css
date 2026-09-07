@@ -116,17 +116,25 @@
 .ft-head .st-result{flex:none;width:196px;height:26px;padding:0 8px;border:1px solid var(--t-acc,#ff7a00);border-radius:3px;color:var(--t-acc,#ff7a00);font:9px/24px ui-monospace,Menlo,monospace;letter-spacing:.08em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .ft-open{margin-left:auto;flex:none;height:28px;padding:0 12px;border:1px solid var(--t-fg,#111);color:var(--t-fg,#111);font:9px/26px inherit;font-family:inherit;letter-spacing:.14em;font-weight:600;text-decoration:none}
 .ft-open:hover{background:var(--t-fg,#111);color:var(--t-bg,#fff)}
-.ft-mount{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:20px 28px;align-items:start;min-height:320px;position:relative}
+.ft-mount{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);grid-template-rows:460px 160px;gap:16px 28px;align-items:start;position:relative}
 .ft-mount[data-loading]:before{content:attr(data-loading);position:absolute;left:0;top:0;font:10px/1 ui-monospace,Menlo,monospace;letter-spacing:.16em;color:var(--t-muted,#8a8a8a)}
-.ft-el{min-width:0;border:1.5px solid var(--t-fg,#111);background:var(--t-stage,#f4f4f4);padding:12px}
-.ft-el>*+*{margin-top:12px}
-.ft-words{min-width:0;color:var(--t-fg,#111)}
-.ft-words h1{font-size:1.35rem;line-height:1.2;margin:0 0 .25rem;letter-spacing:-.01em}
-.ft-words .sub{margin:0 0 .8rem}
-.ft-words .lede{margin:0 0 1rem;font-size:.98rem;line-height:1.6}
-.ft-mount .ft-words .facts{grid-template-columns:1fr 1fr;margin:0 0 1rem}
-.ft-words p{font-size:.92rem;line-height:1.6;margin:.7rem 0 0}
-.ft-doc{grid-column:1 / -1;min-width:0}
+/* one screen, no scroll (Jade, 2026-09-07): the element top-left in a fixed 460px box, the terminal right under it, the words on the right at the same total height.
+   An element taller than the box is zoomed down to fit (patch.js fitElement); words past the first paragraph are cut in the mount (.ft-cut), the standalone page keeps them. */
+.ft-el{grid-column:1;grid-row:1;min-width:0;height:460px;box-sizing:border-box;border:1.5px solid var(--t-fg,#111);background:var(--t-stage,#f4f4f4);padding:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ft-fit{width:100%;min-width:0}
+.ft-fit>*+*{margin-top:12px}
+.ft-term{grid-column:1;grid-row:2}
+.ft-words{grid-column:2;grid-row:1 / 3;min-width:0;height:636px;overflow:hidden;color:var(--t-fg,#111)}
+.ft-cut{display:none !important}
+/* per-element trims so the zoom rarely has to kick in */
+.ft-el .grid{grid-template-columns:1fr 1fr 1fr}
+.ft-el .td-btn{height:38px;min-height:38px}
+.ft-mount .ft-words h1{font-size:1.35rem;line-height:1.2;margin:0 0 .25rem;letter-spacing:-.01em}
+.ft-mount .ft-words .sub{margin:0 0 .5rem}
+.ft-mount .ft-words .lede{margin:0 0 .7rem;font-size:.94rem;line-height:1.5}
+.ft-mount .ft-words .facts{grid-template-columns:1fr 1fr;margin:0 0 .5rem}
+.ft-mount .ft-words p,.ft-mount .ft-words p.more,.ft-mount .ft-words .proj p{font-size:.87rem;line-height:1.5;margin:.5rem 0 0}
+.ft-doc{grid-column:1 / -1;grid-row:1 / 3;min-width:0;height:636px;overflow:auto}
 .ft-doc h1{font-size:1.5rem;margin:.2rem 0 .3rem}
 .ft-term{border:1.5px solid var(--t-fg,#111);background:var(--t-stage,#f4f4f4);height:160px;position:relative;overflow:hidden;padding:10px 14px}
 .ft-term .ft-cap{position:absolute;left:14px;top:10px}
@@ -134,5 +142,5 @@
 .ft-term .c:before{content:"$ ";color:var(--t-acc,#ff7a00)}
 .ft-term .o{color:var(--t-muted,#8a8a8a)}.ft-term .ok{color:#3ecf8e}.ft-term .bad{color:#ff5d8f}.ft-term .hi{color:var(--t-acc,#ff7a00)}
 .ft-term .cur{display:inline-block;width:7px;height:12px;background:var(--t-fg,#111);vertical-align:-2px;animation:blink 1s steps(2) infinite}
-@media (max-width:1100px){.ft-mount{grid-template-columns:1fr}.ft-head .st-result{display:none}}
+@media (max-width:1100px){.ft-mount{grid-template-columns:1fr;grid-template-rows:auto}.ft-el,.ft-term,.ft-words,.ft-doc{grid-column:1;grid-row:auto;height:auto}.ft-el{display:block;order:1}.ft-term{height:160px;order:2}.ft-words,.ft-doc{order:3}.ft-head .st-result{display:none}}
 @media (prefers-reduced-motion:reduce){.ft-term .cur{animation:none}}
