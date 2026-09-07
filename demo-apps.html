@@ -1,0 +1,87 @@
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Apps</title>
+<link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
+<!-- PROPOSAL (2026-09-07): one APPS rack folding JELLYBOI, NOISEFACE, WAVEFACE and TODOMAI. Not wired into patch.js; the P entry sits there commented out.
+     sources: the watch case CSS = demo-jellyboi.html:27-37 (from assets/patch.css:103-111), verbatim; captures = images/apps/watch/<app>.png and .mp4 (16 apps built to the simulator 2026-09-06, PROJECTS-INVENTORY.md:60);
+     line counts per watch app = PROJECTS-INVENTORY.md:60; NoiseFace = PROJECTS-INVENTORY.md:23 (8,497 lines, 56 commits, App Store id6754266069); WaveFace = :24 (3,638 lines, 14 commits, App Store id6754204480, v1.1);
+     TODOMAI = :45 (9,679 lines, 3 commits, README.md:3, AVSpeechSynthesizer TodomaiApp.swift:198). numbers: ls images/apps/watch/*.png | wc -l (17, one is jellyboi-sim), ls *.mp4 | wc -l (16) -->
+<style>
+body{font-family:Inter,system-ui,sans-serif;color:var(--t-fg,#111);background:var(--t-bg,#fff)}
+.wrap{max-width:820px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+.back{display:inline-block;margin-bottom:.8rem;color:inherit;opacity:.7;text-decoration:none;font-size:.9rem}
+h1{font-size:1.5rem;margin:.2rem 0}
+.sub{color:var(--t-muted,#888);font-size:.82rem;letter-spacing:.03em;margin:.2rem 0 1rem}
+.fleet{grid-template-columns:minmax(0,1fr);border:1.5px solid var(--t-line,#ccc);border-radius:12px;padding:12px 14px;background:var(--t-stage,#f6f6f6);display:grid;gap:10px}
+.names{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.names button{height:26px;border:1.5px solid var(--t-line,#ccc);border-radius:5px;background:transparent;color:var(--t-fg,#111);font:inherit;font-size:.52rem;letter-spacing:.06em;font-weight:600;cursor:pointer;padding:0 3px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.names button.on{border-color:var(--t-fg,#111);background:var(--t-fg,#111);color:var(--t-bg,#fff)}
+.stage{display:flex;align-items:center;justify-content:center;height:290px}
+/* demo-jellyboi.html:27-37, verbatim */
+.watch{width:230px;height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+.w-band{width:112px;height:70px;background:color-mix(in srgb,var(--t-fg,#111) 78%,var(--t-stage,#f4f4f4));border-radius:14px 14px 4px 4px;margin-bottom:-8px}
+.w-band.w-lo{border-radius:4px 4px 14px 14px;margin:-8px 0 0}
+.w-case{position:relative;width:182px;height:214px;border-radius:44px;background:linear-gradient(160deg,#3a3d44,#0e0f12 60%,#22252b);box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 0 0 2px rgba(255,255,255,.08);z-index:1}
+.w-screen{position:absolute;inset:10px;border-radius:36px;overflow:hidden;background:#000}
+.w-screen img,.w-screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:#000}
+.w-crown{position:absolute;right:-7px;top:52px;width:8px;height:30px;border-radius:3px;background:linear-gradient(90deg,#2a2d33,#6a6e77,#2a2d33)}
+.w-btn{position:absolute;right:-5px;top:96px;width:5px;height:44px;border-radius:2px;background:#3a3d44}
+.w-name{position:absolute;bottom:14px;left:0;right:0;text-align:center;font:10px/1 ui-monospace,Menlo,monospace;letter-spacing:.16em;color:#fff;height:10px}
+.cap{height:16px;font:.62rem/16px "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lede{font-size:1rem;line-height:1.6;margin:1.2rem 0 0}
+.facts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:1.1rem 0 0}
+.facts .f{border:1.5px solid var(--t-line,#ccc);border-radius:10px;padding:11px 12px;background:var(--t-stage,#f6f6f6);min-width:0}
+.facts .n{font-size:1.5rem;font-weight:700;color:var(--t-acc,#ff7a00);line-height:1;font-variant-numeric:tabular-nums}
+.facts .l{font-size:.64rem;letter-spacing:.09em;font-weight:600;color:var(--t-muted,#888);margin-top:4px;text-transform:uppercase}
+.facts .s{font:.58rem/1.4 "Space Mono",ui-monospace,monospace;color:var(--t-muted,#888);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+p.more{font-size:.9rem;line-height:1.6;color:var(--t-fg,#111);margin:1rem 0 0}
+p.more code{font-family:"Space Mono",ui-monospace,monospace;font-size:.78rem;color:var(--t-muted,#888)}
+@media (max-width:520px){.facts{grid-template-columns:1fr 1fr}.names{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+<div class="wrap">
+<a class="back" href="ai.html">← Back</a>
+<h1>Apps, the watch fleet and the two on the App Store</h1>
+<p class="sub">SwiftUI · AVAudioEngine · watchOS and iOS · sixteen real simulator captures, tap a name</p>
+<div class="fleet" id="fleet">
+  <div class="names" id="names"></div>
+  <div class="stage">
+    <div class="watch">
+      <div class="w-band"></div>
+      <div class="w-case">
+        <div class="w-screen"><img alt="" id="wImg"/><video autoplay hidden id="wVid" loop muted playsinline></video></div>
+        <span class="w-crown"></span><span class="w-btn"></span>
+      </div>
+      <div class="w-band w-lo"></div>
+      <div class="w-name" id="wName"></div>
+    </div>
+  </div>
+  <div class="cap" id="cap"></div>
+</div>
+<p class="lede">Seventeen watch apps live in one folder, every one with its own PROJECT.md, and sixteen of them build to the simulator and were captured on 2026-09-06. JellyBoi is the flagship, a kalimba that keeps its audio alive when the wrist drops. NoiseFace and WaveFace are on the App Store. TODOMAI is a todo app that talks instead of buzzing. Each one taught the same lesson about the audio session, the runtime session and the lock screen.</p>
+<div class="facts">
+  <div class="f"><div class="n">16</div><div class="l">watch apps captured</div><div class="s">ls images/apps/watch/*.mp4 | wc -l</div></div>
+  <div class="f"><div class="n">2</div><div class="l">on the App Store</div><div class="s">id6754266069 · id6754204480</div></div>
+  <div class="f"><div class="n">8,497</div><div class="l">lines, NoiseFace</div><div class="s">PROJECTS-INVENTORY.md:23</div></div>
+  <div class="f"><div class="n">9,679</div><div class="l">lines, TODOMAI</div><div class="s">PROJECTS-INVENTORY.md:45</div></div>
+</div>
+<p class="more">NoiseFace is a 12-color noise generator with modulation, presets and real-time control, 56 commits, shipped for iOS and tvOS. WaveFace is a synth with a face that reads its own oscillator, v1.1 on the store with StoreKit 2. TODOMAI is watchOS task management with voice input, and it speaks through <code>AVSpeechSynthesizer</code>. The watch fleet runs from 220 lines (SkyBoi) to 2,855 (Picnic, the engine pattern the others copy).</p>
+</div>
+<script src="assets/theme.js"></script>
+<script>
+(function(){
+  /* PROJECTS-INVENTORY.md:60, the fleet with its line counts */
+  const APPS=[['jellyboi',1252],['picnic',2855],['wristgrid',1991],['bubbleboi',837],['maestro',741],['scaleboi',689],['todoboi',661],['boiband',637],['beetleboi',592],['fishboi',550],['talkboi',545],['bigeye',489],['gridboi',461],['humboi',456],['dragonscales',429],['ghostboi',251],['skyboi',220]]
+    .filter(a=>a[0]!=='picnic'); /* picnic has no capture in images/apps/watch */
+  const names=document.getElementById('names'), img=document.getElementById('wImg'), vid=document.getElementById('wVid'), wName=document.getElementById('wName'), cap=document.getElementById('cap');
+  let cur=0;
+  /* demo-jellyboi.html:80-90, video if it plays, else the still */
+  function show(i){ cur=i; const [n,lines]=APPS[i]; [...names.children].forEach((b,k)=>b.classList.toggle('on',k===i));
+    vid.pause(); vid.hidden=true; img.hidden=false; img.src='images/apps/watch/'+n+'.png'; vid.src='images/apps/watch/'+n+'.mp4';
+    wName.textContent=n.toUpperCase(); cap.textContent='images/apps/watch/'+n+'.mp4 · '+lines.toLocaleString()+' lines of Swift'; }
+  vid.addEventListener('canplay',()=>{ img.hidden=true; vid.hidden=false; vid.play().catch(()=>{}); });
+  vid.addEventListener('error',()=>{ vid.hidden=true; img.hidden=false; });
+  APPS.forEach((a,i)=>{ const b=document.createElement('button'); b.textContent=a[0]; b.addEventListener('click',()=>show(i)); names.appendChild(b); });
+  show(0);
+})();
+</script>
