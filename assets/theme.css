@@ -49,3 +49,15 @@
 .themed:not([data-theme="light"]) .seq .st.ph.save i{box-shadow:0 0 0 2px var(--t-bg) inset,0 0 0 2px var(--t-fg)}
 .themed:not([data-theme="light"]) .seq .st.ph b,.themed:not([data-theme="light"]) .seq-note b{color:var(--t-fg)}
 .themed:not([data-theme="light"]) .seq-note{color:var(--t-muted)}
+/* the stage in a theme other than LIGHT: terminal and window chrome take the theme's shades, not black and white */
+.themed:not([data-theme="light"]) .patch-stage .st-head{background:var(--t-hover);border-bottom-color:var(--t-line);color:var(--t-muted)}
+.themed:not([data-theme="light"]) .patch-stage .st-name,.themed:not([data-theme="light"]) .patch-stage .st-open{color:var(--t-fg);border-color:var(--t-line)}
+.themed:not([data-theme="light"]) .patch-stage .st-open:hover{background:var(--t-fg);color:var(--t-bg)}
+.themed:not([data-theme="light"]) .patch-stage .st-label{color:var(--t-muted)}
+.themed:not([data-theme="light"]) .patch-stage .term{background:var(--t-stage);color:var(--t-fg);border-right-color:var(--t-line);border-bottom-color:var(--t-line)}
+.themed:not([data-theme="light"]) .patch-stage .term .c,.themed:not([data-theme="light"]) .patch-stage .term .cur{color:var(--t-fg);background-color:transparent}
+.themed:not([data-theme="light"]) .patch-stage .term .cur{background-color:var(--t-fg)}
+.themed:not([data-theme="light"]) .patch-stage .term .o{color:var(--t-muted)}
+.themed:not([data-theme="light"]) .patch-stage .term .ok,.themed:not([data-theme="light"]) .patch-stage .term .hi{color:var(--t-acc)}
+.themed:not([data-theme="light"]) .patch-stage .term .bad{color:var(--t-fg);text-decoration:underline;text-decoration-color:var(--t-acc)}
+.themed:not([data-theme="light"]) .patch-stage .view,.themed:not([data-theme="light"]) .patch-stage iframe{background:var(--t-stage)}

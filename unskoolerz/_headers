@@ -1,0 +1,27 @@
+# UNSKOOLERZ — Cloudflare Pages headers.
+# Ported from jamworld's public/_headers, which itself ports the cache
+# strategy jamnutz paid for in debugging time. Stack: Cloudflare Pages +
+# Pages Functions + KV + R2, Clerk auth, Stripe. No Netlify anywhere.
+#
+# The "I deployed but I don't see my changes" fix: blanket no-store, then
+# opt IN to caching only for files that self-invalidate. Vite's /assets/*
+# carry a content hash in the filename, so they can cache forever; HTML and
+# anything unhashed must revalidate every request.
+# Most-specific rule wins for duplicate header names on CF Pages.
+
+/*
+  Cache-Control: no-store, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(), geolocation=(), payment=(self), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 1,100+ card photos: large, and they effectively never change. The app
+# already appends ?v= to manifest.json when it needs freshness, so a long
+# cache here is safe and saves real bandwidth on a tablet over home wifi.
+/photos/*
+  Cache-Control: public, max-age=604800

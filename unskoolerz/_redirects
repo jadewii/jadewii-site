@@ -1,0 +1,15 @@
+# UNSKOOLERZ — Cloudflare Pages redirects.
+#
+# SPA fallback only. Two traps jamworld hit and paid for:
+#   1. An explicit "/route /index.html 200" rule does NOT work — Cloudflare
+#      normalizes rewrites targeting /index.html into a 308 to /. Use only
+#      the wildcard below.
+#   2. CF Pages' pretty-URL matching will serve a same-named static .html
+#      file in place of an app route (jamworld's /studio was shadowed by
+#      studio.html until it was renamed). Don't add bare .html files to
+#      public/ whose names collide with an app view.
+#
+# /api/* is NOT listed here: Pages Functions in /functions/api/*.js map to
+# /api/* natively, and a redirect rule would shadow them.
+
+/* /index.html 200

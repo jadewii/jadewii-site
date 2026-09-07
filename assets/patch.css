@@ -1,16 +1,16 @@
 /* WORKFLOW PATCH: the jamnutz strip modules, on the page background, patched together with cables. Each module = one stage of how I work. */
 .patch-section{margin-bottom:var(--section-gap)}
 /* the live title: the problem being typed, above the rack */
-.patch-head{margin:0 0 1.1rem}
+.patch-head{margin:0 0 1.1rem;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ph-left{flex:1 1 420px;min-width:0}
 .ph-cap{display:block;font-size:10px;letter-spacing:.14em;font-weight:600;color:var(--t-muted,#8a8a8a);margin-bottom:.35rem}
 .ph-q{margin:0;font-size:clamp(1.05rem,1.6vw,1.4rem);font-weight:600;letter-spacing:-.01em;line-height:1.25;height:1.25em;white-space:nowrap;overflow:hidden;color:var(--t-fg,#111)}
 .ph-q:after{content:"";display:inline-block;width:.42em;height:.9em;background:var(--t-acc,#ff7a00);vertical-align:-.08em;margin-left:.15em;animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:0}}
 /* THE RACK: 24 columns, always full. Modules span different widths. Every module is a real artifact with its file:line. */
 .patch{--fg:var(--t-fg,#111);--mut:var(--t-muted,#8a8a8a);--acc:var(--t-acc,#ff7a00);--bg:var(--t-bg,#fff);--stage:var(--t-stage,#f4f4f4);--head:color-mix(in srgb,var(--t-fg,#111) 10%,var(--t-stage,#f4f4f4));--strip:color-mix(in srgb,var(--t-fg,#111) 4%,var(--t-stage,#f4f4f4));
-  position:relative;display:grid;grid-template-columns:repeat(24,1fr);gap:10px;margin:0 0 130px;overflow:visible;transition:opacity .28s ease;font-weight:600;font-size:13px;line-height:1.4;user-select:none;-webkit-user-select:none}
+  position:relative;display:grid;grid-template-columns:repeat(24,1fr);gap:10px;margin:0 0 130px;overflow:visible;font-weight:600;font-size:13px;line-height:1.4;user-select:none;-webkit-user-select:none}
 .patch .cables{position:absolute;pointer-events:none;z-index:500}
-.patch.swap{opacity:0}
 .patch .mod{position:relative;z-index:10;display:flex;flex-direction:column;height:228px;min-width:0;border:1.5px solid var(--fg);background:var(--stage);cursor:pointer;--led:0;opacity:.55;transition:opacity .35s}
 .patch .mod.live{opacity:1}
 .patch .mod-head{flex:none;display:flex;align-items:center;gap:8px;padding:7px 10px 6px;border-bottom:1.5px solid var(--fg);background:var(--head);min-width:0}
@@ -69,23 +69,84 @@
 .patch-stage .term .c{color:#fff}.patch-stage .term .c:before{content:"$ ";color:var(--t-acc,#ff7a00)}
 .patch-stage .term .o{color:#9aa3b2}.patch-stage .term .ok{color:#3ecf8e}.patch-stage .term .bad{color:#ff5d8f}.patch-stage .term .hi{color:#ffb437}
 .patch-stage .term .cur{display:inline-block;width:7px;height:12px;background:#fff;vertical-align:-2px;animation:blink 1s steps(2) infinite}
-.patch-stage .view{position:relative;background:#fff;min-width:0}
-.patch-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#fff}
-.patch-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.patch-stage .view{position:relative;background:var(--t-stage,#f4f4f4);min-width:0}
+/* while a frame or image is still arriving, the pane names what it is loading instead of sitting blank */
+.patch-stage .view[data-loading]:before{content:attr(data-loading);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:10px/1 ui-monospace,Menlo,monospace;letter-spacing:.16em;color:var(--t-muted,#8a8a8a);white-space:nowrap;z-index:0}
+.patch-stage .view[data-loading] iframe,.patch-stage .view[data-loading] img{opacity:0}
+.patch-stage iframe,.patch-stage img{transition:opacity .25s}
+.patch-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:var(--t-stage,#f4f4f4)}
+.patch-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:var(--t-stage,#f4f4f4)}
+.patch-stage img.wide{object-fit:cover;object-position:top}
+/* remote apps are laid out for a desktop width: render at 1200px and scale to the pane, so nothing is cut off */
+.patch-stage iframe.fit{width:1200px;height:auto;inset:auto;left:0;top:0;transform-origin:0 0}
 @media (max-width:1100px){.patch{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}.patch .mod{flex:0 0 220px;width:220px}.patch-stage{height:520px}.patch-stage .st-body{grid-template-columns:1fr;grid-template-rows:200px 1fr}.patch-stage .term{border-right:0;border-bottom:1px solid rgba(255,255,255,.12)}}
-/* SEQUENCE lane: the step row under the rack, as in the hybrid-jammin channel strip. One real agent run, one call per step. */
-.seq{margin:1.4rem 0 0;display:flex;align-items:flex-end;gap:18px}
-.seq .t{font-size:10px;letter-spacing:.14em;color:#8a8a8a;font-weight:600;white-space:nowrap;width:150px;text-align:right;padding-bottom:22px}
-.seq .steps{display:grid;grid-template-columns:repeat(16,36px);gap:4px}
-.seq .st{display:flex;flex-direction:column;align-items:center;gap:4px}
-.seq .st i{width:36px;height:22px;border:1px solid #d0d0d0;box-sizing:border-box;display:block;background:transparent;transition:background .12s,border-color .12s}
-.seq .st.model i{background:#ffb437;border-color:#ffb437}.seq .st.tool i{background:#4ea3ff;border-color:#4ea3ff}.seq .st.test i{background:#3ecf8e;border-color:#3ecf8e}.seq .st.fail i{background:#e0302f;border-color:#e0302f}.seq .st.save i{background:#111;border-color:#111}
-.seq .st.ph i{box-shadow:0 0 0 2px #111 inset,0 0 0 2px #fff}
-.seq .st.ph.save i{box-shadow:0 0 0 2px #fff inset,0 0 0 2px #111}
-.seq .st b{font-size:8px;letter-spacing:.06em;font-weight:700;color:#8a8a8a;height:12px;white-space:nowrap}
-.seq .st.ph b{color:#111}
-.seq .legend{display:flex;gap:12px;font-size:8px;letter-spacing:.1em;font-weight:700;color:#8a8a8a;white-space:nowrap;padding-bottom:22px}
-.seq .legend i{display:inline-block;width:8px;height:8px;margin-right:4px;vertical-align:-1px}
-.seq-note{margin:.5rem 0 0 168px;max-width:900px;color:var(--muted);line-height:1.55;font-size:1rem;min-height:3.1em}
-.seq-note b{color:#111;font-weight:600;letter-spacing:.04em;font-size:.8rem;margin-right:.6rem}
-@media (max-width:1100px){.seq{flex-wrap:wrap}.seq .t{width:auto;text-align:left;padding-bottom:0}.seq-note{margin-left:0}}
+/* under 1100px: the title gets a fixed two-line box instead of one clipped line; the controls take their own full row */
+@media (max-width:1100px){.ph-q{white-space:normal;height:2.5em;overflow:hidden}.patch-row{flex-wrap:wrap;gap:10px 16px}.patch-note{flex:1 1 100%;min-height:4.7em}.patch-btns{flex:0 0 100%}}
+@media (max-width:600px){.patch-stage{height:640px}.patch-stage .st-body{grid-template-rows:240px 1fr}.patch-stage .st-label{display:none}}
+/* glyphs in the module head */
+.patch .mod-ico{flex:none;width:14px;height:14px;color:var(--fg);display:block}
+.patch .mod.on .mod-ico{color:var(--acc)}
+/* the bank: 12 fixed slots, never a different count or width between states */
+.bank{position:relative;flex:0 0 auto;display:grid;grid-template-columns:repeat(var(--n,12),26px);gap:4px;padding-bottom:4px}
+.bank .bk{width:26px;height:22px;padding:0;border:1.5px solid var(--t-fg,#111);background:transparent;color:var(--t-fg,#111);font:inherit;font-size:9px;letter-spacing:.04em;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s}
+.bank .bk:hover{background:var(--t-stage,#f4f4f4)}
+.bank .bk.on{background:var(--t-acc,#ff7a00);border-color:var(--t-acc,#ff7a00);color:var(--t-bg,#fff);box-shadow:0 0 8px var(--t-acc,#ff7a00)}
+.bank .bk:focus-visible{outline:2px solid var(--t-acc,#ff7a00);outline-offset:1px}
+.bk-tip{position:absolute;bottom:calc(100% + 6px);width:220px;z-index:60;background:var(--t-stage,#f4f4f4);color:var(--t-fg,#111);border:1.5px solid var(--t-fg,#111);padding:8px 10px;font-size:11px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.18);pointer-events:none}
+.bk-tip b{display:block;font-size:9px;letter-spacing:.14em;font-weight:600;margin-bottom:3px}
+/* narrow modules (3 or 4 columns): the title wins, the file label yields */
+.patch .mod[style*="span 3"] .mod-src,.patch .mod[style*="span 4"] .mod-src{max-width:34%}
+.patch .mod[style*="span 3"] .mod-title{flex:1 0 auto}
+/* the watch on the stage: a Series 10 case drawn in the theme's shades, the real capture behind its glass */
+.patch-stage .watch{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:var(--t-stage,#f4f4f4)}
+.patch-stage .w-band{width:112px;height:70px;background:color-mix(in srgb,var(--t-fg,#111) 78%,var(--t-stage,#f4f4f4));border-radius:14px 14px 4px 4px;margin-bottom:-8px}
+.patch-stage .w-band.w-lo{border-radius:4px 4px 14px 14px;margin:-8px 0 0}
+.patch-stage .w-case{position:relative;width:182px;height:214px;border-radius:44px;background:linear-gradient(160deg,#3a3d44,#0e0f12 60%,#22252b);box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 0 0 2px rgba(255,255,255,.08);z-index:1}
+.patch-stage .w-screen{position:absolute;inset:10px;border-radius:36px;overflow:hidden;background:#000}
+.patch-stage .w-screen img,.patch-stage .w-screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:#000}
+.patch-stage .w-crown{position:absolute;right:-7px;top:52px;width:8px;height:30px;border-radius:3px;background:linear-gradient(90deg,#2a2d33,#6a6e77,#2a2d33)}
+.patch-stage .w-btn{position:absolute;right:-5px;top:96px;width:5px;height:44px;border-radius:2px;background:#3a3d44}
+.patch-stage .w-name{position:absolute;bottom:14px;left:0;right:0;text-align:center;font:10px/1 ui-monospace,Menlo,monospace;letter-spacing:.16em;color:var(--t-fg,#111);height:10px}
+@media (max-width:600px){.patch-stage .w-band{display:none}}
+/* big arrows in the stage head: fixed 44px slots, same for every project */
+.patch-stage .st-arrow{flex:none;width:44px;height:26px;margin:0 0 0 2px;padding:0;border:1px solid rgba(255,255,255,.35);border-radius:3px;background:transparent;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.patch-stage .st-arrow svg{width:18px;height:18px;display:block}
+.patch-stage .st-arrow:hover{background:#fff;color:#0c0e12}
+.patch-stage .st-arrow:active{transform:translateY(1px)}
+.patch-stage .st-arrow+.st-open{margin-left:8px}
+.themed:not([data-theme="light"]) .patch-stage .st-arrow{color:var(--t-fg);border-color:var(--t-line)}
+.themed:not([data-theme="light"]) .patch-stage .st-arrow:hover{background:var(--t-fg);color:var(--t-bg)}
+/* the lit bank slot carries the time to the next project as a thin bar */
+.bank .bk{position:relative;overflow:hidden}
+.bank .bk.on:after{content:"";position:absolute;left:0;bottom:0;height:3px;width:calc(var(--p,0) * 100%);background:var(--t-bg,#fff);opacity:.9}
+@media (max-width:600px){.bank{grid-template-columns:repeat(var(--n,12),minmax(0,1fr));gap:3px;width:100%}.bank .bk{width:auto;height:30px}}
+@media (prefers-reduced-motion:reduce){.ph-q:after,.patch-stage .term .cur{animation:none}.patch .mod,.patch-stage iframe,.patch-stage img{transition:none}}
+/* the result chip: one real number per project, fixed width, in the stage head */
+.patch-stage .st-result{flex:none;width:196px;height:26px;margin-left:6px;padding:0 8px;border:1px solid var(--t-acc,#ff7a00);border-radius:3px;color:var(--t-acc,#ff7a00);font:9px/24px ui-monospace,Menlo,monospace;letter-spacing:.08em;font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:820px){.patch-stage .st-result{display:none}}
+/* ---- musical + techy: give each code card a Eurorack faceplate ---- */
+.patch .mod{--screw:color-mix(in srgb,var(--fg) 42%,transparent)}
+.patch .mod:before{content:"";position:absolute;inset:0;z-index:7;pointer-events:none;
+  background:
+    radial-gradient(circle at 7px 7px, var(--screw) 0 1.5px, transparent 2.1px),
+    radial-gradient(circle at calc(100% - 7px) 7px, var(--screw) 0 1.5px, transparent 2.1px),
+    radial-gradient(circle at 7px calc(100% - 7px), var(--screw) 0 1.5px, transparent 2.1px),
+    radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), var(--screw) 0 1.5px, transparent 2.1px);
+  background-repeat:no-repeat}
+.patch .mod.on{--screw:color-mix(in srgb,var(--acc) 70%,transparent)}
+/* the head reads like a module label strip: LED = power lamp, plus a slot screw either side of the title */
+.patch .mod-head{padding-left:14px;padding-right:12px}
+.patch .mod-led{width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--fg)}
+.patch .mod.on .mod-led{box-shadow:inset 0 0 0 1px var(--acc),0 0 8px var(--acc)}
+/* the code body sits on faint horizontal panel rails, like silkscreen guide lines */
+.patch .mod-body{background:repeating-linear-gradient(var(--stage) 0 21px, color-mix(in srgb,var(--fg) 4%,var(--stage)) 21px 22px)}
+/* full-site stage: the real website fills the whole pane, no terminal */
+.patch-stage.full .st-body{grid-template-columns:1fr}
+.patch-stage.full .term{display:none}
+.patch-stage.full .view{border-left:0}
+/* STERN knob row on each module + real code line kept below */
+.patch .mod-ctl{flex:none;width:100%;height:58px;display:block}
+.patch .mod-art{flex:1;min-height:0;overflow:auto;scrollbar-width:thin;padding:2px 2px 0}
+.patch .mod-body{padding:0 10px 4px;display:flex;flex-direction:column;justify-content:center}
+.patch .mod-art .txt{font-size:9.5px}
+.patch .mod-art pre{font-size:8.5px}

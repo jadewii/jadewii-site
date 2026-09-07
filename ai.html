@@ -5,7 +5,24 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>JAde Wii · AI Solutions Engineer</title>
-<link href="assets/site.css" rel="stylesheet"/>
+<meta name="description" content="JAde Wii (Johanna Quiceno), AI Solutions Engineer. A decade of shipping music software, 80+ pieces, the last two years built with AI in the loop. Twelve real projects shown as a live process rack: every module a real line of source, every terminal line a real run."/>
+<link rel="canonical" href="https://jadewii.com/ai.html"/>
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png"/>
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png"/>
+<meta property="og:type" content="profile"/>
+<meta property="og:title" content="JAde Wii · AI Solutions Engineer"/>
+<meta property="og:description" content="Twelve real projects as a live process rack. Every module is a real line of source with its file and line; every terminal line is a real run."/>
+<meta property="og:url" content="https://jadewii.com/ai.html"/>
+<meta property="og:image" content="https://jadewii.com/images/og-ai.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="JAde Wii · AI Solutions Engineer"/>
+<meta name="twitter:image" content="https://jadewii.com/images/og-ai.png"/>
+<meta name="theme-color" content="#ffffff"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="assets/site.css?v=1788748100" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -71,6 +88,7 @@ a,
   line-height:1;
 }
 
+.hero h1 .hero-legal{display:inline-block;vertical-align:.55em;margin-left:.45em;font-family:"Space Mono",ui-monospace,Menlo,monospace;font-weight:400;font-size:.5656rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 .hero-role{
   margin:.15rem 0 1.15rem;
   color: rgba(0,0,0,.74);
@@ -127,6 +145,24 @@ a,
   white-space:nowrap;
 }
 .hero-side .hero-sub i{font-style:normal;margin:0 .45em;opacity:.5}
+.yt-placeholder{}
+.section.yt-collapsed{display:none!important}
+.yt-toggle-row{text-align:center;margin:1rem 0 0}
+.yt-toggle{font:inherit;font-size:.8rem;letter-spacing:.1em;font-weight:600;padding:11px 20px;border:1.5px solid var(--t-line,#d0d0d0);border-radius:6px;background:transparent;color:var(--t-fg,#111);cursor:pointer}
+.yt-toggle:hover{background:var(--t-fg,#111);color:var(--t-bg,#fff)}
+.skip{position:absolute;left:12px;top:-60px;z-index:2000;padding:8px 12px;background:var(--t-fg,#000);color:var(--t-bg,#fff);font-size:12px;letter-spacing:.06em;text-decoration:none}
+.skip:focus{top:12px}
+
+/* the title slider: one fixed row under the role, each notch is another title I answer to */
+.role-slider{width:196px;height:22px;display:flex;align-items:center;margin-top:-.3rem}
+.role-slider input[type=range]{-webkit-appearance:none;appearance:none;flex:1 1 auto;min-width:0;height:22px;margin:0;background:transparent;cursor:pointer}
+.role-slider input[type=range]:focus{outline:none}
+.role-slider input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--t-line,#d0d0d0);border-radius:1px}
+.role-slider input[type=range]::-moz-range-track{height:2px;background:var(--t-line,#d0d0d0);border-radius:1px}
+.role-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;background:var(--t-fg,#000);border:2px solid var(--t-bg,#fff);box-shadow:0 0 0 1px var(--t-fg,#000);margin-top:-5px}
+.role-slider input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--t-fg,#000);border:2px solid var(--t-bg,#fff);box-shadow:0 0 0 1px var(--t-fg,#000)}
+.role-slider input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--t-acc,#ff7a00)}
+.hero-side .hero-sub{width:196px;overflow:hidden;text-align:center;font-size:.5656rem}
 
 .section{
   margin-bottom: var(--section-gap);
@@ -1256,19 +1292,21 @@ a,
 @media (prefers-reduced-motion: reduce){.dp .dp-img{transform:none !important}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/patch.css"/>
-<link rel="stylesheet" href="assets/theme.css"/>
+<link rel="stylesheet" href="assets/patch.css?v=1788748100"/>
+<link rel="stylesheet" href="assets/theme.css?v=1788748100"/>
 </head>
 <body data-page="portfolio" data-root="">
+<a class="skip" href="#aiWorkSection">Skip to the work</a>
 <main class="portfolio">
 <section class="hero">
 <div class="hero-side">
 <img alt="JAde Wii portrait" src="images/jadewii.webp"/>
 <p class="hero-role"><span>AI Solutions Engineer</span></p>
-<p class="hero-sub"><span>Product Builder</span><i>|</i><span>Creative Technology</span></p>
+<p class="hero-sub" id="heroSub"><span id="heroTape">Product Builder</span></p>
+<div class="role-slider"><input type="range" id="roleRange" min="0" max="15" value="0" step="1" aria-label="Step through the other titles I answer to"/></div>
 </div>
 <div>
-<h1>JAde Wii</h1>
+<h1>JAde Wii <span class="hero-legal">Johanna Quiceno</span></h1>
 <p>
         I have spent a decade building products in music technology. I design, develop, integrate and ship software, 80+ pieces of it on my own. For the last two years most of that has been built with AI in the loop: coding agents every day, a local image generation pipeline, and small tools that check the models' work. I am now applying that product-building experience to AI-powered solutions. The tools below are the shape of the job I want next.
       </p>
@@ -1277,12 +1315,10 @@ a,
 </section>
 
 <section class="section patch-section" aria-label="How I work">
-<div class="patch-head"><span class="ph-cap">IN · THE PROBLEM</span><h3 class="ph-q" id="patchTitle"></h3></div>
+<div class="patch-head"><div class="ph-left"><span class="ph-cap">IN · THE PROBLEM</span><h3 class="ph-q" id="patchTitle"></h3></div><div class="bank" id="patchBank" aria-label="Projects"></div></div>
 <div class="patch" id="workflowPatch"></div>
 <div class="patch-row"><p class="patch-note" id="patchNote"></p><div class="patch-btns"><button class="patch-reset" id="patchPrev" aria-label="Previous project">&#9664;</button><button class="patch-reset" id="patchReset" aria-label="Reset the patch">RESET PATCH</button><button class="patch-reset" id="patchNext" aria-label="Next project">&#9654;</button></div></div>
 <div class="patch-stage" id="patchStage"><div class="st-head"><span class="dots"><i></i><i></i><i></i></span><span class="st-title"></span></div><div class="st-body"><div class="term"><div class="lines" id="termLines"></div></div><div class="view" id="stageView"></div></div></div>
-<div class="seq" id="agentSeq"></div>
-<p class="seq-note" id="seqNote"></p>
 <p class="patch-hint">Every module is a real line from that project, with its file. The rack is live: drag any OUT to any IN and the signal follows. Double-click a jack to pull its cable.</p>
 </section>
 
@@ -1567,7 +1603,8 @@ a,
       </p>
 </div>
 </section>
-<section class="section educational-section" id="educationalVideosSection">
+<section class="section yt-toggle-row" id="ytToggleRow"><button class="yt-toggle" id="ytToggle" aria-expanded="false">▸ Educational videos &amp; music</button></section>
+<section class="section educational-section yt-collapsed" id="educationalVideosSection">
 <div class="section-header">
 <div class="section-heading-row"><h2>Educational Videos</h2><a class="info-link" href="https://www.youtube.com/channel/UCqjAXHR5DHTCahIHpg7vspg" target="_blank" rel="noreferrer">Watch more →</a></div>
 <p class="section-subtitle">
@@ -1688,7 +1725,7 @@ a,
 <button aria-label="Show next artwork" class="art-nav next" type="button">&gt;</button>
 </div>
 </section>
-<section class="section music-section">
+<section class="section music-section yt-collapsed">
 <div class="section-header">
 <div class="section-heading-row"><h2>Music</h2><a class="info-link" href="https://jadewii.bandcamp.com/music" rel="noreferrer" target="_blank">Explore discography →</a></div>
 <p class="section-subtitle">
@@ -2015,8 +2052,23 @@ a,
   });
 })();
 </script>
-<script src="assets/site.js"></script>
-<script src="assets/patch.js"></script>
-<script src="assets/theme.js"></script>
+<script>
+/* the title slider: the mono line shows one of the titles I answer to; each notch is the next one */
+(function(){ const r=document.getElementById('roleRange'), out=document.getElementById('heroTape'); if(!r||!out) return;
+  const TITLES=['Product Builder','Creative Technology','AI Product Engineer','Technical Product Manager','Product Engineer','Solutions Engineer','AI Product Specialist','Innovation Engineer','Technical Creative','Creative Technologist','Design Engineer','Forward Deployed Engineer','Applied AI Engineer','Developer Advocate','Prototyping Engineer','Audio Software Engineer'];
+  r.max=TITLES.length-1; const q=new URLSearchParams(location.search).get('tape'); if(q!==null&&!isNaN(+q)) r.value=+q; /* QA: ?tape=index */
+  function set(){ out.textContent=TITLES[Math.min(TITLES.length-1,Math.max(0,+r.value))]; }
+  r.addEventListener('input',set); set(); })();
+</script>
+<script src="assets/site.js?v=1788748100"></script>
+<script src="assets/patch.js?v=1788748100"></script>
+<script src="assets/theme.js?v=1788748100"></script>
+<script>
+(function(){ const btn=document.getElementById('ytToggle'); if(!btn) return;
+  btn.addEventListener('click',function(){ const open=this.getAttribute('aria-expanded')==='true'; const on=!open;
+    document.querySelectorAll('.educational-section, .music-section').forEach(el=>el.classList.toggle('yt-collapsed',!on));
+    this.setAttribute('aria-expanded',on?'true':'false'); this.innerHTML=(on?'▾':'▸')+' Educational videos &amp; music'; if(on) document.querySelector('.educational-section').scrollIntoView({behavior:'smooth',block:'start'}); });
+})();
+</script>
 </body>
 </html>

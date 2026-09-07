@@ -6,6 +6,7 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Studio Plants - JAde Wii</title>
 <link href="assets/site.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/theme.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -1205,6 +1206,16 @@ a,
 @media (max-width:900px){.dp{height:140px}.dp:nth-child(n+7){display:none}}
 @media (max-width:520px){.dp:nth-child(n+5){display:none}}
 @media (prefers-reduced-motion: reduce){.dp .dp-img{transform:none !important}}
+/* THEME (the embedding page or ?theme= picks it; see assets/theme.js) */
+.themed:not([data-theme="light"]) html,.themed:not([data-theme="light"]) body{background:var(--t-bg);color:var(--t-fg)}
+.themed:not([data-theme="light"]) .prose{color:var(--t-fg)}
+.themed:not([data-theme="light"]) .prose h1,.themed:not([data-theme="light"]) .prose h2,.themed:not([data-theme="light"]) .prose a{color:var(--t-fg)}
+.themed:not([data-theme="light"]) .prose .meta{color:var(--t-muted)}
+.themed:not([data-theme="light"]) .prose pre{background:var(--t-stage);color:var(--t-fg);border:1px solid var(--t-line)}
+.themed:not([data-theme="light"]) .prose p code,.themed:not([data-theme="light"]) .prose li code{background:var(--t-hover);color:var(--t-fg)}
+.themed:not([data-theme="light"]) .prose th,.themed:not([data-theme="light"]) .prose td{border-color:var(--t-line)}
+.themed:not([data-theme="light"]) .prose th{background:var(--t-stage)}
+.themed:not([data-theme="light"]) .prose img{border-color:var(--t-line)}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -1258,5 +1269,6 @@ a,
 })();
 </script>
 <script src="assets/site.js"></script>
+<script src="assets/theme.js"></script>
 </body>
 </html>
