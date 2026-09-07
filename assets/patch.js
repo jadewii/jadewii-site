@@ -380,7 +380,7 @@
     const have=elH-24; if(need-24>have){ const k=Math.max(0.5,have/(need-24)); fit.style.zoom=k.toFixed(3); fit.style.width=(100/k).toFixed(2)+'%'; } }
   window.addEventListener('resize',()=>fitElement());
   function loadStage(pr){ const L=pr.load;
-    ftHead.innerHTML='<span class="ft-cap">OUT · THE WORK</span><span class="ft-name">'+esc(pr.name)+'</span>'+(pr.r?'<span class="st-result">'+esc(pr.r)+'</span>':'')+'<span class="ft-nav"><button class="ft-arrow" data-nav="-1" aria-label="Previous project">&#9664;</button><span class="ft-count">'+String(pi+1).padStart(2,'0')+' / '+P.length+'</span><button class="ft-arrow" data-nav="1" aria-label="Next project">&#9654;</button></span>'+(L.href?'<a class="ft-open" href="'+esc(L.href)+'" target="_blank" rel="noreferrer">OPEN ↗</a>':'<span class="ft-open ft-open-blank"></span>');
+    ftHead.innerHTML='<span class="ft-cap">OUT · THE WORK</span><span class="ft-name">'+esc(pr.name)+'</span>'+(pr.r?'<span class="st-result">'+esc(pr.r)+'</span>':'')+'<span class="ft-nav"><button class="ft-arrow" data-nav="-1" aria-label="Previous project">&#9664;</button><span class="ft-count">'+String(pi+1).padStart(2,'0')+' / '+P.length+'</span><button class="ft-arrow" data-nav="1" aria-label="Next project">&#9654;</button></span>';
     mountDemo(pr);
     /* the terminal: real commands typed, real output printed, scrolling up, looping */
     const run=++termRun; const T=pr.term||[]; termEl.innerHTML=''; let i=0;

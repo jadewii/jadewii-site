@@ -118,7 +118,6 @@
 .ft-arrow{width:28px;height:28px;border:1px solid var(--t-fg,#111);background:transparent;color:var(--t-fg,#111);font-size:10px;line-height:26px;padding:0;cursor:pointer;border-radius:0}
 .ft-arrow:hover{background:var(--t-fg,#111);color:var(--t-bg,#fff)}
 .ft-count{font:10px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;color:var(--t-muted,#8a8a8a);width:52px;text-align:center;font-variant-numeric:tabular-nums}
-.ft-open-blank{visibility:hidden}
 .ft-open{margin-left:0;flex:none;height:28px;padding:0 12px;border:1px solid var(--t-fg,#111);color:var(--t-fg,#111);font:9px/26px inherit;font-family:inherit;letter-spacing:.14em;font-weight:600;text-decoration:none}
 .ft-open:hover{background:var(--t-fg,#111);color:var(--t-bg,#fff)}
 .ft-mount{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);grid-template-rows:460px 160px;gap:16px 28px;align-items:start;position:relative}
